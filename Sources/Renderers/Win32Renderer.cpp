@@ -116,52 +116,7 @@ void Win32Renderer::Render()
 bool Win32Renderer::Init()
 {
     m_pRenderer->Init();
-
-    ImGuiIO &io = ImGui::GetIO();
-    IM_ASSERT(io.BackendPlatformUserData == NULL && "Already initialized a platform backend!");
-
-    INT64 perf_frequency, perf_counter;
-    if (!::QueryPerformanceFrequency((LARGE_INTEGER *)&perf_frequency))
-        return false;
-    if (!::QueryPerformanceCounter((LARGE_INTEGER *)&perf_counter))
-        return false;
-
-    // Setup backend capabilities flags
-    Win32_Data *bd = IM_NEW(Win32_Data)();
-    io.BackendPlatformUserData = (void *)bd;
-    io.BackendPlatformName = "imgui_impl_win32";
-    io.BackendFlags |= ImGuiBackendFlags_HasMouseCursors; // We can honor GetMouseCursor() values (optional)
-    io.BackendFlags |= ImGuiBackendFlags_HasSetMousePos;  // We can honor io.WantSetMousePos requests (optional, rarely used)
-
-    bd->hWnd = (HWND)m_hwnd;
-    bd->WantUpdateHasGamepad = true;
-    bd->TicksPerSecond = perf_frequency;
-    bd->Time = perf_counter;
-    bd->LastMouseCursor = ImGuiMouseCursor_COUNT;
-
-    // Set platform dependent data in viewport
-    ImGui::GetMainViewport()->PlatformHandleRaw = (void *)m_hwnd;
-
-    // Dynamically load XInput library
-#ifndef IMGUI_IMPL_WIN32_DISABLE_GAMEPAD
-    const char *xinput_dll_names[] =
-        {
-            "xinput1_4.dll",   // Windows 8+
-            "xinput1_3.dll",   // DirectX SDK
-            "xinput9_1_0.dll", // Windows Vista, Windows 7
-            "xinput1_2.dll",   // DirectX SDK
-            "xinput1_1.dll"    // DirectX SDK
-        };
-    for (int n = 0; n < IM_ARRAYSIZE(xinput_dll_names); n++)
-        if (HMODULE dll = ::LoadLibraryA(xinput_dll_names[n]))
-        {
-            bd->XInputDLL = dll;
-            bd->XInputGetCapabilities = (PFN_XInputGetCapabilities)::GetProcAddress(dll, "XInputGetCapabilities");
-            bd->XInputGetState = (PFN_XInputGetState)::GetProcAddress(dll, "XInputGetState");
-            break;
-        }
-#endif // IMGUI_IMPL_WIN32_DISABLE_GAMEPAD
-
+    ImGui_ImplWin32_Init(m_hwnd);
     return true;
 }
 

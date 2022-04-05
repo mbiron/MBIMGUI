@@ -292,12 +292,11 @@ void Dx12Renderer::Render()
 
     m_pd3dCommandQueue->ExecuteCommandLists(1, (ID3D12CommandList *const *)&m_pd3dCommandList);
 
-// Update and Render additional Platform Windows
-#pragma message("TODO !")
-    //if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
+    // Update and Render additional Platform Windows
+    if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
     {
-        //	ImGui::UpdatePlatformWindows();
-        //	ImGui::RenderPlatformWindowsDefault(NULL, (void*)m_pd3dCommandList);
+        ImGui::UpdatePlatformWindows();
+        ImGui::RenderPlatformWindowsDefault(NULL, (void *)m_pd3dCommandList);
     }
 
     m_pSwapChain->Present(1, 0); // Present with vsync
@@ -323,34 +322,10 @@ void Dx12Renderer::Resize(void *lParam)
 
 bool Dx12Renderer::Init()
 {
-    ImGuiIO &io = ImGui::GetIO();
-    IM_ASSERT(io.BackendRendererUserData == NULL && "Already initialized a renderer backend!");
-
-    // Setup backend capabilities flags
-    Dx12_Data *bd = IM_NEW(Dx12_Data)();
-    io.BackendRendererUserData = (void *)bd;
-    io.BackendRendererName = "imgui_impl_dx12";
-    io.BackendFlags |= ImGuiBackendFlags_RendererHasVtxOffset; // We can honor the ImDrawCmd::VtxOffset field, allowing for large meshes.
-
-    bd->pd3dDevice = m_pd3dDevice;
-    bd->RTVFormat = DXGI_FORMAT_R8G8B8A8_UNORM;
-    bd->hFontSrvCpuDescHandle = m_pd3dSrvDescHeap->GetCPUDescriptorHandleForHeapStart();
-    bd->hFontSrvGpuDescHandle = m_pd3dSrvDescHeap->GetGPUDescriptorHandleForHeapStart();
-
-    bd->pFrameResources = new Dx12_RenderBuffers[NUM_FRAMES_IN_FLIGHT];
-    bd->numFramesInFlight = NUM_FRAMES_IN_FLIGHT;
-    bd->frameIndex = UINT_MAX;
-
-    // Create buffers with a default size (they will later be grown as needed)
-    for (int i = 0; i < NUM_FRAMES_IN_FLIGHT; i++)
-    {
-        Dx12_RenderBuffers *fr = &bd->pFrameResources[i];
-        fr->IndexBuffer = NULL;
-        fr->VertexBuffer = NULL;
-        fr->IndexBufferSize = 10000;
-        fr->VertexBufferSize = 5000;
-    }
-
+    ImGui_ImplDX12_Init(m_pd3dDevice, NUM_FRAMES_IN_FLIGHT,
+        DXGI_FORMAT_R8G8B8A8_UNORM, m_pd3dSrvDescHeap,
+        m_pd3dSrvDescHeap->GetCPUDescriptorHandleForHeapStart(),
+        m_pd3dSrvDescHeap->GetGPUDescriptorHandleForHeapStart());
     return true;
 }
 
