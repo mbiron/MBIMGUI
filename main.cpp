@@ -22,7 +22,7 @@ void MBIHMI(void *arg)
     ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
 }
 
-int main(int c, char **argv)
+int main(int argc, char **argv)
 {
     MBIMGUI gui = MBIMGUI("MBIMGUI Test",&MBIHMI,NULL, 600 ,400);
 
