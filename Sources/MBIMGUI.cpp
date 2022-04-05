@@ -6,7 +6,7 @@ MBIMGUI::MBIMGUI(std::string name, MBIMGUI_Callback cb, void *arg, int width, in
 {
     m_pRenderer = new Win32Renderer(name, width, height);
     // Default config flags
-    m_windowFlags = ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse;
+    m_windowFlags = ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoCollapse;
 }
 
 MBIMGUI::~MBIMGUI()
@@ -24,8 +24,8 @@ bool MBIMGUI::Init()
     // io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
     // io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
 
-    // io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;           // Enable Docking
-    // io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;         // Enable Multi-Viewport / Platform Windows
+    io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;           // Enable Docking
+    io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;         // Enable Multi-Viewport / Platform Windows
     // io.ConfigViewportsNoAutoMerge = true;
     // io.ConfigViewportsNoTaskBarIcon = true;
 
@@ -79,7 +79,7 @@ void MBIMGUI::Display()
         ImGui::NewFrame();
 
 // Ensures ImGui fits the window
-#if 1
+#if 0
         RECT rect;
         if (GetWindowRect(((Win32Renderer *)m_pRenderer)->getWindowHandle(), &rect))
         {
