@@ -6,6 +6,7 @@ set(SRC_DIR_REND Sources/Renderers)
 
 ### IMGUI
 set(IMGUI_DIR ../Imgui/imgui)
+set(IMGUI_BACKENDS_DIR ../Imgui/imgui/backends)
 
 set(IMGUI_SRC 
   ${IMGUI_DIR}/imgui.cpp
@@ -13,6 +14,8 @@ set(IMGUI_SRC
   ${IMGUI_DIR}/imgui_draw.cpp
   ${IMGUI_DIR}/imgui_tables.cpp
   ${IMGUI_DIR}/imgui_widgets.cpp
+  ${IMGUI_BACKENDS_DIR}/imgui_impl_win32.cpp
+  ${IMGUI_BACKENDS_DIR}/imgui_impl_dx12.cpp
 )
 
 ### Project 
@@ -36,7 +39,7 @@ add_executable(${PROJECT_NAME}
                     ${HEADER_FILES})
 
 ### Preproc
-target_include_directories(${PROJECT_NAME} PRIVATE ${SRC_DIR} ${SRC_DIR_REND} ${IMGUI_DIR})
+target_include_directories(${PROJECT_NAME} PRIVATE ${SRC_DIR} ${SRC_DIR_REND} ${IMGUI_DIR} ${IMGUI_BACKENDS_DIR})
 
 ### Linker
 target_link_libraries(${PROJECT_NAME} d3d12.lib) 

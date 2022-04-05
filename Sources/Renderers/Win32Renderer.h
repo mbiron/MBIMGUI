@@ -1,5 +1,6 @@
 #pragma once
 #include <Windows.h>
+#include <string>
 #include "Renderer.h"
 
 #define IMGUI_IMPL_WIN32_DISABLE_GAMEPAD
@@ -38,12 +39,11 @@ class Win32Renderer : public Renderer
         HWND m_hwnd;
         WNDCLASSEX m_wc;
         POINTS m_Pos;
-        int window_size_x;
-
-        Win32_Data* GetBackendData();
+        int m_heigt;
+		int m_width;
       
     public:
-        Win32Renderer(int width, int height);
+        Win32Renderer(std::string name, int width, int height);
         ~Win32Renderer();
         bool Init();
         void NewFrame();

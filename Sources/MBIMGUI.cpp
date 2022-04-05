@@ -2,9 +2,11 @@
 #include "MBIMGUI.h"
 #include "Win32Renderer.h"
 
-MBIMGUI::MBIMGUI(MBIMGUI_Callback cb, void *arg, int width, int height) : m_cb(cb), m_cbArg(arg), m_width(width), m_height(height)
+MBIMGUI::MBIMGUI(std::string name, MBIMGUI_Callback cb, void *arg, int width, int height) : m_name(name), m_cb(cb), m_cbArg(arg), m_width(width), m_height(height)
 {
-    m_pRenderer = new Win32Renderer(width, height);
+    m_pRenderer = new Win32Renderer(name,width, height);
+	// Default config flags
+	m_windowFlags = ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse;
 }
 
 MBIMGUI::~MBIMGUI()
@@ -18,26 +20,48 @@ bool MBIMGUI::Init()
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
     ImGuiIO &io = ImGui::GetIO();
-    (void)io;
+	
     // io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
     // io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
+	
+    //io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;           // Enable Docking
+    //io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;         // Enable Multi-Viewport / Platform Windows
+    //io.ConfigViewportsNoAutoMerge = true;
+    //io.ConfigViewportsNoTaskBarIcon = true;
+	
     io.ConfigWindowsMoveFromTitleBarOnly = true;
 
     // Setup Dear ImGui style
     ImGui::StyleColorsDark();
     // ImGui::StyleColorsClassic();
+	
+	// When viewports are enabled we tweak WindowRounding/WindowBg so platform windows can look identical to regular ones.
+    ImGuiStyle& style = ImGui::GetStyle();
+      
+      
+  #pragma message("TODO !")
+   // if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
+    {
+        style.WindowRounding = 0.0f;
+        style.Colors[ImGuiCol_WindowBg].w = 1.0f;
+    }
 
     return m_pRenderer->Init();
+}
+
+void MBIMGUI::SetWindowFlags(ImGuiWindowFlags flags)
+{
+	m_windowFlags = flags;
 }
 
 void MBIMGUI::Display()
 {
     bool show_demo_window = true;
     bool show_another_window = false;
-
+	bool bOpened = true;
     // Main loop
     bool done = false;
-    while (!done)
+    while (!done && bOpened)
     {
         // Poll and handle messages (inputs, window resize, etc.)
         // See the WndProc() function below for our to dispatch events to the Win32 backend.
@@ -68,10 +92,14 @@ void MBIMGUI::Display()
         }
         ImGui::SetNextWindowPos(ImVec2(0, 0));
 #endif
+			
+		ImGui::Begin(m_name.c_str(),&bOpened, m_windowFlags); 
 
         // CALL USER FONCTION
         m_cb(m_cbArg);
-
+		
+		ImGui::End();
+		
         // Rendering
         ImGui::Render();
         m_pRenderer->Render();

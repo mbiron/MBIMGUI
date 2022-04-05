@@ -25,6 +25,12 @@ class Dx12Renderer : public Renderer
         int VertexBufferSize;
     };
 
+    struct FrameContext
+    {
+        ID3D12CommandAllocator *CommandAllocator;
+        UINT64 FenceValue;
+    };
+
     struct Dx12_Data
     {
         ID3D12Device *pd3dDevice;
@@ -51,12 +57,6 @@ class Dx12Renderer : public Renderer
         float mvp[4][4];
     };
 
-    struct FrameContext
-    {
-        ID3D12CommandAllocator *CommandAllocator;
-        UINT64 FenceValue;
-    };
-
 private:
     // Data
     static int const NUM_FRAMES_IN_FLIGHT = 3;
@@ -78,17 +78,11 @@ private:
     D3D12_CPU_DESCRIPTOR_HANDLE m_mainRenderTargetDescriptor[NUM_BACK_BUFFERS] = {};
 
     bool CreateDeviceD3D(HWND hWnd);
-    FrameContext* WaitForNextFrameResources();
+    FrameContext *WaitForNextFrameResources();
     void CleanupDeviceD3D();
     void CreateRenderTarget();
     void CleanupRenderTarget();
     void WaitForLastSubmittedFrame();
-    Dx12_Data * GetBackendData();
-    void SetupRenderState(ImDrawData* draw_data, ID3D12GraphicsCommandList* ctx, Dx12_RenderBuffers* fr);
-    void RenderDrawData(ImDrawData* draw_data);
-    void InvalidateDeviceObjects();
-    bool CreateDeviceObjects();
-    void CreateFontsTexture();
 
 public:
     Dx12Renderer(HWND hwnd);
@@ -97,6 +91,6 @@ public:
     void NewFrame();
     void Shutdown();
     void Render();
-    void Resize(void* lParam);
+    void Resize(void *lParam);
     void Destroy();
 };
