@@ -3,6 +3,8 @@ cmake_minimum_required(VERSION 3.0.0)
 ### Global variables
 set(SRC_DIR Sources/)
 set(SRC_DIR_REND Sources/Renderers)
+set(TEST_DIR ./)
+
 
 ### IMGUI
 set(IMGUI_DIR ../Imgui/imgui)
@@ -39,7 +41,7 @@ add_executable(${PROJECT_NAME}
                     ${HEADER_FILES})
 
 ### Preproc
-target_include_directories(${PROJECT_NAME} PRIVATE ${SRC_DIR} ${SRC_DIR_REND} ${IMGUI_DIR} ${IMGUI_BACKENDS_DIR})
+target_include_directories(${PROJECT_NAME} PRIVATE ${SRC_DIR} ${SRC_DIR_REND} ${TEST_DIR} ${IMGUI_DIR} ${IMGUI_BACKENDS_DIR})
 
 ### Linker
 target_link_libraries(${PROJECT_NAME} d3d12.lib) 

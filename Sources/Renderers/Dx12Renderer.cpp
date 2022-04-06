@@ -322,11 +322,10 @@ void Dx12Renderer::Resize(void *lParam)
 
 bool Dx12Renderer::Init()
 {
-    ImGui_ImplDX12_Init(m_pd3dDevice, NUM_FRAMES_IN_FLIGHT,
-        DXGI_FORMAT_R8G8B8A8_UNORM, m_pd3dSrvDescHeap,
-        m_pd3dSrvDescHeap->GetCPUDescriptorHandleForHeapStart(),
-        m_pd3dSrvDescHeap->GetGPUDescriptorHandleForHeapStart());
-    return true;
+    return ImGui_ImplDX12_Init(m_pd3dDevice, NUM_FRAMES_IN_FLIGHT,
+                               DXGI_FORMAT_R8G8B8A8_UNORM, m_pd3dSrvDescHeap,
+                               m_pd3dSrvDescHeap->GetCPUDescriptorHandleForHeapStart(),
+                               m_pd3dSrvDescHeap->GetGPUDescriptorHandleForHeapStart());
 }
 
 void Dx12Renderer::Shutdown()

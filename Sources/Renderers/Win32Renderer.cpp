@@ -5,13 +5,11 @@
 #include "Dx12Renderer.h"
 #include "imgui_impl_win32.h"
 
-
-#if 1
+#if 0
 #define MBIMGUI_WINDOW_STYLE (WS_POPUP | WS_EX_TOOLWINDOW)
 #else
-#define MBIMGUI_WINDOW_STYLE (WS_POPUP | WS_THICKFRAME |  WS_SYSMENU | WS_MAXIMIZEBOX | WS_MINIMIZEBOX)
-#endif 
-
+#define MBIMGUI_WINDOW_STYLE (WS_OVERLAPPEDWINDOW)
+#endif
 
 extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
@@ -49,7 +47,7 @@ static LRESULT WINAPI WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
     case WM_SIZE:
         if (wParam != SIZE_MINIMIZED)
         {
-            pThis->Resize((void *)lParam);           
+            pThis->Resize((void *)lParam);
         }
         return 0;
     case WM_SYSCOMMAND:
@@ -62,7 +60,6 @@ static LRESULT WINAPI WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
     }
     return DefWindowProc(hWnd, msg, wParam, lParam);
 }
-
 
 /**
  * @brief Construct a new Win32 Renderer:: Win32 Renderer object
@@ -115,14 +112,18 @@ void Win32Renderer::Render()
 
 bool Win32Renderer::Init()
 {
-    m_pRenderer->Init();
-    ImGui_ImplWin32_Init(m_hwnd);
-    return true;
+    bool res = false;
+    res = m_pRenderer->Init();
+    if (res)
+    {
+        res = ImGui_ImplWin32_Init(m_hwnd);
+    }
+    return res;
 }
 
 void Win32Renderer::Resize(void *param)
 {
-    if(m_pRenderer)
+    if (m_pRenderer)
     {
         m_pRenderer->Resize(param);
     }
@@ -134,6 +135,10 @@ void Win32Renderer::Shutdown()
     ImGui_ImplWin32_Shutdown();
 }
 
+/**
+ * @brief Make a new frame for this platform
+ *
+ */
 void Win32Renderer::NewFrame()
 {
     m_pRenderer->NewFrame();

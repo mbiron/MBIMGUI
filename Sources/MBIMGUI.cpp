@@ -2,11 +2,12 @@
 #include "MBIMGUI.h"
 #include "Win32Renderer.h"
 
-MBIMGUI::MBIMGUI(std::string name, MBIMGUI_Callback cb, void *arg, int width, int height) : m_name(name), m_cb(cb), m_cbArg(arg), m_width(width), m_height(height)
+MBIMGUI::MBIMGUI(const std::string name, MBIWindow &window) : m_name(name), m_window(window)
 {
-    m_pRenderer = new Win32Renderer(name, width, height);
+    m_pRenderer = new Win32Renderer(name, window.GetWindowSize().width, window.GetWindowSize().height);
     // Default config flags
-    m_windowFlags = ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoCollapse;
+    m_windowFlags = ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoCollapse |
+                    ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoTitleBar;
 }
 
 MBIMGUI::~MBIMGUI()
@@ -14,7 +15,7 @@ MBIMGUI::~MBIMGUI()
     delete m_pRenderer;
 }
 
-bool MBIMGUI::Init()
+bool MBIMGUI::Init() const
 {
     // Setup Dear ImGui context
     IMGUI_CHECKVERSION();
@@ -24,8 +25,8 @@ bool MBIMGUI::Init()
     // io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
     // io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
 
-    io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;           // Enable Docking
-    io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;         // Enable Multi-Viewport / Platform Windows
+    io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;   // Enable Docking
+    io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable; // Enable Multi-Viewport / Platform Windows
     // io.ConfigViewportsNoAutoMerge = true;
     // io.ConfigViewportsNoTaskBarIcon = true;
 
@@ -52,7 +53,12 @@ void MBIMGUI::SetWindowFlags(ImGuiWindowFlags flags)
     m_windowFlags = flags;
 }
 
-void MBIMGUI::Display()
+void MBIMGUI::AddChildWindow(MBIWindow *window) 
+{
+    m_secWindows.push_back(window);
+}
+
+void MBIMGUI::Show() const
 {
     bool show_demo_window = true;
     bool show_another_window = false;
@@ -79,25 +85,34 @@ void MBIMGUI::Display()
         ImGui::NewFrame();
 
 // Ensures ImGui fits the window
-#if 0
+#ifdef IMGUI_HAS_VIEWPORT
+        ImGuiViewport *viewport = ImGui::GetMainViewport();
+        ImGui::SetNextWindowPos(viewport->Pos);
+        ImGui::SetNextWindowSize(viewport->Size);
+        ImGui::SetNextWindowViewport(viewport->ID);
+#else
         RECT rect;
         if (GetWindowRect(((Win32Renderer *)m_pRenderer)->getWindowHandle(), &rect))
         {
-            int width = rect.right - rect.left;
-            int height = rect.bottom - rect.top;
+            LONG width = rect.right - rect.left;
+            LONG height = rect.bottom - rect.top;
             // For i don't now why
+            // ImGui::SetNextWindowSize(ImVec2(static_cast<float>(width), static_cast<float>(height)));
             ImGui::SetNextWindowSize(ImVec2(width, height));
         }
         ImGui::SetNextWindowPos(ImVec2(0, 0));
 #endif
 
-        ImGui::Begin(m_name.c_str(), &bOpened, m_windowFlags);
-
-        // CALL USER FONCTION
-        m_cb(m_cbArg);
-
+        // CALL MAIN Window
+        ImGui::Begin(m_name.c_str(), NULL, m_windowFlags);
+        m_window.Display();
         ImGui::End();
 
+        // Call children
+        for(MBIWindow *win : m_secWindows)
+        {
+            win->Display();
+        }
         // Rendering
         ImGui::Render();
         m_pRenderer->Render();
