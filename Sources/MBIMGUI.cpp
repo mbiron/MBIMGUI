@@ -1,4 +1,5 @@
 #include "Imgui.h"
+#include "implot.h"
 #include "MBIMGUI.h"
 #include "Win32Renderer.h"
 
@@ -20,6 +21,7 @@ bool MBIMGUI::Init() const
     // Setup Dear ImGui context
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
+    ImPlot::CreateContext();
     ImGuiIO &io = ImGui::GetIO();
 
     // io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
@@ -120,6 +122,7 @@ void MBIMGUI::Show() const
 
     // Cleanup
     m_pRenderer->Shutdown();
+    ImPlot::DestroyContext();
     ImGui::DestroyContext();
 
     m_pRenderer->Destroy();

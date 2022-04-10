@@ -16,45 +16,10 @@
 
 class Dx12Renderer : public Renderer
 {
-    // DirectX data
-    struct Dx12_RenderBuffers
-    {
-        ID3D12Resource *IndexBuffer;
-        ID3D12Resource *VertexBuffer;
-        int IndexBufferSize;
-        int VertexBufferSize;
-    };
-
     struct FrameContext
     {
         ID3D12CommandAllocator *CommandAllocator;
         UINT64 FenceValue;
-    };
-
-    struct Dx12_Data
-    {
-        ID3D12Device *pd3dDevice;
-        ID3D12RootSignature *pRootSignature;
-        ID3D12PipelineState *pPipelineState;
-        DXGI_FORMAT RTVFormat;
-        ID3D12Resource *pFontTextureResource;
-        D3D12_CPU_DESCRIPTOR_HANDLE hFontSrvCpuDescHandle;
-        D3D12_GPU_DESCRIPTOR_HANDLE hFontSrvGpuDescHandle;
-
-        Dx12_RenderBuffers *pFrameResources;
-        UINT numFramesInFlight;
-        UINT frameIndex;
-
-        Dx12_Data()
-        {
-            memset((void *)this, 0, sizeof(*this));
-            frameIndex = UINT_MAX;
-        }
-    };
-
-    struct VERTEX_CONSTANT_BUFFER
-    {
-        float mvp[4][4];
     };
 
 private:

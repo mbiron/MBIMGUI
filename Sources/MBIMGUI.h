@@ -2,6 +2,7 @@
 #include <string>
 #include <vector>
 #include "imgui.h"
+#include "implot.h"
 #include "Renderer.h"
 #include "MBIWindow.h"
 
