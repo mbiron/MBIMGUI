@@ -4,7 +4,7 @@
 class DemoWindow : public MBIWindow
 {
 public:
-    DemoWindow() : MBIWindow(400,400) {}
+    DemoWindow() : MBIWindow("Demo",400,400) {}
     void Display()
     {
         ImGui::ShowDemoWindow();

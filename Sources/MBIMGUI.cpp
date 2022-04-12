@@ -5,7 +5,7 @@
 
 MBIMGUI::MBIMGUI(const std::string name, MBIWindow &window) : m_name(name), m_window(window)
 {
-    m_pRenderer = new Win32Renderer(name, window.GetWindowSize().width, window.GetWindowSize().height);
+    m_pRenderer = new Win32Renderer(name, window.GetWindowSize().x, window.GetWindowSize().y);
     // Default config flags
     m_windowFlags = ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoCollapse |
                     ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoTitleBar;
@@ -55,7 +55,7 @@ void MBIMGUI::SetWindowFlags(ImGuiWindowFlags flags)
     m_windowFlags = flags;
 }
 
-void MBIMGUI::AddChildWindow(MBIWindow *window) 
+void MBIMGUI::AddChildWindow(MBIWindow *window)
 {
     m_secWindows.push_back(window);
 }
@@ -106,14 +106,17 @@ void MBIMGUI::Show() const
 #endif
 
         // CALL MAIN Window
-        ImGui::Begin(m_name.c_str(), NULL, m_windowFlags);
+        ImGui::Begin(m_window.GetName().c_str(), NULL, m_windowFlags);
         m_window.Display();
         ImGui::End();
 
         // Call children
-        for(MBIWindow *win : m_secWindows)
+        for (MBIWindow *win : m_secWindows)
         {
+            ImGui::SetNextWindowSize(win->GetWindowSize(), ImGuiCond_Once);
+            ImGui::Begin(win->GetName().c_str());
             win->Display();
+            ImGui::End();
         }
         // Rendering
         ImGui::Render();

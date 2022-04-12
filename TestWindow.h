@@ -38,21 +38,17 @@ private:
     };
 
 public:
-    TestWindow() : MBIWindow(600, 800) {}
+    TestWindow(std::string name) : MBIWindow(name,600, 800) {}
     void Display()
     {
-        static float f = 0.0f;
-        static int counter = 0;
-        static bool show_demo_window = false;
         static bool port_is_running = false;
         static ComPortMgr comport = ComPortMgr();
-
-        std::vector<ComPortMgr::COMPORT> ports;
         static int item_current_idx = 0;
+        std::vector<ComPortMgr::COMPORT> ports;
         comport.GetAvailableComPorts(ports);
 
         // Comport list
-        if (ImGui::BeginCombo("combo 1", ports[item_current_idx].port))
+        if (ImGui::BeginCombo("Comport", ports[item_current_idx].port))
         {
             for (int n = 0; n < ports.size(); n++)
             {
@@ -95,6 +91,7 @@ public:
         if (port_is_running)
         {
             static bool pause = false;
+            static bool rescale = false;
             static ScrollingBuffer data;
             static float history = 10.0f;
             static float t = 0;
@@ -110,6 +107,11 @@ public:
             ImGui::SliderFloat("Time History", &history, 1, 30, "%.1f s");
 
             ImGui::Checkbox("Pause", &pause);
+            ImGui::SameLine();
+            if(ImGui::Button("Rescale"))
+            {
+                ImPlot::SetNextAxesToFit();
+            }
 
             if (ImPlot::BeginPlot("##Scrolling", ImVec2(-1, 300)))
             {

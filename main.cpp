@@ -6,8 +6,8 @@
 
 int main(int argc, char **argv)
 {
-    TestWindow window = TestWindow();
-    TestWindow window2 = TestWindow();
+    TestWindow window = TestWindow("Main");
+    TestWindow window2 = TestWindow("Child");
     DemoWindow demo = DemoWindow();
 
     MBIMGUI gui = MBIMGUI("MBIMGUI Test",window);
@@ -18,7 +18,7 @@ int main(int argc, char **argv)
         return -1;
     }
 
-   // gui.AddChildWindow(&window2);
+    //gui.AddChildWindow(&window2);
     gui.AddChildWindow(&demo);
 
     gui.Show();
