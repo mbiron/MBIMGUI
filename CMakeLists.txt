@@ -3,8 +3,6 @@ cmake_minimum_required(VERSION 3.0.0)
 ### Global variables
 set(SRC_DIR Sources/)
 set(SRC_DIR_REND Sources/Renderers)
-set(TEST_DIR ./)
-
 
 ### IMGUI
 set(IMGUI_DIR ../Imgui/imgui)
@@ -38,21 +36,22 @@ include(CTest)
 enable_testing()
 
 #message(STATUS ${CMAKE_VS_WINDOWS_TARGET_PLATFORM_VERSION})
-#message(WARNING ${D3D12_INCLUDE_DIRS})
 
 ### Sources
 aux_source_directory( ${SRC_DIR_REND} RENDERERS_SRC )
-set(SRC_FILES ${IMGUI_SRC} ${IMPLOT_SRC} main.cpp ${SRC_DIR}MBIMGUI.cpp ${RENDERERS_SRC} )
-set(HEADER_FILES ${SRC_DIR}MBIMGUI.h)
+set(SRC_FILES ${IMGUI_SRC} ${IMPLOT_SRC} ${SRC_DIR}MBIMGUI.cpp ${RENDERERS_SRC} )  
+set(HEADER_FILES MBIMGUI.h)
 
 ### Output
-add_executable(${PROJECT_NAME}
-                    ${SRC_FILES}
-                    ${HEADER_FILES})
+set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/lib)
+
+add_library(${PROJECT_NAME}
+            ${SRC_FILES}
+            ${HEADER_FILES})
 
 ### Preproc
 target_include_directories(${PROJECT_NAME} PRIVATE ${SRC_DIR} ${SRC_DIR_REND} 
-        ${TEST_DIR} 
+        ${PROJECT_SOURCE_DIR} 
         ${IMGUI_DIR} ${IMGUI_BACKENDS_DIR}
         ${IMPLOT_DIR})
 
