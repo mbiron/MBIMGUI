@@ -3,6 +3,12 @@
 #include "MBIMGUI.h"
 #include "Win32Renderer.h"
 
+// Check :
+// https://github.com/ocornut/imgui/issues/5192
+// https://github.com/ocornut/imgui/issues/3350
+// https://github.com/ocornut/imgui/issues/4443
+// 
+
 MBIMGUI::MBIMGUI(const std::string name, MBIWindow &window) : m_name(name), m_window(window)
 {
     m_pRenderer = new Win32Renderer(name, window.GetWindowSize().x, window.GetWindowSize().y);
