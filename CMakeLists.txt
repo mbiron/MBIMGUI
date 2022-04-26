@@ -45,7 +45,7 @@ set(HEADER_FILES MBIMGUI.h)
 ### Output
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/lib)
 
-add_library(${PROJECT_NAME}
+add_library(${PROJECT_NAME} STATIC
             ${SRC_FILES}
             ${HEADER_FILES})
 

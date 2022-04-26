@@ -13,8 +13,8 @@ MBIMGUI::MBIMGUI(const std::string name, MBIWindow &window) : m_name(name), m_wi
 {
     m_pRenderer = new Win32Renderer(name, window.GetWindowSize().x, window.GetWindowSize().y);
     // Default config flags
-    m_windowFlags = ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoCollapse |
-                    ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoTitleBar;
+    m_windowFlags = ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoCollapse ;
+                     //ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize
 }
 
 MBIMGUI::~MBIMGUI()
@@ -76,6 +76,7 @@ void MBIMGUI::Show() const
     bool show_demo_window = true;
     bool show_another_window = false;
     bool bOpened = true;
+    static bool bFirst = true;
     // Main loop
     bool done = false;
     while (!done && bOpened)
@@ -97,24 +98,13 @@ void MBIMGUI::Show() const
         m_pRenderer->NewFrame();
         ImGui::NewFrame();
 
-// Ensures ImGui fits the window
-#ifdef IMGUI_HAS_VIEWPORT      
+        // Ensures ImGui fits the window
         ImGuiViewport *viewport = ImGui::GetMainViewport();
         ImGui::SetNextWindowPos(viewport->Pos);
         ImGui::SetNextWindowSize(viewport->Size);
         ImGui::SetNextWindowViewport(viewport->ID);
-#else
-        RECT rect;
-        if (GetWindowRect(((Win32Renderer *)m_pRenderer)->getWindowHandle(), &rect))
-        {
-            LONG width = rect.right - rect.left;
-            LONG height = rect.bottom - rect.top;
-            // For i don't now why
-            // ImGui::SetNextWindowSize(ImVec2(static_cast<float>(width), static_cast<float>(height)));
-            ImGui::SetNextWindowSize(ImVec2(width, height));
-        }
-        ImGui::SetNextWindowPos(ImVec2(0, 0));
-#endif
+
+        ImGui::DockSpaceOverViewport();
 
         // CALL MAIN Window
         ImGui::Begin(m_window.GetName().c_str(), NULL, m_windowFlags);
@@ -125,7 +115,7 @@ void MBIMGUI::Show() const
         for (MBIWindow *win : m_secWindows)
         {
             ImGui::SetNextWindowSize(win->GetWindowSize(), ImGuiCond_Once);
-            ImGui::Begin(win->GetName().c_str());
+            ImGui::Begin(win->GetName().c_str(),NULL,m_windowFlags);
             win->Display();
             ImGui::End();
         }
