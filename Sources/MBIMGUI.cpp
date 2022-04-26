@@ -29,8 +29,9 @@ bool MBIMGUI::Init() const
 
     io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;   // Enable Docking
     io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable; // Enable Multi-Viewport / Platform Windows
-    // io.ConfigViewportsNoAutoMerge = true;
-    // io.ConfigViewportsNoTaskBarIcon = true;
+    //io.ConfigViewportsNoAutoMerge = true;
+    //io.ConfigViewportsNoDecoration = false;
+	// io.ConfigViewportsNoTaskBarIcon = true;
 
     io.ConfigWindowsMoveFromTitleBarOnly = true;
 
@@ -91,7 +92,7 @@ void MBIMGUI::Show() const
         ImGui::NewFrame();
 
 // Ensures ImGui fits the window
-#ifdef IMGUI_HAS_VIEWPORT
+#ifdef IMGUI_HAS_VIEWPORT      
         ImGuiViewport *viewport = ImGui::GetMainViewport();
         ImGui::SetNextWindowPos(viewport->Pos);
         ImGui::SetNextWindowSize(viewport->Size);
