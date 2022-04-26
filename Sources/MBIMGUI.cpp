@@ -34,6 +34,10 @@ bool MBIMGUI::Init() const
 
     io.ConfigWindowsMoveFromTitleBarOnly = true;
 
+    // Disable ini file 
+    io.IniFilename = NULL;
+    io.LogFilename = NULL;
+
     // Setup Dear ImGui style
     ImGui::StyleColorsDark();
     // ImGui::StyleColorsClassic();
