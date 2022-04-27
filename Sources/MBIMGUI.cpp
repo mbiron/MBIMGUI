@@ -25,7 +25,7 @@ MBIMGUI::~MBIMGUI()
     delete m_pRenderer;
 }
 
-bool MBIMGUI::Init() const
+bool MBIMGUI::Init()
 {
     // Setup Dear ImGui context
     IMGUI_CHECKVERSION();
@@ -69,12 +69,39 @@ void MBIMGUI::SetWindowFlags(ImGuiWindowFlags flags)
     m_windowFlags = flags;
 }
 
-void MBIMGUI::AddChildWindow(MBIWindow *window)
+void MBIMGUI::AddChildWindow(MBIWindow *window, MBIDockOption option)
 {
     m_secWindows.push_back(window);
 }
 
-void MBIMGUI::Show() const
+void MBIMGUI::SetupDockspace()
+{
+    ImGui::DockBuilderRemoveNode(m_dockspaceId);
+    ImGui::DockBuilderAddNode(m_dockspaceId, ImGuiDockNodeFlags_DockSpace | ImGuiDockNodeFlags_PassthruCentralNode);
+
+    // Make the dock node's size and position to match the viewport
+    ImGui::DockBuilderSetNodeSize(m_dockspaceId, m_viewport->Size);
+    ImGui::DockBuilderSetNodePos(m_dockspaceId, m_viewport->Pos);
+
+    ImGuiID dock_up_id = ImGui::DockBuilderSplitNode(m_dockspaceId, ImGuiDir_Up, 0.05f, nullptr, &m_dockspaceId);
+    ImGuiID dock_right_id = ImGui::DockBuilderSplitNode(m_dockspaceId, ImGuiDir_Right, 0.25f, nullptr, &m_dockspaceId);
+    ImGuiID dock_left_id = ImGui::DockBuilderSplitNode(m_dockspaceId, ImGuiDir_Left, 0.2f, nullptr, &m_dockspaceId);
+    ImGuiID dock_down_id = ImGui::DockBuilderSplitNode(m_dockspaceId, ImGuiDir_Down, 0.2f, nullptr, &m_dockspaceId);
+    // ImGuiID dock_down_right_id = ImGui::DockBuilderSplitNode(dock_down_id, ImGuiDir_Right, 0.6f, nullptr, &dock_down_id);
+
+    ImGui::DockBuilderDockWindow(m_secWindows[0]->GetName().c_str(), dock_right_id);
+    /*
+     ImGui::DockBuilderDockWindow(windowNames[1].c_str(), dock_right_id);
+     ImGui::DockBuilderDockWindow(windowNames[2].c_str(), dock_left_id);
+     ImGui::DockBuilderDockWindow(windowNames[3].c_str(), dock_down_id);
+     ImGui::DockBuilderDockWindow(windowNames[4].c_str(), dock_down_right_id);
+     */
+    ImGui::DockBuilderDockWindow(m_window.GetName().c_str(), m_dockspaceId);
+
+    ImGui::DockBuilderFinish(m_dockspaceId);
+}
+
+void MBIMGUI::Show()
 {
     // Main loop
     bool bFirst = true;
@@ -98,11 +125,14 @@ void MBIMGUI::Show() const
         m_pRenderer->NewFrame();
         ImGui::NewFrame();
 
+        // TODO May be don't set them as members of the class 
+        m_viewport = ImGui::GetMainViewport();
+        m_dockspaceId = ImGui::GetID("MainDockNode");
+
         // Ensures ImGui fits the window
-        ImGuiViewport *viewport = ImGui::GetMainViewport();
-        ImGui::SetNextWindowPos(viewport->Pos);
-        ImGui::SetNextWindowSize(viewport->Size);
-        ImGui::SetNextWindowViewport(viewport->ID);
+        ImGui::SetNextWindowPos(m_viewport->Pos);
+        ImGui::SetNextWindowSize(m_viewport->Size);
+        ImGui::SetNextWindowViewport(m_viewport->ID);
 
         ImGuiIO &io = ImGui::GetIO();
         if (io.ConfigFlags & ImGuiConfigFlags_DockingEnable)
@@ -118,36 +148,11 @@ void MBIMGUI::Show() const
             ImGui::PopStyleVar(3);
 
             // Submit the DockSpace
-            ImGuiID dockspace_id = ImGui::GetID("MainDockNode");
-            ImGui::DockSpace(dockspace_id, ImVec2(0.0f, 0.0f), ImGuiDockNodeFlags_None);
+            ImGui::DockSpace(m_dockspaceId, ImVec2(0.0f, 0.0f), ImGuiDockNodeFlags_None);
 
             if (bFirst)
             {
-                ImGui::DockBuilderRemoveNode(dockspace_id);
-                ImGui::DockBuilderAddNode(dockspace_id, ImGuiDockNodeFlags_DockSpace | ImGuiDockNodeFlags_PassthruCentralNode);
-
-                // Make the dock node's size and position to match the viewport
-                ImGui::DockBuilderSetNodeSize(dockspace_id, viewport->Size);
-                ImGui::DockBuilderSetNodePos(dockspace_id, viewport->Pos);
-
-                // ImGuiID dock_up_id = ImGui::DockBuilderSplitNode(dockspace_id, ImGuiDir_Up, 0.05f, nullptr, &dock_main_id);
-
-                ImGuiID dock_right_id = ImGui::DockBuilderSplitNode(dockspace_id, ImGuiDir_Right, 0.25f, nullptr, &dockspace_id);
-                ImGuiID dock_left_id = ImGui::DockBuilderSplitNode(dockspace_id, ImGuiDir_Left, 0.2f, nullptr, &dockspace_id);
-                ImGuiID dock_down_id = ImGui::DockBuilderSplitNode(dockspace_id, ImGuiDir_Down, 0.2f, nullptr, &dockspace_id);
-                // ImGuiID dock_down_right_id = ImGui::DockBuilderSplitNode(dock_down_id, ImGuiDir_Right, 0.6f, nullptr, &dock_down_id);
-
-                ImGui::DockBuilderDockWindow(m_secWindows[0]->GetName().c_str(), dock_right_id);
-                /*
-                 ImGui::DockBuilderDockWindow(windowNames[1].c_str(), dock_right_id);
-                 ImGui::DockBuilderDockWindow(windowNames[2].c_str(), dock_left_id);
-                 ImGui::DockBuilderDockWindow(windowNames[3].c_str(), dock_down_id);
-                 ImGui::DockBuilderDockWindow(windowNames[4].c_str(), dock_down_right_id);
-                 */
-                ImGui::DockBuilderDockWindow(m_window.GetName().c_str(), dockspace_id);
-
-                ImGui::DockBuilderFinish(dockspace_id);
-
+                SetupDockspace();
                 bFirst = false;
             }
         }
