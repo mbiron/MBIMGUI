@@ -11,9 +11,9 @@
 // https://github.com/ocornut/imgui/issues/4443
 //
 
-MBIMGUI::MBIMGUI(const std::string name, MBIWindow &window) : m_name(name), m_window(window)
+MBIMGUI::MBIMGUI(const std::string name, int width, int height) : m_name(name)
 {
-    m_pRenderer = new Win32Renderer(name, (int)window.GetWindowSize().x, (int)window.GetWindowSize().y);
+    m_pRenderer = new Win32Renderer(name, width, height);
     // Default config flags
     m_windowFlags = ImGuiWindowFlags_NoCollapse;
     // ImGuiWindowFlags_NoSavedSettings --> Not compatible with default docking
@@ -69,9 +69,10 @@ void MBIMGUI::SetWindowFlags(ImGuiWindowFlags flags)
     m_windowFlags = flags;
 }
 
-void MBIMGUI::AddChildWindow(MBIWindow *window, MBIDockOption option)
+void MBIMGUI::AddWindow(MBIWindow *window, MBIDockOption option)
 {
-    m_secWindows.push_back(window);
+    // m_Windows.push_back(window);
+    m_Windows[option] = window;
 }
 
 void MBIMGUI::SetupDockspace()
@@ -89,14 +90,31 @@ void MBIMGUI::SetupDockspace()
     ImGuiID dock_down_id = ImGui::DockBuilderSplitNode(m_dockspaceId, ImGuiDir_Down, 0.2f, nullptr, &m_dockspaceId);
     // ImGuiID dock_down_right_id = ImGui::DockBuilderSplitNode(dock_down_id, ImGuiDir_Right, 0.6f, nullptr, &dock_down_id);
 
-    ImGui::DockBuilderDockWindow(m_secWindows[0]->GetName().c_str(), dock_right_id);
-    /*
-     ImGui::DockBuilderDockWindow(windowNames[1].c_str(), dock_right_id);
-     ImGui::DockBuilderDockWindow(windowNames[2].c_str(), dock_left_id);
-     ImGui::DockBuilderDockWindow(windowNames[3].c_str(), dock_down_id);
-     ImGui::DockBuilderDockWindow(windowNames[4].c_str(), dock_down_right_id);
-     */
-    ImGui::DockBuilderDockWindow(m_window.GetName().c_str(), m_dockspaceId);
+    // TODO : Think about ordering (right before down ?)
+    for (const auto& member : m_Windows)
+    {
+        ImGuiID dockId = 0;
+        switch (member.first)
+        {
+        case DOCK_DOWN:
+            dockId = dock_down_id;
+            break;
+        case DOCK_UP:
+            dockId = dock_up_id;
+            break;
+        case DOCK_LEFT:
+            dockId = dock_left_id;
+            break;
+        case DOCK_RIGHT:
+            dockId = dock_right_id;
+            break;
+        case DOCK_MAIN:
+        default:
+            dockId = m_dockspaceId;
+            break;
+        }
+        ImGui::DockBuilderDockWindow(member.second->GetName().c_str(), dockId);
+    }
 
     ImGui::DockBuilderFinish(m_dockspaceId);
 }
@@ -125,7 +143,7 @@ void MBIMGUI::Show()
         m_pRenderer->NewFrame();
         ImGui::NewFrame();
 
-        // TODO May be don't set them as members of the class 
+        // TODO May be don't set them as members of the class
         m_viewport = ImGui::GetMainViewport();
         m_dockspaceId = ImGui::GetID("MainDockNode");
 
@@ -159,18 +177,12 @@ void MBIMGUI::Show()
 
         ImGui::End();
 
-        // CALL MAIN Window
-        // ImGui::SetNextWindowSize(m_window.GetWindowSize(), ImGuiCond_Once);
-        ImGui::Begin(m_window.GetName().c_str() /*, nullptr, m_windowFlags*/);
-        m_window.Display();
-        ImGui::End();
-
-        // Call children
-        for (auto *win : m_secWindows)
+        // Call windows
+        for (const auto& member : m_Windows)
         {
             // ImGui::SetNextWindowSize(win->GetWindowSize(), ImGuiCond_Once);
-            ImGui::Begin(win->GetName().c_str() /*, nullptr, m_windowFlags*/);
-            win->Display();
+            ImGui::Begin(member.second->GetName().c_str() /*, nullptr, m_windowFlags*/);
+            member.second->Display();
             ImGui::End();
         }
 

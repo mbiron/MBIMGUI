@@ -1,6 +1,7 @@
 #pragma once
 #include <string>
 #include <vector>
+#include <map>
 #include "imgui.h"
 #include "implot.h"
 #include "Renderer.h"
@@ -8,6 +9,7 @@
 
 class MBIMGUI
 {
+public:
     typedef enum _MBIDockOption
     {
         DOCK_NONE,
@@ -18,22 +20,22 @@ class MBIMGUI
         DOCK_DOWN
     } MBIDockOption;
 
-    private:
-        Renderer * m_pRenderer;
-		std::string m_name;
-		ImGuiWindowFlags m_windowFlags;
-        MBIWindow &m_window;
-		std::vector<MBIWindow*> m_secWindows;
-        ImGuiViewport *m_viewport;
-        ImGuiID m_dockspaceId;
+private:
+    Renderer *m_pRenderer;
+    std::string m_name;
+    ImGuiWindowFlags m_windowFlags;
+    //std::vector<MBIWindow *> m_Windows;
+    std::map<MBIDockOption,MBIWindow *> m_Windows; // TODO multiple maps ?
+    ImGuiViewport *m_viewport;
+    ImGuiID m_dockspaceId;
 
-        void SetupDockspace();
-		
-    public:
-        MBIMGUI(const std::string name, MBIWindow &window);
-        ~MBIMGUI();
-        bool Init();
-		void AddChildWindow(MBIWindow *window, MBIDockOption option = DOCK_NONE);
-        void Show();
-		void SetWindowFlags(const ImGuiWindowFlags flags);
+    void SetupDockspace();
+
+public:
+    MBIMGUI(const std::string name, int width, int height);
+    ~MBIMGUI();
+    bool Init();
+    void AddWindow(MBIWindow *window, MBIDockOption option = DOCK_NONE);
+    void Show();
+    void SetWindowFlags(const ImGuiWindowFlags flags);
 };
