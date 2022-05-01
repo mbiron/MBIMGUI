@@ -1,8 +1,11 @@
+//#include <string>
 #include "Imgui.h"
 // Internal for advanced docking functions
 #include "Imgui_internal.h"
 #include "implot.h"
 #include "MBIMGUI.h"
+#include "MBILogWindow.h"
+
 #include "Win32Renderer.h"
 
 // Check :
@@ -11,11 +14,22 @@
 // https://github.com/ocornut/imgui/issues/4443
 //
 
-MBIMGUI::MBIMGUI(const std::string name, int width, int height) : m_name(name)
+/***
+ *
+ * CTOR & DTOR
+ *
+ */
+
+MBIMGUI::MBIMGUI(const std::string name, int width, int height, MBIConfigFlags flags) : m_name(name), m_logger(MBILogger()), m_confFlags(flags)
 {
     m_pRenderer = new Win32Renderer(name, width, height);
     // Default config flags
     m_windowFlags = ImGuiWindowFlags_NoCollapse;
+
+    if (m_confFlags & MBIConfig_displayLogWindow)
+    {
+        m_windows[DOCK_DOWN] = new MBILogWindow("Logs", m_logger);
+    }
     // ImGuiWindowFlags_NoSavedSettings --> Not compatible with default docking
     //| ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize
 }
@@ -23,9 +37,72 @@ MBIMGUI::MBIMGUI(const std::string name, int width, int height) : m_name(name)
 MBIMGUI::~MBIMGUI()
 {
     delete m_pRenderer;
+    if (m_confFlags & MBIConfig_displayLogWindow)
+    {
+        delete m_windows[DOCK_DOWN];
+    }
 }
 
-bool MBIMGUI::Init()
+/***
+ *
+ * PRIVATE Functions
+ *
+ */
+
+void MBIMGUI::SetupDockspace() const
+{
+    ImGuiViewport *viewport = ImGui::GetMainViewport();
+    ImGuiID dockspaceId = ImGui::GetID("MainDockNode");
+
+    ImGui::DockBuilderRemoveNode(dockspaceId);
+    ImGui::DockBuilderAddNode(dockspaceId, ImGuiDockNodeFlags_DockSpace);
+
+    // Make the dock node's size and position to match the viewport
+    ImGui::DockBuilderSetNodeSize(dockspaceId, viewport->Size);
+    ImGui::DockBuilderSetNodePos(dockspaceId, viewport->Pos);
+
+    ImGuiID dock_up_id = ImGui::DockBuilderSplitNode(dockspaceId, ImGuiDir_Up, 0.05f, nullptr, &dockspaceId);
+    ImGuiID dock_right_id = ImGui::DockBuilderSplitNode(dockspaceId, ImGuiDir_Right, 0.25f, nullptr, &dockspaceId);
+    ImGuiID dock_left_id = ImGui::DockBuilderSplitNode(dockspaceId, ImGuiDir_Left, 0.2f, nullptr, &dockspaceId);
+    ImGuiID dock_down_id = ImGui::DockBuilderSplitNode(dockspaceId, ImGuiDir_Down, 0.2f, nullptr, &dockspaceId);
+    // ImGuiID dock_down_right_id = ImGui::DockBuilderSplitNode(dock_down_id, ImGuiDir_Right, 0.6f, nullptr, &dock_down_id);
+
+    // TODO : Think about ordering (right before down ?)
+    for (const auto &member : m_windows)
+    {
+        ImGuiID dockId = 0;
+        switch (member.first)
+        {
+        case DOCK_DOWN:
+            dockId = dock_down_id;
+            break;
+        case DOCK_UP:
+            dockId = dock_up_id;
+            break;
+        case DOCK_LEFT:
+            dockId = dock_left_id;
+            break;
+        case DOCK_RIGHT:
+            dockId = dock_right_id;
+            break;
+        case DOCK_MAIN:
+        default:
+            dockId = dockspaceId;
+            break;
+        }
+        ImGui::DockBuilderDockWindow(member.second->GetName().c_str(), dockId);
+    }
+
+    ImGui::DockBuilderFinish(dockspaceId);
+}
+
+/***
+ *
+ * PUBLIC Functions
+ *
+ */
+
+bool MBIMGUI::Init() const
 {
     // Setup Dear ImGui context
     IMGUI_CHECKVERSION();
@@ -50,11 +127,11 @@ bool MBIMGUI::Init()
 
     // Setup Dear ImGui style
     ImGui::StyleColorsDark();
-    // ImGui::StyleColorsClassic();
+
+    ImGuiStyle &style = ImGui::GetStyle();
+    style.FrameRounding = 8.0;
 
     // When viewports are enabled we tweak WindowRounding/WindowBg so platform windows can look identical to regular ones.
-    ImGuiStyle &style = ImGui::GetStyle();
-
     if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
     {
         style.WindowRounding = 0.0f;
@@ -72,54 +149,15 @@ void MBIMGUI::SetWindowFlags(ImGuiWindowFlags flags)
 void MBIMGUI::AddWindow(MBIWindow *window, MBIDockOption option)
 {
     // m_Windows.push_back(window);
-    m_Windows[option] = window;
+    m_windows[option] = window;
 }
 
-void MBIMGUI::SetupDockspace()
+MBILogger &MBIMGUI::GetLogger()
 {
-    ImGui::DockBuilderRemoveNode(m_dockspaceId);
-    ImGui::DockBuilderAddNode(m_dockspaceId, ImGuiDockNodeFlags_DockSpace | ImGuiDockNodeFlags_PassthruCentralNode);
-
-    // Make the dock node's size and position to match the viewport
-    ImGui::DockBuilderSetNodeSize(m_dockspaceId, m_viewport->Size);
-    ImGui::DockBuilderSetNodePos(m_dockspaceId, m_viewport->Pos);
-
-    ImGuiID dock_up_id = ImGui::DockBuilderSplitNode(m_dockspaceId, ImGuiDir_Up, 0.05f, nullptr, &m_dockspaceId);
-    ImGuiID dock_right_id = ImGui::DockBuilderSplitNode(m_dockspaceId, ImGuiDir_Right, 0.25f, nullptr, &m_dockspaceId);
-    ImGuiID dock_left_id = ImGui::DockBuilderSplitNode(m_dockspaceId, ImGuiDir_Left, 0.2f, nullptr, &m_dockspaceId);
-    ImGuiID dock_down_id = ImGui::DockBuilderSplitNode(m_dockspaceId, ImGuiDir_Down, 0.2f, nullptr, &m_dockspaceId);
-    // ImGuiID dock_down_right_id = ImGui::DockBuilderSplitNode(dock_down_id, ImGuiDir_Right, 0.6f, nullptr, &dock_down_id);
-
-    // TODO : Think about ordering (right before down ?)
-    for (const auto& member : m_Windows)
-    {
-        ImGuiID dockId = 0;
-        switch (member.first)
-        {
-        case DOCK_DOWN:
-            dockId = dock_down_id;
-            break;
-        case DOCK_UP:
-            dockId = dock_up_id;
-            break;
-        case DOCK_LEFT:
-            dockId = dock_left_id;
-            break;
-        case DOCK_RIGHT:
-            dockId = dock_right_id;
-            break;
-        case DOCK_MAIN:
-        default:
-            dockId = m_dockspaceId;
-            break;
-        }
-        ImGui::DockBuilderDockWindow(member.second->GetName().c_str(), dockId);
-    }
-
-    ImGui::DockBuilderFinish(m_dockspaceId);
+    return m_logger;
 }
 
-void MBIMGUI::Show()
+void MBIMGUI::Show() const
 {
     // Main loop
     bool bFirst = true;
@@ -143,42 +181,43 @@ void MBIMGUI::Show()
         m_pRenderer->NewFrame();
         ImGui::NewFrame();
 
-        // TODO May be don't set them as members of the class
-        m_viewport = ImGui::GetMainViewport();
-        m_dockspaceId = ImGui::GetID("MainDockNode");
+        ImGuiViewport *viewport = ImGui::GetMainViewport();
 
         // Ensures ImGui fits the window
-        ImGui::SetNextWindowPos(m_viewport->Pos);
-        ImGui::SetNextWindowSize(m_viewport->Size);
-        ImGui::SetNextWindowViewport(m_viewport->ID);
+        ImGui::SetNextWindowPos(viewport->Pos);
+        ImGui::SetNextWindowSize(viewport->Size);
+        ImGui::SetNextWindowViewport(viewport->ID);
 
         ImGuiIO &io = ImGui::GetIO();
-        if (io.ConfigFlags & ImGuiConfigFlags_DockingEnable)
+        if ((io.ConfigFlags & ImGuiConfigFlags_DockingEnable))
         {
-            ImGuiWindowFlags window_flags = ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_NoDocking;
+            ImGuiWindowFlags window_flags = ImGuiWindowFlags_NoDocking;
+
+            // Add this if I want to draw a menu bar above the dockspace (need then to call BeginMenu etc. manually)
+            // window_flags |= ImGuiWindowFlags_MenuBar;
             window_flags |= ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove;
             window_flags |= ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoNavFocus;
 
             ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
             ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
             ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
-            ImGui::Begin("Dockspace demo - this title will be invisible", nullptr, window_flags);
+            ImGui::Begin("Dockspace", nullptr, window_flags);
             ImGui::PopStyleVar(3);
 
+            ImGuiID dockspaceId = ImGui::GetID("MainDockNode");
             // Submit the DockSpace
-            ImGui::DockSpace(m_dockspaceId, ImVec2(0.0f, 0.0f), ImGuiDockNodeFlags_None);
+            ImGui::DockSpace(dockspaceId, ImVec2(0.0f, 0.0f), ImGuiDockNodeFlags_None);
 
             if (bFirst)
             {
                 SetupDockspace();
                 bFirst = false;
             }
+            ImGui::End();
         }
 
-        ImGui::End();
-
         // Call windows
-        for (const auto& member : m_Windows)
+        for (const auto &member : m_windows)
         {
             // ImGui::SetNextWindowSize(win->GetWindowSize(), ImGuiCond_Once);
             ImGui::Begin(member.second->GetName().c_str() /*, nullptr, m_windowFlags*/);
@@ -186,6 +225,10 @@ void MBIMGUI::Show()
             ImGui::End();
         }
 
+        if (m_confFlags & MBIConfig_displayMetrics)
+        {
+            ImGui::ShowMetricsWindow();
+        }
         // Rendering
         ImGui::Render();
         m_pRenderer->Render();

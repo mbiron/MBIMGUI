@@ -6,6 +6,7 @@
 #include "implot.h"
 #include "Renderer.h"
 #include "MBIWindow.h"
+#include "MBILogger.h"
 
 class MBIMGUI
 {
@@ -20,22 +21,31 @@ public:
         DOCK_DOWN
     } MBIDockOption;
 
+    enum _MBIConfigFlags
+    {
+        MBIConfig_displayLogWindow = 1 << 1,
+        MBIConfig_displayMetrics = 1 << 2,
+
+    };
+    typedef int MBIConfigFlags;
+
 private:
     Renderer *m_pRenderer;
     std::string m_name;
     ImGuiWindowFlags m_windowFlags;
-    //std::vector<MBIWindow *> m_Windows;
-    std::map<MBIDockOption,MBIWindow *> m_Windows; // TODO multiple maps ?
-    ImGuiViewport *m_viewport;
-    ImGuiID m_dockspaceId;
+    std::map<MBIDockOption, MBIWindow *> m_windows; // TODO multiple maps ?
 
-    void SetupDockspace();
+    MBIConfigFlags m_confFlags;
+    MBILogger m_logger;
+
+    void SetupDockspace() const;
 
 public:
-    MBIMGUI(const std::string name, int width, int height);
+    MBIMGUI(const std::string name, int width, int height, const MBIConfigFlags flags = 0);
     ~MBIMGUI();
-    bool Init();
+    bool Init() const;
     void AddWindow(MBIWindow *window, MBIDockOption option = DOCK_NONE);
-    void Show();
+    void Show() const;
     void SetWindowFlags(const ImGuiWindowFlags flags);
+    MBILogger &GetLogger();
 };
