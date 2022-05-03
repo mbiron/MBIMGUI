@@ -25,7 +25,8 @@ public:
     {
         MBIConfig_displayLogWindow = 1 << 1,
         MBIConfig_displayMetrics = 1 << 2,
-
+        MBIConfig_displayImGuiDemo = 1 << 3,
+        MBIConfig_displayImPlotDemo = 1 << 4,
     };
     typedef int MBIConfigFlags;
 

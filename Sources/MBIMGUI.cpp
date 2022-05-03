@@ -86,9 +86,11 @@ void MBIMGUI::SetupDockspace() const
             dockId = dock_right_id;
             break;
         case DOCK_MAIN:
-        default:
             dockId = dockspaceId;
             break;
+        case DOCK_NONE:
+        default:
+            continue;
         }
         ImGui::DockBuilderDockWindow(member.second->GetName().c_str(), dockId);
     }
@@ -219,7 +221,9 @@ void MBIMGUI::Show() const
         // Call windows
         for (const auto &member : m_windows)
         {
-            // ImGui::SetNextWindowSize(win->GetWindowSize(), ImGuiCond_Once);
+            if (member.first == DOCK_NONE)
+                ImGui::SetNextWindowSize(member.second->GetWindowSize(), ImGuiCond_Once);
+                
             ImGui::Begin(member.second->GetName().c_str() /*, nullptr, m_windowFlags*/);
             member.second->Display();
             ImGui::End();
@@ -229,6 +233,15 @@ void MBIMGUI::Show() const
         {
             ImGui::ShowMetricsWindow();
         }
+        if (m_confFlags & MBIConfig_displayImGuiDemo)
+        {
+            ImGui::ShowDemoWindow();
+        }
+        if (m_confFlags & MBIConfig_displayImPlotDemo)
+        {
+            ImPlot::ShowDemoWindow();
+        }
+
         // Rendering
         ImGui::Render();
         m_pRenderer->Render();
