@@ -3,6 +3,7 @@
 #include <vector>
 #include <map>
 #include "imgui.h"
+#include "imfilebrowser.h"
 #include "implot.h"
 #include "Renderer.h"
 #include "MBIWindow.h"

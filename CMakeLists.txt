@@ -27,6 +27,8 @@ set(IMPLOT_SRC
   ${IMPLOT_DIR}/implot_demo.cpp
 )
 
+### IMFILEBROWSER
+set(IMFILEBROWSER_DIR ../Imgui/imgui-filebrowser)
 
 ### Project 
 project(MBIMGUI VERSION 0.1.0)
@@ -49,11 +51,15 @@ add_library(${PROJECT_NAME} STATIC
             ${SRC_FILES}
             ${HEADER_FILES})
 
+## Options
+set_property(TARGET ${PROJECT_NAME} PROPERTY CXX_STANDARD 17)
+
 ### Preproc
 target_include_directories(${PROJECT_NAME} PRIVATE ${SRC_DIR} ${SRC_DIR_REND} 
         ${PROJECT_SOURCE_DIR} 
         ${IMGUI_DIR} ${IMGUI_BACKENDS_DIR}
-        ${IMPLOT_DIR})
+        ${IMPLOT_DIR}
+        ${IMFILEBROWSER_DIR})
 
 ### Linker
 target_link_libraries(${PROJECT_NAME} d3d12.lib) 
