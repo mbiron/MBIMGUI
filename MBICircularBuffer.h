@@ -39,9 +39,9 @@ public:
         // Prefix increment
         MBICircularIterator &operator++()
         {
-            if (m_ptr == m_ptr[m_circbuff.m_end])
+            if (m_ptr == &(m_circbuff.m_buff[m_circbuff.m_capacity - 1]))
             {
-                m_ptr = m_circbuff.m_buff[m_circbuff.m_begin];
+                m_ptr = &(m_circbuff.m_buff[0]);
             }
             else
             {
@@ -103,14 +103,14 @@ public:
         return m_buff[count];
     }
 
-    MBICircularIterator begin() const
+    MBICircularIterator begin()
     {
-        return MBICircularIterator(&m_buff[m_begin], this);
+        return MBICircularIterator(&(m_buff[m_begin]), *this);
     }
 
-    MBICircularIterator end() const
+    MBICircularIterator end()
     {
-        return MBICircularIterator(&m_buff[m_end], this);
+        return MBICircularIterator(&(m_buff[m_end]), *this);
     }
 
     T operator[](size_t idx) const {return m_buff[m_idx]} T &operator[](size_t idx) { return m_buff[m_idx] }
