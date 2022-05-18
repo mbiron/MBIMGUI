@@ -52,12 +52,11 @@ private:
         std::string m_time;
     };
 
-    // TODO : use a circular buffer ?
     MBICircularBuffer<MBILog> m_logs;
     friend class MBILogWindow;
 
 public:
-    MBILogger() : m_logs(5)
+    MBILogger() : m_logs(30)
     {};
 
     void Log(MBILogLevel level, std::string msg) { m_logs.push(MBILog(level, msg)); }

@@ -27,11 +27,16 @@ public:
     friend class MBICircularIterator;
     class MBICircularIterator
     {
+    private:
         using iterator_category = std::forward_iterator_tag;
         using difference_type = std::ptrdiff_t;
         using value_type = T;
         using pointer = T *;   // or also value_type*
         using reference = T &; // or also value_type&
+
+        pointer m_ptr;
+        int m_counter;
+        MBICircularBuffer &m_circbuff;
 
     public:
         MBICircularIterator(pointer ptr, MBICircularBuffer &buff) : m_ptr(ptr), m_circbuff(buff), m_counter(0) {}
@@ -43,6 +48,7 @@ public:
         {
             if (m_circbuff.full() && m_counter == m_circbuff.m_capacity - 1)
             {
+                // If buffer is full, as begin == end, we rely on a counter to detect the last element
                 m_ptr = &(m_circbuff.m_buff[m_circbuff.m_capacity]);
             }
             else if (m_ptr == &(m_circbuff.m_buff[m_circbuff.m_capacity - 1]))
@@ -52,6 +58,7 @@ public:
             }
             else
             {
+                // Move in the buffer
                 m_ptr++;
             }
             m_counter++;
@@ -74,20 +81,15 @@ public:
         {
             return a.m_ptr != b.m_ptr;
         };
-
-    private:
-        pointer m_ptr;
-        int m_counter;
-        MBICircularBuffer &m_circbuff;
     };
 
-    MBICircularBuffer(int capacity = 100)
-        : m_capacity(capacity),
-          m_buff(std::unique_ptr<T[]>(new T[capacity + 1])),
-          m_begin(0),
-          m_end(0),
-          m_full(false)
-    {}
+    MBICircularBuffer(int capacity = 100) : m_capacity(capacity),
+                                            m_buff(std::unique_ptr<T[]>(new T[capacity + 1])),
+                                            m_begin(0),
+                                            m_end(0),
+                                            m_full(false)
+    {
+    }
 
     int size() const
     {
@@ -111,6 +113,7 @@ public:
     {
         m_begin = 0;
         m_end = 0;
+        m_full = false;
     }
 
     T pop()
