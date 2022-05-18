@@ -5,7 +5,6 @@
 #include "implot.h"
 #include "MBIMGUI.h"
 #include "MBILogWindow.h"
-
 #include "Win32Renderer.h"
 
 // Check :

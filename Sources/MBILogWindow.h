@@ -2,6 +2,7 @@
 #pragma once
 #include "MBIWindow.h"
 #include "MBILogger.h"
+#include "MBICircularBuffer.h"
 
 class MBILogWindow : public MBIWindow
 {
