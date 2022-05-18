@@ -57,7 +57,7 @@ private:
     friend class MBILogWindow;
 
 public:
-    MBILogger() : m_logs(20)
+    MBILogger() : m_logs(5)
     {};
 
     void Log(MBILogLevel level, std::string msg) { m_logs.push(MBILog(level, msg)); }

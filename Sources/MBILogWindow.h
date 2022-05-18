@@ -22,8 +22,10 @@ public:
             ImGui::TableSetupColumn("Message", ImGuiTableColumnFlags_WidthStretch);
             ImGui::TableSetupColumn("Date");
             ImGui::TableHeadersRow();
-            for (auto log : m_logger.m_logs)
+            //for (auto log : m_logger.m_logs)
+            for (auto it = m_logger.m_logs.begin(); it != m_logger.m_logs.end(); it++)
             {
+                auto log = *it;
                 ImGui::TableNextRow();
                 ImGui::TableNextColumn();
                 ImGui::Text(log.GetLevel().c_str());
