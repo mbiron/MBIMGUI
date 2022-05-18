@@ -3,8 +3,7 @@
 #include <string>
 #include <ctime>
 #include <vector>
-//#include "MBILogWindow.h"
-// class MBILogWindow;
+#include "MBICircularBuffer.h"
 
 class MBILogger
 {
@@ -21,7 +20,7 @@ private:
     class MBILog
     {
     public:
-        MBILog(MBILogLevel level, std::string msg) : m_level(level), m_message(msg)
+        MBILog(MBILogLevel level = LOG_LEVEL_INFO, std::string msg = "") : m_level(level), m_message(msg)
         {
             time_t now = time(0);
             tm *ltm = localtime(&now);
@@ -54,16 +53,14 @@ private:
     };
 
     // TODO : use a circular buffer ?
-    std::vector<MBILog> m_logs;
+    MBICircularBuffer<MBILog> m_logs;
     friend class MBILogWindow;
 
 public:
-    MBILogger()
-    {
-        m_logs.reserve(20);
-    };
+    MBILogger() : m_logs(20)
+    {};
 
-    void Log(MBILogLevel level, std::string msg) { m_logs.push_back(MBILog(level, msg)); }
+    void Log(MBILogLevel level, std::string msg) { m_logs.push(MBILog(level, msg)); }
     void LogInfo( std::string msg) { Log(LOG_LEVEL_INFO, msg); }
 
 };
