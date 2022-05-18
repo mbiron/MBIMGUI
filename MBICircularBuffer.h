@@ -19,7 +19,7 @@ private:
 
     void increasecount(int &count)
     {
-        (count < m_capacity) ? count++ : count = 0;
+        count = (count + 1) % m_capacity;
     }
 
 public:
@@ -32,33 +32,20 @@ public:
         using value_type = T;
         using pointer = T *;   // or also value_type*
         using reference = T &; // or also value_type&
+
     public:
-        MBICircularIterator(pointer ptr, MBICircularBuffer &buff) : m_ptr(ptr), m_circbuff(buff) {}
+        MBICircularIterator(pointer ptr, MBICircularBuffer &buff) : m_ptr(ptr), m_circbuff(buff), m_counter(0) {}
 
         reference operator*() const { return *m_ptr; }
         pointer operator->() { return m_ptr; }
         // Prefix increment
         MBICircularIterator &operator++()
         {
-            if (m_circbuff.full())
+            if (m_circbuff.full() && m_counter == m_circbuff.m_capacity - 1)
             {
-                if ((m_circbuff.m_end != m_circbuff.m_capacity))
-                {
-                    if (m_ptr == &(m_circbuff.m_buff[m_circbuff.m_end]))
-                    {
-                        m_ptr = &(m_circbuff.m_buff[m_circbuff.m_capacity]);
-                        return *this;
-                    }
-                }
+                m_ptr = &(m_circbuff.m_buff[m_circbuff.m_capacity]);
             }
-            // if (m_circbuff.m_end != m_circbuff.m_capacity)
-            // {
-            //     // If last element of the FIFO is also the last of the buffer,
-            //     // reach the end of the buffer to stop the loop
-            //     m_ptr++;
-            // }
-
-            if ((m_ptr == &(m_circbuff.m_buff[m_circbuff.m_capacity - 1])) && (m_circbuff.m_end != m_circbuff.m_capacity))
+            else if (m_ptr == &(m_circbuff.m_buff[m_circbuff.m_capacity - 1]))
             {
                 // Go back to start
                 m_ptr = &(m_circbuff.m_buff[0]);
@@ -67,6 +54,7 @@ public:
             {
                 m_ptr++;
             }
+            m_counter++;
             return *this;
         }
 
@@ -89,38 +77,34 @@ public:
 
     private:
         pointer m_ptr;
+        int m_counter;
         MBICircularBuffer &m_circbuff;
     };
 
     MBICircularBuffer(int capacity = 100)
-        : m_capacity(capacity), m_buff(std::unique_ptr<T[]>(new T[capacity + 1])), m_begin(0), m_end(0)
-    {
-    }
+        : m_capacity(capacity),
+          m_buff(std::unique_ptr<T[]>(new T[capacity + 1])),
+          m_begin(0),
+          m_end(0),
+          m_full(false)
+    {}
 
     int size() const
     {
-        return (m_end >= m_begin) ? (m_end - m_begin) : (m_capacity - m_begin + m_end + 1);
+        return (m_end >= m_begin) ? (m_end - m_begin) : (m_capacity - m_begin + m_end);
     }
 
     void push(T data)
     {
-        if (full())
+        m_buff[m_end] = data;
+
+        if (m_full)
         {
-            m_buff[m_begin] = data;
-            if (m_begin == m_capacity - 1)
-            {
-                m_begin = 0;
-            }
-            else
-            {
-                increasecount(m_begin);
-            }
-        }
-        else
-        {
-            m_buff[m_end] = data;
+            increasecount(m_begin);
         }
         increasecount(m_end);
+        if (m_begin == m_end)
+            m_full = true;
     }
 
     void reset()
@@ -131,14 +115,23 @@ public:
 
     T pop()
     {
+        if (empty())
+            return T();
+
         int count = m_begin;
         increasecount(m_begin);
+        m_full = false;
         return m_buff[count];
     }
 
-    bool full()
+    bool full() const
     {
-        return size() == m_capacity;
+        return m_full;
+    }
+
+    bool empty() const
+    {
+        return (!m_full && m_begin == m_end);
     }
 
     MBICircularIterator begin()
@@ -148,7 +141,7 @@ public:
 
     MBICircularIterator end()
     {
-        if (full())
+        if (m_full)
         {
             return MBICircularIterator(&(m_buff[m_capacity]), *this);
         }
@@ -157,6 +150,4 @@ public:
             return MBICircularIterator(&(m_buff[m_end]), *this);
         }
     }
-
-    T operator[](size_t idx) const {return m_buff[m_idx]} T &operator[](size_t idx) { return m_buff[m_idx] }
 };
