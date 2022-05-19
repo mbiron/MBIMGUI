@@ -116,6 +116,11 @@ public:
         m_full = false;
     }
 
+    int getoffset() const
+    {
+        return m_begin;
+    }
+
     T pop()
     {
         if (empty())
@@ -154,9 +159,9 @@ public:
         }
     }
 
-    T operator[](int idx) const 
+    T operator[](int idx) 
     { 
-        if(idx > Size()) return T();        
+        if(idx > size()) return T();        
         int index = (m_begin + idx) % size();
         return m_buff[index];
     }
