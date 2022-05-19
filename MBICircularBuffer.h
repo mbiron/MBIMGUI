@@ -153,4 +153,11 @@ public:
             return MBICircularIterator(&(m_buff[m_end]), *this);
         }
     }
+
+    T operator[](int idx) const 
+    { 
+        if(idx > Size()) return T();        
+        int index = (m_begin + idx) % size();
+        return m_buff[index];
+    }
 };
