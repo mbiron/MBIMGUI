@@ -29,6 +29,7 @@ public:
         MBIConfig_displayMetrics = 1 << 2,
         MBIConfig_displayImGuiDemo = 1 << 3,
         MBIConfig_displayImPlotDemo = 1 << 4,
+        MBIConfig_displayMenuBar = 1 << 5
     };
     typedef int MBIConfigFlags;
 
@@ -48,7 +49,7 @@ public:
     ~MBIMGUI();
     bool Init() const;
     void AddWindow(MBIWindow *window, MBIDockOption option = DOCK_NONE);
-    void Show() const;
+    void Show();
     void SetWindowFlags(const ImGuiWindowFlags flags);
     MBILogger &GetLogger();
 };

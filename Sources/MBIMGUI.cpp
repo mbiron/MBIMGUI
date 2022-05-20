@@ -58,7 +58,9 @@ void MBIMGUI::SetupDockspace() const
 
     // Make the dock node's size and position to match the viewport
     ImGui::DockBuilderSetNodeSize(dockspaceId, viewport->Size);
+    //ImGui::DockBuilderSetNodeSize(dockspaceId,viewport->WorkSize);
     ImGui::DockBuilderSetNodePos(dockspaceId, viewport->Pos);
+    //ImGui::DockBuilderSetNodePos(dockspaceId,viewport->WorkPos);
 
     ImGuiID dock_up_id = ImGui::DockBuilderSplitNode(dockspaceId, ImGuiDir_Up, 0.05f, nullptr, &dockspaceId);
     ImGuiID dock_right_id = ImGui::DockBuilderSplitNode(dockspaceId, ImGuiDir_Right, 0.25f, nullptr, &dockspaceId);
@@ -158,7 +160,7 @@ MBILogger &MBIMGUI::GetLogger()
     return m_logger;
 }
 
-void MBIMGUI::Show() const
+void MBIMGUI::Show()
 {
     // Main loop
     bool bFirst = true;
@@ -195,7 +197,10 @@ void MBIMGUI::Show() const
             ImGuiWindowFlags window_flags = ImGuiWindowFlags_NoDocking;
 
             // Add this if I want to draw a menu bar above the dockspace (need then to call BeginMenu etc. manually)
-            // window_flags |= ImGuiWindowFlags_MenuBar;
+            if(m_confFlags & MBIConfig_displayMenuBar)
+            {
+                window_flags |= ImGuiWindowFlags_MenuBar;
+            }
             window_flags |= ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove;
             window_flags |= ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoNavFocus;
 
@@ -214,6 +219,14 @@ void MBIMGUI::Show() const
                 SetupDockspace();
                 bFirst = false;
             }
+
+            if(m_confFlags & MBIConfig_displayMenuBar)
+            {
+                ImGui::BeginMainMenuBar();
+                if(ImGui::MenuItem("File")) {m_logger.Log(MBILogger::LOG_LEVEL_DEBUG, "Welcome in file menu");}
+                ImGui::EndMainMenuBar();
+            }
+
             ImGui::End();
         }
 

@@ -93,7 +93,14 @@ public:
 
     int size() const
     {
-        return (m_end >= m_begin) ? (m_end - m_begin) : (m_capacity - m_begin + m_end);
+        if (m_full && m_end == m_begin)
+        {
+            return m_capacity;
+        }
+        else
+        {
+            return (m_end >= m_begin) ? (m_end - m_begin) : (m_capacity - m_begin + m_end);
+        }
     }
 
     void push(T data)
@@ -159,9 +166,10 @@ public:
         }
     }
 
-    T operator[](int idx) 
-    { 
-        if(idx > size()) return T();        
+    T operator[](int idx) const
+    {
+        if (idx > size())
+            return T();
         int index = (m_begin + idx) % size();
         return m_buff[index];
     }
