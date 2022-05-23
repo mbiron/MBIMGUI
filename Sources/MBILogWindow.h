@@ -17,15 +17,12 @@ public:
         if (ImGui::BeginTable("##logTable", 3, flags))
         {
             // Submit columns name with TableSetupColumn() and call TableHeadersRow() to create a row with a header in each column.
-            // (Later we will show how TableSetupColumn() has other uses, optional flags, sizing weight etc.)
             ImGui::TableSetupColumn("Level");
             ImGui::TableSetupColumn("Message", ImGuiTableColumnFlags_WidthStretch);
             ImGui::TableSetupColumn("Date");
             ImGui::TableHeadersRow();
-            //for (auto log : m_logger.m_logs)
-            for (auto it = m_logger.m_logs.begin(); it != m_logger.m_logs.end(); it++)
-            {
-                auto log = *it;
+            for (auto log : m_logger.m_logs)            
+            {              
                 ImGui::TableNextRow();
                 ImGui::TableNextColumn();
                 ImGui::Text(log.GetLevel().c_str());
@@ -34,7 +31,6 @@ public:
                 ImGui::TableNextColumn();
                 ImGui::Text(log.GetTime().c_str());
             }
-
             ImGui::EndTable();
         }
     }

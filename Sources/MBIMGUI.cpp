@@ -58,9 +58,9 @@ void MBIMGUI::SetupDockspace() const
 
     // Make the dock node's size and position to match the viewport
     ImGui::DockBuilderSetNodeSize(dockspaceId, viewport->Size);
-    //ImGui::DockBuilderSetNodeSize(dockspaceId,viewport->WorkSize);
+    // ImGui::DockBuilderSetNodeSize(dockspaceId,viewport->WorkSize);
     ImGui::DockBuilderSetNodePos(dockspaceId, viewport->Pos);
-    //ImGui::DockBuilderSetNodePos(dockspaceId,viewport->WorkPos);
+    // ImGui::DockBuilderSetNodePos(dockspaceId,viewport->WorkPos);
 
     ImGuiID dock_up_id = ImGui::DockBuilderSplitNode(dockspaceId, ImGuiDir_Up, 0.05f, nullptr, &dockspaceId);
     ImGuiID dock_right_id = ImGui::DockBuilderSplitNode(dockspaceId, ImGuiDir_Right, 0.25f, nullptr, &dockspaceId);
@@ -164,8 +164,8 @@ void MBIMGUI::Show()
 {
     // Main loop
     bool bFirst = true;
-    bool done = false;
-    while (!done)
+    bool bQuit = false;
+    while (!bQuit)
     {
         // Poll and handle messages (inputs, window resize, etc.)
         // See the WndProc() function below for our to dispatch events to the Win32 backend.
@@ -175,9 +175,9 @@ void MBIMGUI::Show()
             ::TranslateMessage(&msg);
             ::DispatchMessage(&msg);
             if (msg.message == WM_QUIT)
-                done = true;
+                bQuit = true;
         }
-        if (done)
+        if (bQuit)
             break;
 
         // Start the Dear ImGui frame
@@ -192,12 +192,14 @@ void MBIMGUI::Show()
         ImGui::SetNextWindowViewport(viewport->ID);
 
         ImGuiIO &io = ImGui::GetIO();
+
+        // Handle docking
         if ((io.ConfigFlags & ImGuiConfigFlags_DockingEnable))
         {
             ImGuiWindowFlags window_flags = ImGuiWindowFlags_NoDocking;
 
             // Add this if I want to draw a menu bar above the dockspace (need then to call BeginMenu etc. manually)
-            if(m_confFlags & MBIConfig_displayMenuBar)
+            if (m_confFlags & MBIConfig_displayMenuBar)
             {
                 window_flags |= ImGuiWindowFlags_MenuBar;
             }
@@ -219,23 +221,50 @@ void MBIMGUI::Show()
                 SetupDockspace();
                 bFirst = false;
             }
+        }
 
-            if(m_confFlags & MBIConfig_displayMenuBar)
+        // Create menu
+        if (m_confFlags & MBIConfig_displayMenuBar)
+        {
+            static bool bShowAbout = false;
+            if (ImGui::BeginMainMenuBar())
             {
-                ImGui::BeginMainMenuBar();
-                if(ImGui::MenuItem("File")) {m_logger.Log(MBILogger::LOG_LEVEL_DEBUG, "Welcome in file menu");}
+                if (ImGui::BeginMenu("File"))
+                {
+                    if (ImGui::MenuItem("Log"))
+                    {
+                        m_logger.Log(MBILogger::LOG_LEVEL_DEBUG, "Welcome in file menu");
+                    }
+                    if (ImGui::MenuItem("Quit"))
+                    {
+                        bQuit = true;
+                    }
+                    ImGui::EndMenu();
+                }
+                if (ImGui::BeginMenu("Help"))
+                {
+                    if (ImGui::MenuItem("About"))
+                    {
+                        bShowAbout = true;
+                    }
+                    ImGui::EndMenu();
+                }
                 ImGui::EndMainMenuBar();
             }
-
-            ImGui::End();
+            if(bShowAbout)
+            {
+                ImGui::ShowAboutWindow(&bShowAbout);
+            }
         }
+
+        ImGui::End();
 
         // Call windows
         for (const auto &member : m_windows)
         {
             if (member.first == DOCK_NONE)
                 ImGui::SetNextWindowSize(member.second->GetWindowSize(), ImGuiCond_Once);
-                
+
             ImGui::Begin(member.second->GetName().c_str() /*, nullptr, m_windowFlags*/);
             member.second->Display();
             ImGui::End();
