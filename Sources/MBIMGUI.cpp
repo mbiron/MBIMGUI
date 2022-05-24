@@ -132,7 +132,10 @@ bool MBIMGUI::Init() const
     ImGui::StyleColorsDark();
 
     ImGuiStyle &style = ImGui::GetStyle();
-    style.FrameRounding = 8.0;
+    style.FrameRounding = 8.0f;
+    style.CellPadding.x = 12.0f;
+    style.ItemSpacing.x = 15.0f;
+    style.FramePadding.x = 6.0f;
 
     // When viewports are enabled we tweak WindowRounding/WindowBg so platform windows can look identical to regular ones.
     if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
@@ -227,6 +230,7 @@ void MBIMGUI::Show()
         if (m_confFlags & MBIConfig_displayMenuBar)
         {
             static bool bShowAbout = false;
+            static bool bShowMetrics = false;
             if (ImGui::BeginMainMenuBar())
             {
                 if (ImGui::BeginMenu("File"))
@@ -247,6 +251,10 @@ void MBIMGUI::Show()
                     {
                         bShowAbout = true;
                     }
+                    if (ImGui::MenuItem("Debug/Metrics"))
+                    {
+                        bShowMetrics = true;
+                    }
                     ImGui::EndMenu();
                 }
                 ImGui::EndMainMenuBar();
@@ -254,6 +262,10 @@ void MBIMGUI::Show()
             if(bShowAbout)
             {
                 ImGui::ShowAboutWindow(&bShowAbout);
+            }
+            if(bShowMetrics)
+            {
+                ImGui::ShowMetricsWindow(&bShowMetrics);
             }
         }
 
