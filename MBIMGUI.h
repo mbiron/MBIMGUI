@@ -47,7 +47,7 @@ private:
 public:
     MBIMGUI(const std::string name, int width, int height, const MBIConfigFlags flags = 0);
     ~MBIMGUI();
-    bool Init() const;
+    bool Init(float fontsize = 13.0f) const;
     void AddWindow(MBIWindow *window, MBIDockOption option = DOCK_NONE);
     void Show();
     void SetWindowFlags(const ImGuiWindowFlags flags);

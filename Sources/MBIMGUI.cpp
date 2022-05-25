@@ -105,7 +105,7 @@ void MBIMGUI::SetupDockspace() const
  *
  */
 
-bool MBIMGUI::Init() const
+bool MBIMGUI::Init(float fontsize) const
 {
     // Setup Dear ImGui context
     IMGUI_CHECKVERSION();
@@ -127,6 +127,16 @@ bool MBIMGUI::Init() const
     // Disable ini file
     io.IniFilename = NULL;
     io.LogFilename = NULL;
+
+    // Handle fonts
+    /*
+    io.Fonts->AddFontDefault(); // ProggyClean 13px
+    io.Fonts->AddFontFromFileTTF("..\\..\\..\\Imgui\\imgui\\misc\\fonts\\DroidSans.ttf",fontsize);
+    io.Fonts->AddFontFromFileTTF("..\\..\\..\\Imgui\\imgui\\misc\\fonts\\Cousine-Regular.ttf",fontsize);
+    io.Fonts->AddFontFromFileTTF("..\\..\\..\\Imgui\\imgui\\misc\\fonts\\Karla-Regular.ttf",fontsize);
+    io.Fonts->AddFontFromFileTTF("..\\..\\..\\Imgui\\imgui\\misc\\fonts\\ProggyTiny.ttf",fontsize);
+    */
+    io.Fonts->AddFontFromFileTTF("..\\..\\..\\Imgui\\imgui\\misc\\fonts\\Roboto-Medium.ttf", fontsize);
 
     // Setup Dear ImGui style
     ImGui::StyleColorsDark();
@@ -259,11 +269,11 @@ void MBIMGUI::Show()
                 }
                 ImGui::EndMainMenuBar();
             }
-            if(bShowAbout)
+            if (bShowAbout)
             {
                 ImGui::ShowAboutWindow(&bShowAbout);
             }
-            if(bShowMetrics)
+            if (bShowMetrics)
             {
                 ImGui::ShowMetricsWindow(&bShowMetrics);
             }
