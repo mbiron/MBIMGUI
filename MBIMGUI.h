@@ -2,11 +2,12 @@
 #include <string>
 #include <vector>
 #include <map>
-/*
+
+// Include everything needed for clients
 #include "imgui.h"
 #include "imfilebrowser.h"
 #include "implot.h"
-*/
+
 #include "MBIWindow.h"
 #include "MBILogger.h"
 

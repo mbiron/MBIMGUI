@@ -1,17 +1,11 @@
 //#include <string>
-#include "Imgui.h"
+
 // Internal for advanced docking functions
 #include "Imgui_internal.h"
-#include "implot.h"
+
 #include "MBIMGUI.h"
 #include "MBILogWindow.h"
 #include "Win32Renderer.h"
-
-// Check :
-// https://github.com/ocornut/imgui/issues/5192
-// https://github.com/ocornut/imgui/issues/3350
-// https://github.com/ocornut/imgui/issues/4443
-//
 
 MBILogger MBIMGUI::m_logger = MBILogger();
 
