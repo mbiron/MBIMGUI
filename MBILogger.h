@@ -22,9 +22,13 @@ private:
     public:
         MBILog(MBILogLevel level = LOG_LEVEL_INFO, std::string msg = "") : m_level(level), m_message(msg)
         {
+            tm ltm;
             time_t now = time(0);
-            tm *ltm = localtime(&now);
-            m_time = std::to_string(ltm->tm_hour) + ":" + std::to_string(ltm->tm_min) + ":" + std::to_string(ltm->tm_sec);
+            if (localtime_s(&ltm, &now) == 0)
+            {
+                // TODO : handle format properly (0 padding when value < 10 )
+                m_time = std::to_string(ltm.tm_hour) + ":" + std::to_string(ltm.tm_min) + ":" + std::to_string(ltm.tm_sec);
+            }
         };
 
         std::string GetLevel() const
@@ -56,10 +60,8 @@ private:
     friend class MBILogWindow;
 
 public:
-    MBILogger() : m_logs(30)
-    {};
+    MBILogger() : m_logs(30){};
 
     void Log(MBILogLevel level, std::string msg) { m_logs.push(MBILog(level, msg)); }
-    void LogInfo( std::string msg) { Log(LOG_LEVEL_INFO, msg); }
-
+    void LogInfo(std::string msg) { Log(LOG_LEVEL_INFO, msg); }
 };

@@ -2,9 +2,11 @@
 #include <string>
 #include <vector>
 #include <map>
+/*
 #include "imgui.h"
 #include "imfilebrowser.h"
 #include "implot.h"
+*/
 #include "MBIWindow.h"
 #include "MBILogger.h"
 
@@ -40,7 +42,7 @@ private:
     std::map<MBIDockOption, MBIWindow *> m_windows; // TODO multiple maps ?
 
     MBIConfigFlags m_confFlags;
-    MBILogger m_logger;
+    static MBILogger m_logger;
 
     void SetupDockspace() const;
 
@@ -51,5 +53,5 @@ public:
     void AddWindow(MBIWindow *window, MBIDockOption option = DOCK_NONE);
     void Show();
     void SetWindowFlags(const ImGuiWindowFlags flags);
-    MBILogger &GetLogger();
+    static MBILogger &GetLogger();
 };

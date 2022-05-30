@@ -13,13 +13,15 @@
 // https://github.com/ocornut/imgui/issues/4443
 //
 
+MBILogger MBIMGUI::m_logger = MBILogger();
+
 /***
  *
  * CTOR & DTOR
  *
  */
 
-MBIMGUI::MBIMGUI(const std::string name, int width, int height, MBIConfigFlags flags) : m_name(name), m_logger(MBILogger()), m_confFlags(flags)
+MBIMGUI::MBIMGUI(const std::string name, int width, int height, MBIConfigFlags flags) : m_name(name), m_confFlags(flags)
 {
     m_pRenderer = new Win32Renderer(name, width, height);
     // Default config flags
@@ -29,6 +31,7 @@ MBIMGUI::MBIMGUI(const std::string name, int width, int height, MBIConfigFlags f
     {
         m_windows[DOCK_DOWN] = new MBILogWindow("Logs", m_logger);
     }
+
     // ImGuiWindowFlags_NoSavedSettings --> Not compatible with default docking
     //| ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize
 }
