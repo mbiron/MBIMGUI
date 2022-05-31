@@ -31,7 +31,12 @@ private:
             }
         };
 
-        std::string GetLevel() const
+        MBILogLevel GetLevel() const
+        {
+            return m_level;
+        }
+
+        std::string GetLevelString() const
         {
             switch (m_level)
             {

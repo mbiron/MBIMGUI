@@ -161,7 +161,6 @@ void MBIMGUI::SetWindowFlags(ImGuiWindowFlags flags)
 
 void MBIMGUI::AddWindow(MBIWindow *window, MBIDockOption option)
 {
-    // m_Windows.push_back(window);
     m_windows[option] = window;
 }
 
@@ -236,32 +235,51 @@ void MBIMGUI::Show()
         // Create menu
         if (m_confFlags & MBIConfig_displayMenuBar)
         {
-            static bool bShowAbout = false;
             static bool bShowMetrics = false;
+            static bool bShowAbout = false;
             if (ImGui::BeginMainMenuBar())
             {
                 if (ImGui::BeginMenu("File"))
                 {
+                    if (ImGui::MenuItem("Open"))
+                    {
+                        m_logger.Log(MBILogger::LOG_LEVEL_DEBUG, "Not implemented yet :)");
+                    }
                     if (ImGui::MenuItem("Log"))
                     {
                         m_logger.Log(MBILogger::LOG_LEVEL_DEBUG, "Welcome in file menu");
                     }
+
+                    ImGui::Separator();
                     if (ImGui::MenuItem("Quit"))
                     {
                         bQuit = true;
                     }
                     ImGui::EndMenu();
                 }
+                if (ImGui::BeginMenu("View"))
+                {
+                    // Set windows in menu file
+                    for (const auto &member : m_windows)
+                    {
+                        if (member.second->IsInMenu())
+                        {
+                            bool bShowWindow = member.second->IsVisible();
+                            if (ImGui::MenuItem(member.second->GetName().c_str(), NULL, bShowWindow))
+                            {
+                                bShowWindow = !bShowWindow;
+                                member.second->SetVisible(bShowWindow);
+                            }
+                        }
+                    }
+                    ImGui::Separator();
+                    ImGui::MenuItem("HMI Debug/Metrics", NULL, &bShowMetrics);
+
+                    ImGui::EndMenu();
+                }
                 if (ImGui::BeginMenu("Help"))
                 {
-                    if (ImGui::MenuItem("About"))
-                    {
-                        bShowAbout = true;
-                    }
-                    if (ImGui::MenuItem("Debug/Metrics"))
-                    {
-                        bShowMetrics = true;
-                    }
+                    ImGui::MenuItem("About", NULL, &bShowAbout);
                     ImGui::EndMenu();
                 }
                 ImGui::EndMainMenuBar();
@@ -281,12 +299,15 @@ void MBIMGUI::Show()
         // Call windows
         for (const auto &member : m_windows)
         {
-            if (member.first == DOCK_NONE)
-                ImGui::SetNextWindowSize(member.second->GetWindowSize(), ImGuiCond_Once);
+            if (member.second->IsVisible())
+            {
+                if (member.first == DOCK_NONE)
+                    ImGui::SetNextWindowSize(member.second->GetWindowSize(), ImGuiCond_Once);
 
-            ImGui::Begin(member.second->GetName().c_str() /*, nullptr, m_windowFlags*/);
-            member.second->Display();
-            ImGui::End();
+                ImGui::Begin(member.second->GetName().c_str() /*, nullptr, m_windowFlags*/);
+                member.second->Display();
+                ImGui::End();
+            }
         }
 
         if (m_confFlags & MBIConfig_displayMetrics)
