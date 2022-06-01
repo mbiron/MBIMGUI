@@ -52,5 +52,29 @@ public:
             if (ImGui::GetScrollY() >= ImGui::GetScrollMaxY())
                 ImGui::SetScrollHereY(1.0f);
         }
+
+        if (m_logger.m_popupOnError)
+        {
+            static MBILogger::MBILog errorLog;
+
+            if (m_logger.m_displayPopup)
+            {
+                // For now, assume that there is no race condition and the last log is the error one
+                errorLog = m_logger.m_logs.last();
+                ImGui::OpenPopup("ERROR##popup");
+                m_logger.m_displayPopup = false;
+            }
+            // Popup for errors
+            if (ImGui::BeginPopupModal("ERROR##popup", NULL, ImGuiWindowFlags_AlwaysAutoResize))
+            {
+                ImGui::Text(errorLog.GetMessage().c_str());
+                ImGui::Separator();
+                if (ImGui::Button("OK", ImVec2(120, 0)))
+                {
+                    ImGui::CloseCurrentPopup();
+                }
+                ImGui::EndPopup();
+            }
+        }
     }
 };

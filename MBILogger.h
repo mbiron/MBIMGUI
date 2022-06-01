@@ -63,10 +63,28 @@ private:
 
     MBICircularBuffer<MBILog> m_logs;
     friend class MBILogWindow;
+    std::string m_logfile;
+    bool m_popupOnError;
+    bool m_displayPopup;
 
 public:
-    MBILogger() : m_logs(30){};
-
-    void Log(MBILogLevel level, std::string msg) { m_logs.push(MBILog(level, msg)); }
+    MBILogger() : m_logs(30), m_logfile(""), m_popupOnError(false), m_displayPopup(false){};
+    void ConfigureLogs(const std::string logfile = "", bool popupOnError = false)
+    {
+        if (logfile != "")
+        {
+            m_logfile = logfile;
+        }
+        m_popupOnError = popupOnError;
+    }
+    void Log(MBILogLevel level, std::string msg)
+    {
+        m_logs.push(MBILog(level, msg));
+        if(level == LOG_LEVEL_ERROR && m_popupOnError == true)
+        {
+            m_displayPopup = true;
+        }
+    }
     void LogInfo(std::string msg) { Log(LOG_LEVEL_INFO, msg); }
+    void LogError(std::string msg) { Log(LOG_LEVEL_ERROR, msg); }
 };

@@ -123,11 +123,6 @@ public:
         m_full = false;
     }
 
-    int getoffset() const
-    {
-        return m_begin;
-    }
-
     T pop()
     {
         if (empty())
@@ -137,6 +132,20 @@ public:
         increasecount(m_begin);
         m_full = false;
         return m_buff[count];
+    }
+
+    T last() const
+    {
+        if (empty())
+            return T();
+        return m_buff[m_end - 1];
+    }
+
+    T first() const
+    {
+        if (empty())
+            return T();
+        return m_buff[m_begin];
     }
 
     bool full() const

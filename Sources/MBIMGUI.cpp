@@ -60,9 +60,9 @@ void MBIMGUI::SetupDockspace() const
     // ImGui::DockBuilderSetNodePos(dockspaceId,viewport->WorkPos);
 
     ImGuiID dock_up_id = ImGui::DockBuilderSplitNode(dockspaceId, ImGuiDir_Up, 0.05f, nullptr, &dockspaceId);
-    ImGuiID dock_right_id = ImGui::DockBuilderSplitNode(dockspaceId, ImGuiDir_Right, 0.25f, nullptr, &dockspaceId);
+    ImGuiID dock_right_id = ImGui::DockBuilderSplitNode(dockspaceId, ImGuiDir_Right, 0.40f, nullptr, &dockspaceId);
     ImGuiID dock_left_id = ImGui::DockBuilderSplitNode(dockspaceId, ImGuiDir_Left, 0.2f, nullptr, &dockspaceId);
-    ImGuiID dock_down_id = ImGui::DockBuilderSplitNode(dockspaceId, ImGuiDir_Down, 0.2f, nullptr, &dockspaceId);
+    ImGuiID dock_down_id = ImGui::DockBuilderSplitNode(dockspaceId, ImGuiDir_Down, 0.15f, nullptr, &dockspaceId);
     // ImGuiID dock_down_right_id = ImGui::DockBuilderSplitNode(dock_down_id, ImGuiDir_Right, 0.6f, nullptr, &dock_down_id);
 
     // TODO : Think about ordering (right before down ?)
@@ -304,7 +304,7 @@ void MBIMGUI::Show()
                 if (member.first == DOCK_NONE)
                     ImGui::SetNextWindowSize(member.second->GetWindowSize(), ImGuiCond_Once);
 
-                ImGui::Begin(member.second->GetName().c_str() /*, nullptr, m_windowFlags*/);
+                ImGui::Begin(member.second->GetName().c_str(), NULL, ImGuiWindowFlags_AlwaysAutoResize);
                 member.second->Display();
                 ImGui::End();
             }
