@@ -140,7 +140,7 @@ bool MBIMGUI::Init(float fontsize) const
 
     ImGuiStyle &style = ImGui::GetStyle();
     style.FrameRounding = 8.0f;
-    style.CellPadding.x = 12.0f;
+    style.CellPadding.x = 10.0f;
     style.ItemSpacing.x = 15.0f;
     style.FramePadding.x = 6.0f;
 
@@ -236,6 +236,8 @@ void MBIMGUI::Show()
         if (m_confFlags & MBIConfig_displayMenuBar)
         {
             static bool bShowMetrics = false;
+            static bool bShowImguiStyle = false;
+            static bool bShowImplotStyle = false;
             static bool bShowAbout = false;
             if (ImGui::BeginMainMenuBar())
             {
@@ -274,6 +276,8 @@ void MBIMGUI::Show()
                     }
                     ImGui::Separator();
                     ImGui::MenuItem("HMI Debug/Metrics", NULL, &bShowMetrics);
+                    ImGui::MenuItem("GUI Style editor", NULL, &bShowImguiStyle);
+                    ImGui::MenuItem("Plot Style editor", NULL, &bShowImplotStyle);
 
                     ImGui::EndMenu();
                 }
@@ -292,6 +296,22 @@ void MBIMGUI::Show()
             {
                 ImGui::ShowMetricsWindow(&bShowMetrics);
             }
+            if (bShowImguiStyle)
+            {
+                if (ImGui::Begin("GUI Style editor", &bShowImguiStyle))
+                {
+                    ImGui::ShowStyleEditor();
+                    ImGui::End();
+                }
+            }
+            if (bShowImplotStyle)
+            {
+                if (ImGui::Begin("Plot Style editor", &bShowImplotStyle))
+                {
+                    ImPlot::ShowStyleEditor();
+                    ImGui::End();
+                }
+            }
         }
 
         ImGui::End();
@@ -304,7 +324,7 @@ void MBIMGUI::Show()
                 if (member.first == DOCK_NONE)
                     ImGui::SetNextWindowSize(member.second->GetWindowSize(), ImGuiCond_Once);
 
-                ImGui::Begin(member.second->GetName().c_str(), NULL, ImGuiWindowFlags_AlwaysAutoResize);
+                ImGui::Begin(member.second->GetName().c_str(), NULL, ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoCollapse);
                 member.second->Display();
                 ImGui::End();
             }

@@ -3,6 +3,9 @@
 #include <string>
 #include <ctime>
 #include <vector>
+#include <iostream>
+#include <fstream>
+#include <sstream>
 #include "MBICircularBuffer.h"
 
 class MBILogger
@@ -26,8 +29,11 @@ private:
             time_t now = time(0);
             if (localtime_s(&ltm, &now) == 0)
             {
-                // TODO : handle format properly (0 padding when value < 10 )
-                m_time = std::to_string(ltm.tm_hour) + ":" + std::to_string(ltm.tm_min) + ":" + std::to_string(ltm.tm_sec);
+                std::stringstream sstream;
+                sstream << std::setfill('0') << std::setw(2) << ltm.tm_hour
+                        << ":" << std::setw(2) << ltm.tm_min
+                        << ":" << std::setw(2) << ltm.tm_sec;
+                m_time = sstream.str();
             }
         };
 
@@ -64,25 +70,61 @@ private:
     MBICircularBuffer<MBILog> m_logs;
     friend class MBILogWindow;
     std::string m_logfile;
+    std::ofstream m_filestream;
+
     bool m_popupOnError;
     bool m_displayPopup;
 
 public:
     MBILogger() : m_logs(30), m_logfile(""), m_popupOnError(false), m_displayPopup(false){};
-    void ConfigureLogs(const std::string logfile = "", bool popupOnError = false)
+    ~MBILogger()
+    {
+        m_filestream << "*************************** Session End ****************************" << std::endl
+                     << std::endl;
+        m_filestream.close();
+    };
+    void ConfigureLogs(bool popupOnError = false, const std::string logfile = "")
     {
         if (logfile != "")
         {
-            m_logfile = logfile;
+            m_filestream.open(logfile, std::fstream::out | std::fstream::app);
+            if (m_filestream.fail())
+            {
+                LogError("Can't open logfile " + logfile);
+            }
+            else
+            {
+                tm ltm;
+                time_t now = time(0);
+
+                m_filestream << "********************************************************************" << std::endl;
+                m_filestream << "************************** Session Start ***************************" << std::endl;
+
+                if (localtime_s(&ltm, &now) == 0)
+                {
+                    m_filestream << std::setfill('0');
+                    m_filestream << "**************************   " << std::setw(2) << ltm.tm_mday
+                                 << "/" << std::setw(2) << (ltm.tm_mon + 1)
+                                 << "/" << (ltm.tm_year + 1900)
+                                 << "  ***************************" << std::endl;
+                    m_filestream << "********************************************************************" << std::endl;
+                }
+                m_logfile = logfile;
+            }
         }
         m_popupOnError = popupOnError;
     }
     void Log(MBILogLevel level, std::string msg)
     {
-        m_logs.push(MBILog(level, msg));
-        if(level == LOG_LEVEL_ERROR && m_popupOnError == true)
+        MBILog log = MBILog(level, msg);
+        m_logs.push(log);
+        if (level == LOG_LEVEL_ERROR && m_popupOnError == true)
         {
             m_displayPopup = true;
+        }
+        if (m_filestream.is_open())
+        {
+            m_filestream << log.GetLevelString() << "\t" << std::setfill(' ') << std::left << std::setw(50) << log.GetMessage() << "\t" << log.GetTime() << std::endl;
         }
     }
     void LogInfo(std::string msg) { Log(LOG_LEVEL_INFO, msg); }
