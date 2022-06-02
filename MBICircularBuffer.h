@@ -25,21 +25,32 @@ private:
 public:
     class MBICircularIterator;
     friend class MBICircularIterator;
+    /**
+     * @brief Forward iterator on a MBICircularBuffer object
+     *
+     */
     class MBICircularIterator
     {
-    private:
         using iterator_category = std::forward_iterator_tag;
         using difference_type = std::ptrdiff_t;
         using value_type = T;
-        using pointer = T *;   // or also value_type*
-        using reference = T &; // or also value_type&
+        using pointer = T *;
+        using reference = T &;
 
+    private:
         pointer m_ptr;
         int m_counter;
         MBICircularBuffer &m_circbuff;
 
     public:
+        /**
+         * @brief Construct a new MBICircularIterator object
+         *
+         * @param ptr
+         * @param buff
+         */
         MBICircularIterator(pointer ptr, MBICircularBuffer &buff) : m_ptr(ptr), m_circbuff(buff), m_counter(0) {}
+        MBICircularIterator() = delete;
 
         reference operator*() const { return *m_ptr; }
         pointer operator->() { return m_ptr; }
@@ -83,6 +94,11 @@ public:
         };
     };
 
+    /**
+     * @brief Construct a new MBICircularBuffer object
+     *
+     * @param capacity capacity of the buffer
+     */
     MBICircularBuffer(int capacity = 100) : m_capacity(capacity),
                                             m_buff(std::unique_ptr<T[]>(new T[capacity + 1])),
                                             m_begin(0),
@@ -91,6 +107,11 @@ public:
     {
     }
 
+    /**
+     * @brief Return the current buffer size
+     *
+     * @return int number of objects in the buffer
+     */
     int size() const
     {
         if (m_full && m_end == m_begin)
@@ -102,7 +123,11 @@ public:
             return (m_end >= m_begin) ? (m_end - m_begin) : (m_capacity - m_begin + m_end);
         }
     }
-
+    /**
+     * @brief Add an object at the end of the buffer. If the buffer is full, the object will replace the oldest one.
+     *
+     * @param data Object to add
+     */
     void push(T data)
     {
         m_buff[m_end] = data;
@@ -115,14 +140,21 @@ public:
         if (m_begin == m_end)
             m_full = true;
     }
-
+    /**
+     * @brief Empty and reset the buffer
+     *
+     */
     void reset()
     {
         m_begin = 0;
         m_end = 0;
         m_full = false;
     }
-
+    /**
+     * @brief Retreive and remove the oldest object inserted into the buffer
+     *
+     * @return T Oldest object inserted into the buffer
+     */
     T pop()
     {
         if (empty())
@@ -134,13 +166,22 @@ public:
         return m_buff[count];
     }
 
+    /**
+     * @brief Retreive the last object inserted into the buffer
+     *
+     * @return T Last object inserted into the buffer
+     */
     T last() const
     {
         if (empty())
             return T();
         return m_buff[m_end - 1];
     }
-
+    /**
+     * @brief Retreive the oldest object inserted into the buffer
+     *
+     * @return T Oldest object inserted into the buffer
+     */
     T first() const
     {
         if (empty())
@@ -148,21 +189,42 @@ public:
         return m_buff[m_begin];
     }
 
+    /**
+     * @brief Check if the buffer is full
+     *
+     * @return true If the buffer is full
+     * @return false If the buffer is not full
+     */
     bool full() const
     {
         return m_full;
     }
-
+    /**
+     * @brief Check if the buffer is empty
+     *
+     * @return true If the buffer is empty
+     * @return false If the buffer is not empty
+     */
     bool empty() const
     {
         return (!m_full && m_begin == m_end);
     }
 
+    /**
+     * @brief Reterive an iterator on the oldest object in the buffer
+     *
+     * @return MBICircularIterator
+     */
     MBICircularIterator begin()
     {
         return MBICircularIterator(&(m_buff[m_begin]), *this);
     }
 
+    /**
+     * @brief Reterive an iterator on the end the buffer
+     *
+     * @return MBICircularIterator
+     */
     MBICircularIterator end()
     {
         if (m_full)
