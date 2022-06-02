@@ -8,23 +8,21 @@ set(SRC_DIR_REND Sources/Renderers)
 set(IMGUI_DIR ../Imgui/imgui)
 set(IMGUI_BACKENDS_DIR ../Imgui/imgui/backends)
 
-set(IMGUI_SRC 
-  ${IMGUI_DIR}/imgui.cpp
-  ${IMGUI_DIR}/imgui_demo.cpp
-  ${IMGUI_DIR}/imgui_draw.cpp
-  ${IMGUI_DIR}/imgui_tables.cpp
-  ${IMGUI_DIR}/imgui_widgets.cpp
-  ${IMGUI_BACKENDS_DIR}/imgui_impl_win32.cpp
-  ${IMGUI_BACKENDS_DIR}/imgui_impl_dx12.cpp
+set(IMGUI_SRC ${IMGUI_DIR}/imgui.cpp
+              ${IMGUI_DIR}/imgui_demo.cpp
+              ${IMGUI_DIR}/imgui_draw.cpp
+              ${IMGUI_DIR}/imgui_tables.cpp
+              ${IMGUI_DIR}/imgui_widgets.cpp
+              ${IMGUI_BACKENDS_DIR}/imgui_impl_win32.cpp
+              ${IMGUI_BACKENDS_DIR}/imgui_impl_dx12.cpp
 )
 
 ### IMPLOT
 set(IMPLOT_DIR ../Imgui/implot)
 
-set(IMPLOT_SRC 
-  ${IMPLOT_DIR}/implot.cpp
-  ${IMPLOT_DIR}/implot_items.cpp
-  ${IMPLOT_DIR}/implot_demo.cpp
+set(IMPLOT_SRC  ${IMPLOT_DIR}/implot.cpp
+                ${IMPLOT_DIR}/implot_items.cpp
+                ${IMPLOT_DIR}/implot_demo.cpp
 )
 
 ### IMFILEBROWSER
@@ -41,7 +39,13 @@ enable_testing()
 
 ### Sources
 aux_source_directory( ${SRC_DIR_REND} RENDERERS_SRC )
-set(SRC_FILES ${IMGUI_SRC} ${IMPLOT_SRC} ${SRC_DIR}MBIMGUI.cpp ${SRC_DIR}MBIWindow.cpp ${RENDERERS_SRC} )  
+set(SRC_FILES ${IMGUI_SRC} 
+              ${IMPLOT_SRC} 
+              ${SRC_DIR}MBIMGUI.cpp 
+              ${SRC_DIR}MBIWindow.cpp 
+              ${SRC_DIR}MBILogger.cpp 
+              ${RENDERERS_SRC} )  
+              
 set(HEADER_FILES MBIMGUI.h)
 
 ### Output
@@ -52,6 +56,7 @@ add_library(${PROJECT_NAME} STATIC
             ${HEADER_FILES})
 
 ## Options
+# Enable C++ 17 (IMFILEBROWSER compatibility)
 set_property(TARGET ${PROJECT_NAME} PROPERTY CXX_STANDARD 17)
 
 ### Preproc
