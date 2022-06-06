@@ -42,7 +42,7 @@ public:
                 ImGui::TableNextColumn();
                 ImGui::TextColored(GetLevelColor(log.GetLevel()), log.GetLevelString().c_str());
                 ImGui::TableNextColumn();
-                ImGui::Text(log.GetMessage().c_str());
+                ImGui::Text(log.GetMessageLog().c_str());
                 ImGui::TableNextColumn();
                 ImGui::Text(log.GetTime().c_str());
             }
@@ -67,7 +67,7 @@ public:
             // Popup for errors
             if (ImGui::BeginPopupModal("ERROR##popup", NULL, ImGuiWindowFlags_AlwaysAutoResize))
             {
-                ImGui::Text(errorLog.GetMessage().c_str());
+                ImGui::Text(errorLog.GetMessageLog().c_str());
                 ImGui::Separator();
                 if (ImGui::Button("OK", ImVec2(120, 0)))
                 {

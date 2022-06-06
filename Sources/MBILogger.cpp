@@ -36,7 +36,7 @@ std::string MBILogger::MBILog::GetLevelString() const
     }
 }
 
-std::string MBILogger::MBILog::GetMessage() const
+std::string MBILogger::MBILog::GetMessageLog() const
 {
     return m_message;
 }
@@ -137,7 +137,7 @@ void MBILogger::Log(MBILogLevel level, std::string msg)
     }
     if (m_filestream.is_open())
     {
-        m_filestream << log.GetLevelString() << "\t" << std::setfill(' ') << std::left << std::setw(50) << log.GetMessage() << "\t" << log.GetTime() << std::endl;
+        m_filestream << log.GetLevelString() << "\t" << std::setfill(' ') << std::left << std::setw(50) << /*log.GetMessage() <<*/ "\t" << log.GetTime() << std::endl;
     }
 }
 /**

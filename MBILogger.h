@@ -40,7 +40,7 @@ private:
 
         MBILogLevel GetLevel() const;
         std::string GetLevelString() const;
-        std::string GetMessage() const;
+        std::string GetMessageLog() const;
         std::string GetTime() const;
 
     private:
