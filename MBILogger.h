@@ -53,6 +53,7 @@ private:
     friend class MBILogWindow;
     std::string m_logfile;
     std::ofstream m_filestream;
+    std::string m_errToPopup;
 
     bool m_popupOnError;
     bool m_displayPopup;

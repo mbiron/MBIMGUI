@@ -55,19 +55,15 @@ public:
 
         if (m_logger.m_popupOnError)
         {
-            static MBILogger::MBILog errorLog;
-
             if (m_logger.m_displayPopup)
             {
-                // For now, assume that there is no race condition and the last log is the error one
-                errorLog = m_logger.m_logs.last();
                 ImGui::OpenPopup("ERROR##popup");
                 m_logger.m_displayPopup = false;
             }
             // Popup for errors
             if (ImGui::BeginPopupModal("ERROR##popup", NULL, ImGuiWindowFlags_AlwaysAutoResize))
             {
-                ImGui::Text(errorLog.GetMessageLog().c_str());
+                ImGui::Text(m_logger.m_errToPopup.c_str());
                 ImGui::Separator();
                 if (ImGui::Button("OK", ImVec2(120, 0)))
                 {

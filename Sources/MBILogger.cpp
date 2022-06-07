@@ -146,11 +146,13 @@ void MBILogger::Log(MBILogLevel level, std::string msg)
     if (level == LOG_LEVEL_ERROR && m_popupOnError == true)
     {
         m_displayPopup = true;
+        // Store last error to avoid race condition in case of multiple logs in the same frame
+        m_errToPopup = msg;
     }
     if (m_logToFile)
     {
         m_filestream << log.GetLevelString() << "\t" << std::setfill(' ') << std::left << std::setw(50) << log.GetMessageLog() << "\t" << log.GetTime() << std::endl;
-    }
+    }   
 }
 /**
  * @brief Log a message with the level MBILogLevel::LOG_LEVEL_INFO
