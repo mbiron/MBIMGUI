@@ -15,7 +15,7 @@ MBILogger MBIMGUI::m_logger = MBILogger();
  *
  */
 
-MBIMGUI::MBIMGUI(const std::string name, int width, int height, MBIConfigFlags flags) : m_name(name), m_confFlags(flags)
+MBIMGUI::MBIMGUI(const std::string name, int width, int height, MBIConfigFlags flags) : m_name(name), m_confFlags(flags), m_logFileDialog(ImGuiFileBrowserFlags_EnterNewFilename)
 {
     m_pRenderer = new Win32Renderer(name, width, height);
     // Default config flags
@@ -25,6 +25,10 @@ MBIMGUI::MBIMGUI(const std::string name, int width, int height, MBIConfigFlags f
     {
         m_windows[DOCK_DOWN] = new MBILogWindow("Logs", m_logger);
     }
+
+    m_logFileDialog.SetTitle("Choose log file");
+    m_logFileDialog.SetTypeFilters({".log"});
+    m_logFileDialog.SetInputName("logfile.log");
 
     // ImGuiWindowFlags_NoSavedSettings --> Not compatible with default docking
     //| ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize
@@ -169,6 +173,80 @@ MBILogger &MBIMGUI::GetLogger()
     return m_logger;
 }
 
+void inline MBIMGUI::ShowOptionWindow(bool &openWindow)
+{
+    /* Log Config */
+    static bool popupOnError = true;
+    static bool logToFile = true;
+
+    if (ImGui::BeginTabBar("MyTabBar"))
+    {
+        if (ImGui::BeginTabItem("General"))
+        {
+            ImGui::Text("TODO");
+            ImGui::EndTabItem();
+        }
+        if (ImGui::BeginTabItem("Logs"))
+        {
+            if (ImGui::Checkbox("Popup on error", &popupOnError))
+            {
+                m_logger.Configure(popupOnError);
+            }
+            if (ImGui::IsItemHovered())
+                ImGui::SetTooltip("When activated, any occuring error will be displayed in a popup in addition to the log window");
+
+            ImGui::SameLine();
+            if (ImGui::Checkbox("Log to file", &logToFile))
+            {
+                if (!logToFile)
+                {
+                    m_logger.Configure(popupOnError);
+                }
+                else
+                {
+                    if (m_logger.GetLogFullFileName() == "")
+                    {
+                        // Force user to choose a valid file
+                        m_logFileDialog.Open();
+                    }
+                }
+            }
+            if (ImGui::IsItemHovered())
+                ImGui::SetTooltip(std::string("When activated, all logs are written to : " + m_logger.GetLogFullFileName()).c_str());
+
+            /* Open file dialog when user clicks this button */
+            if (ImGui::Button("Choose log file"))
+            {
+                m_logFileDialog.Open();
+            }
+
+            m_logFileDialog.Display();
+            if (m_logFileDialog.HasSelected())
+            {
+                std::string fileSelected = m_logFileDialog.GetSelected().string();
+                /* Add extension if not specified by user */
+                if (fileSelected.compare(fileSelected.size() - 4, 4, ".log") != 0)
+                {
+                    fileSelected.append(".log");
+                }
+                m_logger.Log(MBILogger::LOG_LEVEL_INFO, "Selected logfile filename " + fileSelected);
+                m_logger.Configure(popupOnError, fileSelected);
+                m_logFileDialog.ClearSelected();
+            }
+
+            ImGui::EndTabItem();
+        }
+        ImGui::EndTabBar();
+    }
+
+    /* Center button relative to window size */
+    ImGui::SetCursorPos(ImVec2(ImGui::GetWindowSize().x / 2 - 25, ImGui::GetWindowSize().y - 40));
+    if (ImGui::Button("OK##optionWindow",ImVec2(50,0)))
+    {
+        openWindow = false;
+    }
+}
+
 void MBIMGUI::Show()
 {
     // Main loop
@@ -239,6 +317,7 @@ void MBIMGUI::Show()
             static bool bShowImguiStyle = false;
             static bool bShowImplotStyle = false;
             static bool bShowAbout = false;
+            static bool bShowOptions = false;
             if (ImGui::BeginMainMenuBar())
             {
                 if (ImGui::BeginMenu("File"))
@@ -252,6 +331,8 @@ void MBIMGUI::Show()
                         m_logger.Log(MBILogger::LOG_LEVEL_DEBUG, "Welcome in file menu");
                     }
 
+                    ImGui::Separator();
+                    ImGui::MenuItem("Options", NULL, &bShowOptions);
                     ImGui::Separator();
                     if (ImGui::MenuItem("Quit"))
                     {
@@ -309,6 +390,15 @@ void MBIMGUI::Show()
                 if (ImGui::Begin("Plot Style editor", &bShowImplotStyle))
                 {
                     ImPlot::ShowStyleEditor();
+                    ImGui::End();
+                }
+            }
+            if (bShowOptions)
+            {
+                ImGui::SetNextWindowSize(ImVec2(300,200), ImGuiCond_Appearing);
+                if (ImGui::Begin("Options", &bShowOptions, ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoDocking))
+                {
+                    ShowOptionWindow(bShowOptions);
                     ImGui::End();
                 }
             }

@@ -45,21 +45,30 @@ std::string MBILogger::MBILog::GetTime() const
     return m_time;
 }
 
+void MBILogger::CloseLogFile()
+{
+    if (m_filestream.is_open())
+    {
+        m_filestream << "*************************** Session End ****************************" << std::endl
+                     << std::endl;
+        m_filestream.close();
+    }
+}
+
 /**
  * @brief Construct a new MBILogger object
  * @warning You never have to called this, the logger of the app is created internally by the framework. You can reterive it using MBIMGUI::GetLogger()
  */
-MBILogger::MBILogger() : m_logs(30), m_logfile(""), m_popupOnError(false), m_displayPopup(false){};
+MBILogger::MBILogger() : m_logs(30), m_logfile(""), m_popupOnError(false), m_displayPopup(false), m_logToFile(false){};
 /**
  * @brief Destroy the MBILogger object
  *
  */
 MBILogger::~MBILogger()
 {
-    m_filestream << "*************************** Session End ****************************" << std::endl
-                 << std::endl;
-    m_filestream.close();
+    CloseLogFile();
 };
+
 /**
  * @brief Get the Log Full File Name if a log file was setted.
  *
@@ -82,13 +91,18 @@ std::string MBILogger::GetLogFullFileName() const
  * @param popupOnError Any error log will be displayed in a popup to the user.
  * @param logfile All logs will be written in the specified logfile. To disable the log file, pass an empty string.
  */
-void MBILogger::Configure(bool popupOnError, const std::string logfile)
+void MBILogger::Configure(bool popupOnError, const std::string &logfile)
 {
+    // Close previous openned file
+    CloseLogFile();
+
     if (logfile != "")
     {
         m_filestream.open(logfile, std::fstream::out | std::fstream::app);
         if (m_filestream.fail())
         {
+            m_logToFile = false;
+            m_logfile = "";
             LogError("Can't open logfile " + logfile);
         }
         else
@@ -101,24 +115,22 @@ void MBILogger::Configure(bool popupOnError, const std::string logfile)
 
             if (localtime_s(&ltm, &now) == 0)
             {
-                m_filestream << std::setfill('0');
+                m_filestream << std::right << std::setfill('0');
                 m_filestream << "**************************   " << std::setw(2) << ltm.tm_mday
                              << "/" << std::setw(2) << (ltm.tm_mon + 1)
                              << "/" << (ltm.tm_year + 1900)
                              << "  ***************************" << std::endl;
                 m_filestream << "********************************************************************" << std::endl;
             }
+            m_logToFile = true;
             m_logfile = logfile;
         }
     }
     else
     {
-        if (m_filestream.is_open())
-        {
-            m_filestream.close();
-        }
-        m_logfile = logfile;
+        m_logToFile = false;
     }
+
     m_popupOnError = popupOnError;
 }
 /**
@@ -135,7 +147,7 @@ void MBILogger::Log(MBILogLevel level, std::string msg)
     {
         m_displayPopup = true;
     }
-    if (m_filestream.is_open())
+    if (m_logToFile)
     {
         m_filestream << log.GetLevelString() << "\t" << std::setfill(' ') << std::left << std::setw(50) << log.GetMessageLog() << "\t" << log.GetTime() << std::endl;
     }

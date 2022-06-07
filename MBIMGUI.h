@@ -57,8 +57,10 @@ private:
 
     MBIConfigFlags m_confFlags;
     static MBILogger m_logger;
+    ImGui::FileBrowser m_logFileDialog;
 
     void SetupDockspace() const;
+    void ShowOptionWindow(bool &closeWindow);
 
 public:
     /**
@@ -107,4 +109,6 @@ public:
 
     // TODO : Useful ?
     void SetWindowFlags(const ImGuiWindowFlags flags);
+
+    // TODO : Persistent option mechanism ?
 };

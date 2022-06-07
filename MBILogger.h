@@ -56,6 +56,9 @@ private:
 
     bool m_popupOnError;
     bool m_displayPopup;
+    bool m_logToFile;
+
+    void CloseLogFile();
 
 public:
     /**
@@ -83,7 +86,7 @@ public:
      * @param popupOnError Any error log will be displayed in a popup to the user.
      * @param logfile All logs will be written in the specified logfile. To disable the log file, pass an empty string.
      */
-    void Configure(bool popupOnError = false, const std::string logfile = "");
+    void Configure(bool popupOnError = false, const std::string &logfile = "");
 
     /**
      * @brief Log a message
