@@ -113,6 +113,7 @@ bool MBIMGUI::Init(float fontsize) const
     ImGui::CreateContext();
     ImPlot::CreateContext();
     ImGuiIO &io = ImGui::GetIO();
+    float scale = 1.0f; // To handle DPI but I'm not able to make it works for now 
 
     // io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
     // io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
@@ -137,12 +138,13 @@ bool MBIMGUI::Init(float fontsize) const
     io.Fonts->AddFontFromFileTTF("..\\..\\..\\Imgui\\imgui\\misc\\fonts\\Karla-Regular.ttf",fontsize);
     io.Fonts->AddFontFromFileTTF("..\\..\\..\\Imgui\\imgui\\misc\\fonts\\ProggyTiny.ttf",fontsize);
     */
-    io.Fonts->AddFontFromFileTTF("..\\..\\..\\Imgui\\imgui\\misc\\fonts\\Roboto-Medium.ttf", fontsize);
+    io.Fonts->AddFontFromFileTTF("..\\..\\..\\Imgui\\imgui\\misc\\fonts\\Roboto-Medium.ttf", fontsize * scale);
 
     // Setup Dear ImGui style
     ImGui::StyleColorsDark();
 
     ImGuiStyle &style = ImGui::GetStyle();
+
     style.FrameRounding = 8.0f;
     style.CellPadding.x = 10.0f;
     style.ItemSpacing.x = 15.0f;
@@ -154,6 +156,8 @@ bool MBIMGUI::Init(float fontsize) const
         style.WindowRounding = 0.0f;
         style.Colors[ImGuiCol_WindowBg].w = 1.0f;
     }
+    // Doesn't work ?
+    //style.ScaleAllSizes(scale);
 
     return m_pRenderer->Init();
 }
@@ -241,7 +245,7 @@ void inline MBIMGUI::ShowOptionWindow(bool &openWindow)
 
     /* Center button relative to window size */
     ImGui::SetCursorPos(ImVec2(ImGui::GetWindowSize().x / 2 - 25, ImGui::GetWindowSize().y - 40));
-    if (ImGui::Button("OK##optionWindow",ImVec2(50,0)))
+    if (ImGui::Button("OK##optionWindow", ImVec2(50, 0)))
     {
         openWindow = false;
     }
@@ -252,6 +256,7 @@ void MBIMGUI::Show()
     // Main loop
     bool bFirst = true;
     bool bQuit = false;
+
     while (!bQuit)
     {
         // Poll and handle messages (inputs, window resize, etc.)
@@ -395,9 +400,10 @@ void MBIMGUI::Show()
             }
             if (bShowOptions)
             {
-                ImGui::SetNextWindowSize(ImVec2(300,200), ImGuiCond_Appearing);
+                ImGui::SetNextWindowSize(ImVec2(300, 200), ImGuiCond_Appearing);
                 if (ImGui::Begin("Options", &bShowOptions, ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoDocking))
                 {
+
                     ShowOptionWindow(bShowOptions);
                     ImGui::End();
                 }
@@ -414,7 +420,8 @@ void MBIMGUI::Show()
                 if (member.first == DOCK_NONE)
                     ImGui::SetNextWindowSize(member.second->GetWindowSize(), ImGuiCond_Once);
 
-                ImGui::Begin(member.second->GetName().c_str(), NULL, ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoCollapse);
+                // Do not use ImGuiWindowFlags_AlwaysAutoResize. It has a strange behaviour with Implot Windows (TODO : Open an issue to epezent)
+                ImGui::Begin(member.second->GetName().c_str(), NULL, ImGuiWindowFlags_NoCollapse);
                 member.second->Display();
                 ImGui::End();
             }
