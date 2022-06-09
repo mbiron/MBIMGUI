@@ -1,4 +1,5 @@
 #include <filesystem>
+#include <cstdarg>
 #include "MBILogger.h"
 
 MBILogger::MBILog::MBILog(MBILogLevel level, std::string msg) : m_level(level), m_message(msg)
@@ -152,8 +153,21 @@ void MBILogger::Log(MBILogLevel level, std::string msg)
     if (m_logToFile)
     {
         m_filestream << log.GetLevelString() << "\t" << std::setfill(' ') << std::left << std::setw(50) << log.GetMessageLog() << "\t" << log.GetTime() << std::endl;
-    }   
+    }
 }
+
+void MBILogger::Log(MBILogLevel level, const char *msg, ...)
+{
+    va_list args;
+    char str[256];
+    
+    va_start(args, msg);
+    vsnprintf(str, 256, msg, args);
+    va_end(args);
+
+    Log(level, std::string(str));
+}
+
 /**
  * @brief Log a message with the level MBILogLevel::LOG_LEVEL_INFO
  *

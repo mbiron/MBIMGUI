@@ -96,6 +96,7 @@ public:
      * @param msg Message to be logged
      */
     void Log(MBILogLevel level, std::string msg);
+    void Log(MBILogLevel level, const char* msg, ...);
 
     /**
      * @brief Log a message with the level MBILogLevel::LOG_LEVEL_INFO
