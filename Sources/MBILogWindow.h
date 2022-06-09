@@ -6,7 +6,6 @@
 class MBILogWindow : public MBIWindow
 {
 private:
-    MBILogger &m_logger;
     const ImVec4 inline GetLevelColor(MBILogger::MBILogLevel eLevel) const
     {
         switch (eLevel)
@@ -24,7 +23,7 @@ private:
     }
 
 public:
-    MBILogWindow(std::string name, MBILogger &logger) : MBIWindow(name, 0, 0, MBIWindowConfig_hideableInMenu), m_logger(logger) {}
+    MBILogWindow(std::string name) : MBIWindow(name, 0, 0, MBIWindowConfig_hideableInMenu) {}
     void Display()
     {
         static const ImGuiTableFlags flags = ImGuiTableFlags_SizingFixedFit | ImGuiTableFlags_Resizable | ImGuiTableFlags_BordersOuter | ImGuiTableFlags_BordersV;
@@ -36,7 +35,7 @@ public:
             ImGui::TableSetupColumn("Message", ImGuiTableColumnFlags_WidthStretch);
             ImGui::TableSetupColumn("Date");
             ImGui::TableHeadersRow();
-            for (auto log : m_logger.m_logs)
+            for (const auto log : m_logger.m_logs)
             {
                 /* Add a new row */
                 ImGui::TableNextRow();

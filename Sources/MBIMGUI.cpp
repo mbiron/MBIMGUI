@@ -21,7 +21,7 @@ MBIMGUI::MBIMGUI(const std::string name, int width, int height, MBIConfigFlags f
 
     if (m_confFlags & MBIConfig_displayLogWindow)
     {
-        m_windows[DOCK_DOWN] = new MBILogWindow("Logs", m_logger);
+        m_windows[DOCK_DOWN] = new MBILogWindow("Logs");
     }
 
     m_logFileDialog.SetTitle("Choose log file");
