@@ -1,5 +1,8 @@
 #include <filesystem>
 #include <cstdarg>
+#include <sstream>
+#include <ctime>
+
 #include "MBILogger.h"
 
 MBILogger::MBILog::MBILog(MBILogLevel level, std::string msg) : m_level(level), m_message(msg)
@@ -21,7 +24,7 @@ MBILogger::MBILogLevel MBILogger::MBILog::GetLevel() const
     return m_level;
 }
 
-std::string MBILogger::MBILog::GetLevelString() const
+const std::string MBILogger::MBILog::GetLevelString() const
 {
     switch (m_level)
     {
@@ -37,11 +40,11 @@ std::string MBILogger::MBILog::GetLevelString() const
     }
 }
 
-std::string MBILogger::MBILog::GetMessageLog() const
+const std::string & MBILogger::MBILog::GetMessageLog() const
 {
     return m_message;
 }
-std::string MBILogger::MBILog::GetTime() const
+const std::string & MBILogger::MBILog::GetTime() const
 {
     return m_time;
 }

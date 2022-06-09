@@ -5,11 +5,8 @@
 #include "Dx12Renderer.h"
 #include "imgui_impl_win32.h"
 
-#if 0
-#define MBIMGUI_WINDOW_STYLE (WS_POPUP | WS_EX_TOOLWINDOW)
-#else
 #define MBIMGUI_WINDOW_STYLE (WS_OVERLAPPEDWINDOW)
-#endif
+
 
 extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
@@ -82,12 +79,6 @@ Win32Renderer::Win32Renderer(std::string name, int width, int height) : m_width(
         ::ShowWindow(m_hwnd, SW_SHOWDEFAULT);
         ::UpdateWindow(m_hwnd);
     }
-#if 0
-    LONG lStyle = GetWindowLong(m_hwnd, GWL_STYLE);
-    lStyle |= WS_THICKFRAME;
-    lStyle = lStyle & ~WS_CAPTION;
-    SetWindowLong(m_hwnd, GWL_STYLE, lStyle);
-#endif
 }
 
 HWND Win32Renderer::getWindowHandle()
@@ -109,7 +100,7 @@ void Win32Renderer::Render()
     m_pRenderer->Render();
     return;
 }
-#include <iostream>
+
 bool Win32Renderer::Init()
 {
     bool res = false;
@@ -145,12 +136,6 @@ void Win32Renderer::Shutdown()
     m_pRenderer->Shutdown();
     ImGui_ImplWin32_Shutdown();
 }
-
-/*
-void Win32Renderer::GetDPIScale()
-{
-    ImGui_ImplWin32_GetDpiScaleForMonitor();
-}*/
 
 /**
  * @brief Make a new frame for this platform

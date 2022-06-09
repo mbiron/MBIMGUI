@@ -34,7 +34,17 @@ private:
     MBIWindowConfigFlags m_flags;
 
 protected:
+    /**
+     * @brief Logger to display logs to the users (if MBIMGUI::MBIConfig_displayLogWindow is set).
+     * See MBILogger for more infos.
+     *
+     */
     MBILogger &m_logger;
+    /**
+     * @brief Use this to override default ImGui window behaviour. These flags will be added to default ones configured by MBIMGUI
+     *
+     */
+    ImGuiWindowFlags m_imguiFlags;
 
 public:
     /**
@@ -45,7 +55,7 @@ public:
      * @param width Windows wifth, useful only if the window is not docked by default
      * @param flags Configuration flags, see ::_MBIWindowConfigFlags
      */
-    MBIWindow(std::string name, int height, int width, MBIWindowConfigFlags flags = 0);
+    MBIWindow(std::string name, int height = 0, int width = 0, MBIWindowConfigFlags flags = 0);
     /**
      * @brief Get the Window Size object
      *
@@ -57,7 +67,15 @@ public:
      *
      * @return std::string
      */
-    std::string GetName() const;
+    const std::string& GetName() const;
+
+    /**
+     * @brief Get the ImGui Flags
+     * 
+     * @return ImGuiWindowFlags 
+     */
+    ImGuiWindowFlags GetFlags() const;
+
     /**
      * @brief Main method, called at each frame to display your window
      *

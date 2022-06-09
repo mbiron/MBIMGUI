@@ -1,15 +1,11 @@
 #pragma once
 
-#include <string>
-#include <ctime>
-#include <vector>
-#include <iostream>
 #include <fstream>
-#include <sstream>
+
 #include "MBICircularBuffer.h"
 
 /**
- * @brief This class represent the logger of the application. The logger will allows you to display debug and operational
+ * @brief This class represent the logger of the application. The logger allows you to display debug and operational
  * logs to the users, to write them into a logfile, to display error popup etc.
  *
  */
@@ -39,9 +35,9 @@ private:
         MBILog(MBILogLevel level = LOG_LEVEL_INFO, std::string msg = "");
 
         MBILogLevel GetLevel() const;
-        std::string GetLevelString() const;
-        std::string GetMessageLog() const;
-        std::string GetTime() const;
+        const std::string GetLevelString() const;
+        const std::string &GetMessageLog() const;
+        const std::string &GetTime() const;
 
     private:
         MBILogLevel m_level;

@@ -4,7 +4,8 @@ MBIWindow::MBIWindow(std::string name, int height, int width, MBIWindowConfigFla
                                                                                             m_bVisible(true),
                                                                                             m_flags(flags),
                                                                                             m_logger(MBIMGUI::GetLogger()),
-                                                                                            m_size(ImVec2((float)width, (float)height))
+                                                                                            m_size(ImVec2((float)width, (float)height)),
+                                                                                            m_imguiFlags(0)
 {
 }
 
@@ -13,9 +14,14 @@ ImVec2 MBIWindow::GetWindowSize() const
     return m_size;
 }
 
-std::string MBIWindow::GetName() const
+const std::string & MBIWindow::GetName() const
 {
     return m_name;
+}
+
+ImGuiWindowFlags MBIWindow::GetFlags() const
+{
+    return m_imguiFlags;
 }
 
 bool MBIWindow::IsInMenu() const

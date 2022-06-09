@@ -237,10 +237,16 @@ public:
         }
     }
 
-    T operator[](int idx) const
+    const T &operator[](int idx) const
     {
         if (idx > size())
             return T();
+        int index = (m_begin + idx) % size();
+        return m_buff[index];
+    }
+
+    T &operator[](int idx)
+    {
         int index = (m_begin + idx) % size();
         return m_buff[index];
     }

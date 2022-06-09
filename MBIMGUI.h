@@ -1,6 +1,5 @@
 #pragma once
 #include <string>
-#include <vector>
 #include <map>
 
 // Include everything needed for clients
@@ -52,7 +51,6 @@ public:
 private:
     Renderer *m_pRenderer;
     std::string m_name;
-    ImGuiWindowFlags m_windowFlags;
     std::map<MBIDockOption, MBIWindow *> m_windows; // TODO multiple maps ?
 
     MBIConfigFlags m_confFlags;
@@ -106,9 +104,6 @@ public:
      * @return MBILogger& Reference to the logger of the application.
      */
     static MBILogger &GetLogger();
-
-    // TODO : Useful ?
-    void SetWindowFlags(const ImGuiWindowFlags flags);
 
     // TODO : Persistent option mechanism ?
 };

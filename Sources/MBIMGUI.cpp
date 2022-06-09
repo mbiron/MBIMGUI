@@ -18,8 +18,6 @@ MBILogger MBIMGUI::m_logger = MBILogger();
 MBIMGUI::MBIMGUI(const std::string name, int width, int height, MBIConfigFlags flags) : m_name(name), m_confFlags(flags), m_logFileDialog(ImGuiFileBrowserFlags_EnterNewFilename)
 {
     m_pRenderer = new Win32Renderer(name, width, height);
-    // Default config flags
-    m_windowFlags = ImGuiWindowFlags_NoCollapse;
 
     if (m_confFlags & MBIConfig_displayLogWindow)
     {
@@ -160,11 +158,6 @@ bool MBIMGUI::Init(float fontsize) const
     //style.ScaleAllSizes(scale);
 
     return m_pRenderer->Init();
-}
-
-void MBIMGUI::SetWindowFlags(ImGuiWindowFlags flags)
-{
-    m_windowFlags = flags;
 }
 
 void MBIMGUI::AddWindow(MBIWindow *window, MBIDockOption option)
@@ -421,7 +414,7 @@ void MBIMGUI::Show()
                     ImGui::SetNextWindowSize(member.second->GetWindowSize(), ImGuiCond_Once);
 
                 // Do not use ImGuiWindowFlags_AlwaysAutoResize. It has a strange behaviour with Implot Windows (TODO : Open an issue to epezent)
-                ImGui::Begin(member.second->GetName().c_str(), NULL, ImGuiWindowFlags_NoCollapse);
+                ImGui::Begin(member.second->GetName().c_str(), NULL, ImGuiWindowFlags_NoCollapse | member.second->GetFlags());
                 member.second->Display();
                 ImGui::End();
             }
