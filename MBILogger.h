@@ -60,7 +60,7 @@ private:
 public:
     /**
      * @brief Construct a new MBILogger object
-     * @warning You never have to called this, the logger of the app is created internally by the framework. You can reterive it using MBIMGUI::GetLogger()
+     * @warning You souhld never call this, the logger of the app is created internally by the framework. You can reterive it using MBIMGUI::GetLogger()
      */
     MBILogger();
 
@@ -99,6 +99,8 @@ public:
      * @param msg Message to be logged
      */
     void LogError(std::string &msg);
+
+    // TODO : LogInfo ? LogOnce ! May be useful for debug
 
     /**
      * @brief Log a message with the level MBILogLevel::LOG_LEVEL_ERROR and display it in a popup.

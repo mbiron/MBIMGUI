@@ -102,7 +102,18 @@ void MBILogger::Configure(bool popupOnError, const std::string &logfile)
 
     if (logfile != "")
     {
-        m_filestream.open(logfile, std::fstream::out | std::fstream::app);
+        std::ios_base::openmode mode = std::fstream::out;
+        // If file is large, truncate it
+        if (std::filesystem::file_size(logfile) > 4096)
+        {
+            mode |= std::fstream::trunc;
+        }
+        else
+        {
+            mode |= std::fstream::app;
+        }
+
+        m_filestream.open(logfile, mode);
         if (m_filestream.fail())
         {
             m_logToFile = false;
