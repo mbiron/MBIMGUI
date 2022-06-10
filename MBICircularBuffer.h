@@ -240,13 +240,25 @@ public:
     const T &operator[](int idx) const
     {
         if (idx > size())
-            return T();
+        {
+            if(m_full) 
+            {
+                return m_buff[m_capacity];
+            }
+            else
+            {
+                return m_buff[m_end];
+            }
+        }
+            
         int index = (m_begin + idx) % size();
         return m_buff[index];
     }
 
     T &operator[](int idx)
     {
+        if (idx > size())
+            return *end();
         int index = (m_begin + idx) % size();
         return m_buff[index];
     }

@@ -91,22 +91,14 @@ public:
      * @param level Level of the message
      * @param msg Message to be logged
      */
-    void Log(MBILogLevel level, std::string msg);
-    void Log(MBILogLevel level, const char* msg, ...);
-
-    /**
-     * @brief Log a message with the level MBILogLevel::LOG_LEVEL_INFO
-     *
-     * @param msg Message to be logged
-     */
-    void LogInfo(std::string msg);
-
+    void Log(MBILogLevel level, std::string &msg);
+    void Log(MBILogLevel level, const char *msg, ...);
     /**
      * @brief Log a message with the level MBILogLevel::LOG_LEVEL_ERROR
      *
      * @param msg Message to be logged
      */
-    void LogError(std::string msg);
+    void LogError(std::string &msg);
 
     /**
      * @brief Log a message with the level MBILogLevel::LOG_LEVEL_ERROR and display it in a popup.
@@ -114,5 +106,5 @@ public:
      *
      * @param msg Message to be logged and displayed in the popup
      */
-    void PopupError(std::string msg);
+    void PopupError(std::string &msg);
 };

@@ -40,11 +40,11 @@ const std::string MBILogger::MBILog::GetLevelString() const
     }
 }
 
-const std::string & MBILogger::MBILog::GetMessageLog() const
+const std::string &MBILogger::MBILog::GetMessageLog() const
 {
     return m_message;
 }
-const std::string & MBILogger::MBILog::GetTime() const
+const std::string &MBILogger::MBILog::GetTime() const
 {
     return m_time;
 }
@@ -143,7 +143,7 @@ void MBILogger::Configure(bool popupOnError, const std::string &logfile)
  * @param level Level of the message
  * @param msg Message to be logged
  */
-void MBILogger::Log(MBILogLevel level, std::string msg)
+void MBILogger::Log(MBILogLevel level, std::string &msg)
 {
     MBILog log = MBILog(level, msg);
     m_logs.push(log);
@@ -163,7 +163,7 @@ void MBILogger::Log(MBILogLevel level, const char *msg, ...)
 {
     va_list args;
     char str[256];
-    
+
     va_start(args, msg);
     vsnprintf(str, 256, msg, args);
     va_end(args);
@@ -172,24 +172,19 @@ void MBILogger::Log(MBILogLevel level, const char *msg, ...)
 }
 
 /**
- * @brief Log a message with the level MBILogLevel::LOG_LEVEL_INFO
- *
- * @param msg Message to be logged
- */
-void MBILogger::LogInfo(std::string msg) { Log(LOG_LEVEL_INFO, msg); }
-/**
  * @brief Log a message with the level MBILogLevel::LOG_LEVEL_ERROR
  *
  * @param msg Message to be logged
  */
-void MBILogger::LogError(std::string msg) { Log(LOG_LEVEL_ERROR, msg); }
+void MBILogger::LogError(std::string &msg) { Log(LOG_LEVEL_ERROR, msg); }
+
 /**
  * @brief Log a message with the level MBILogLevel::LOG_LEVEL_ERROR and display it in a popup.
  * The popup will appear even if the ::Configure function has been used to disable automatic popup on error.
  *
  * @param msg Message to be logged and displayed in the popup
  */
-void MBILogger::PopupError(std::string msg)
+void MBILogger::PopupError(std::string &msg)
 {
     LogError(msg);
     if (!m_popupOnError)
