@@ -44,6 +44,7 @@ set(SRC_FILES ${IMGUI_SRC}
               ${SRC_DIR}MBIMGUI.cpp 
               ${SRC_DIR}MBIWindow.cpp 
               ${SRC_DIR}MBILogger.cpp 
+              ${SRC_DIR}imgui_combowithfilter.cpp 
               ${RENDERERS_SRC} )  
               
 set(HEADER_FILES MBIMGUI.h)

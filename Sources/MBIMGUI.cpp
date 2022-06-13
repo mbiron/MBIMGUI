@@ -19,9 +19,19 @@ MBIMGUI::MBIMGUI(const std::string name, int width, int height, MBIConfigFlags f
 {
     m_pRenderer = new Win32Renderer(name, width, height);
 
+    if( (m_confFlags & MBIConfig_displayLogWindow) && (m_confFlags & MBIConfig_displayLogBar) )
+    {
+        m_logger.Log(m_logger.LOG_LEVEL_WARNING, "Can't use both log window and log bar. Switching to log window");
+        m_confFlags &= ~MBIConfig_displayLogBar;
+    }
+
     if (m_confFlags & MBIConfig_displayLogWindow)
     {
-        m_windows[DOCK_DOWN] = new MBILogWindow("Logs");
+        m_windows[DOCK_DOWN] = new MBILogWindow("Logs", MBILogWindow::MODE_WINDOW);
+    }
+    else if (m_confFlags & MBIConfig_displayLogBar)
+    {
+        m_windows[DOCK_DOWN] = new MBILogWindow("Logs", MBILogWindow::MODE_BAR);
     }
 
     m_logFileDialog.SetTitle("Choose log file");
@@ -61,19 +71,34 @@ void MBIMGUI::SetupDockspace() const
     ImGui::DockBuilderSetNodePos(dockspaceId, viewport->Pos);
     // ImGui::DockBuilderSetNodePos(dockspaceId,viewport->WorkPos);
 
+    ImGuiID dock_down_id = 0;
     ImGuiID dock_up_id = ImGui::DockBuilderSplitNode(dockspaceId, ImGuiDir_Up, 0.05f, nullptr, &dockspaceId);
+    if (m_confFlags & MBIConfig_displayLogBar)
+    {
+        dock_down_id = ImGui::DockBuilderSplitNode(dockspaceId, ImGuiDir_Down, 0.04f, nullptr, &dockspaceId);
+    }
+
     ImGuiID dock_right_id = ImGui::DockBuilderSplitNode(dockspaceId, ImGuiDir_Right, 0.40f, nullptr, &dockspaceId);
     ImGuiID dock_left_id = ImGui::DockBuilderSplitNode(dockspaceId, ImGuiDir_Left, 0.2f, nullptr, &dockspaceId);
-    ImGuiID dock_down_id = ImGui::DockBuilderSplitNode(dockspaceId, ImGuiDir_Down, 0.15f, nullptr, &dockspaceId);
+
+    if (dock_down_id == 0)
+    {
+        dock_down_id = ImGui::DockBuilderSplitNode(dockspaceId, ImGuiDir_Down, 0.15f, nullptr, &dockspaceId);
+    }
     // ImGuiID dock_down_right_id = ImGui::DockBuilderSplitNode(dock_down_id, ImGuiDir_Right, 0.6f, nullptr, &dock_down_id);
 
-    // TODO : Think about ordering (right before down ?)
     for (const auto &member : m_windows)
     {
         ImGuiID dockId = 0;
         switch (member.first)
         {
         case DOCK_DOWN:
+            // If log bar, don't show tab bar and make it static
+            if (m_confFlags & MBIConfig_displayLogBar)
+            {
+                ImGuiDockNode *Node = ImGui::DockBuilderGetNode(dock_down_id);
+                Node->LocalFlags |= ImGuiDockNodeFlags_NoTabBar | ImGuiDockNodeFlags_NoWindowMenuButton | ImGuiDockNodeFlags_NoCloseButton | ImGuiDockNodeFlags_NoResizeY;
+            }
             dockId = dock_down_id;
             break;
         case DOCK_UP:
@@ -92,9 +117,9 @@ void MBIMGUI::SetupDockspace() const
         default:
             continue;
         }
+
         ImGui::DockBuilderDockWindow(member.second->GetName().c_str(), dockId);
     }
-
     ImGui::DockBuilderFinish(dockspaceId);
 }
 
@@ -106,12 +131,13 @@ void MBIMGUI::SetupDockspace() const
 
 bool MBIMGUI::Init(float fontsize) const
 {
+
     // Setup Dear ImGui context
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
     ImPlot::CreateContext();
     ImGuiIO &io = ImGui::GetIO();
-    float scale = 1.0f; // To handle DPI but I'm not able to make it works for now 
+    float scale = 1.0f; // To handle DPI but I'm not able to make it works for now
 
     // io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
     // io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
@@ -155,7 +181,7 @@ bool MBIMGUI::Init(float fontsize) const
         style.Colors[ImGuiCol_WindowBg].w = 1.0f;
     }
     // Doesn't work ?
-    //style.ScaleAllSizes(scale);
+    // style.ScaleAllSizes(scale);
 
     return m_pRenderer->Init();
 }

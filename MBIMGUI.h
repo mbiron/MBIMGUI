@@ -40,7 +40,8 @@ public:
         MBIConfig_displayMetrics = 1 << 2,    ///< Display the ImGui metrics window by default (useful for debug)
         MBIConfig_displayImGuiDemo = 1 << 3,  ///< Display the ImGui debug window by default (useful for debug)
         MBIConfig_displayImPlotDemo = 1 << 4, ///< Display the ImPlot debug window by default (useful for debug)
-        MBIConfig_displayMenuBar = 1 << 5     ///< Display a top menu with default options (closing, hidding/showing window, help...)
+        MBIConfig_displayMenuBar = 1 << 5,    ///< Display a top menu with default options (closing, hidding/showing window, help...)
+        MBIConfig_displayLogBar = 1 << 6      ///< Display a log bar at the bottom of the main window
     };
     /**
      * @brief Framework configuration flags
@@ -106,4 +107,13 @@ public:
     static MBILogger &GetLogger();
 
     // TODO : Persistent option mechanism ?
+};
+
+namespace ImGui
+{
+    /**
+     * @brief
+     *
+     */
+    bool ComboWithFilter(const char *label, int *current_item, const std::vector<std::string> &items, int popup_max_height_in_items = -1);
 };
