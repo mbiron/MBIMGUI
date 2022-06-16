@@ -112,8 +112,24 @@ public:
 namespace ImGui
 {
     /**
-     * @brief
+     * @brief A combo with an input text and a filter mechanism.
      *
+     * @param label Widget label
+     * @param current_item Current item selected in the list
+     * @param items List of items
+     * @param popup_max_height_in_items Size of the list displayed. Set -1 for default
+     * @return true
+     * @return false
      */
     bool ComboWithFilter(const char *label, int *current_item, const std::vector<std::string> &items, int popup_max_height_in_items = -1);
+
+    /**
+     * @brief A basic toggle button
+     *
+     * @param str_id Widget label
+     * @param v Value retreive by the button
+     * @return true
+     * @return false
+     */
+    bool ToggleButton(const char *str_id, bool *v);
 };
