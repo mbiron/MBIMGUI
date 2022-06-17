@@ -29,6 +29,9 @@ set(IMPLOT_SRC  ${IMPLOT_DIR}/implot.cpp
 ### IMFILEBROWSER
 set(IMFILEBROWSER_DIR ../Imgui/imgui-filebrowser)
 
+### Memory Editor
+set(IMEMEDIT_DIR ../Imgui/imgui_club/imgui_memory_editor)
+
 ### Project 
 project(MBIMGUI VERSION 0.1.0)
 
@@ -67,7 +70,9 @@ target_include_directories(${PROJECT_NAME} PRIVATE ${SRC_DIR} ${SRC_DIR_REND}
         ${PROJECT_SOURCE_DIR} 
         ${IMGUI_DIR} ${IMGUI_BACKENDS_DIR}
         ${IMPLOT_DIR}
-        ${IMFILEBROWSER_DIR})
+        ${IMFILEBROWSER_DIR}
+        ${IMEMEDIT_DIR}
+        )
 
 ### Linker
 target_link_libraries(${PROJECT_NAME} d3d12.lib) 

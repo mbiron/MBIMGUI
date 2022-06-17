@@ -2,10 +2,11 @@
 #include <string>
 #include <map>
 
-// Include everything needed for clients
+// Include everything needed by users
 #include "imgui.h"
 #include "imfilebrowser.h"
 #include "implot.h"
+#include "imgui_memory_editor.h"
 
 #include "MBIWindow.h"
 #include "MBILogger.h"
@@ -109,6 +110,10 @@ public:
     // TODO : Persistent option mechanism ?
 };
 
+/**
+ * @brief Extension widgets
+ * 
+ */
 namespace ImGui
 {
     /**
@@ -117,9 +122,9 @@ namespace ImGui
      * @param label Widget label
      * @param current_item Current item selected in the list
      * @param items List of items
-     * @param popup_max_height_in_items Size of the list displayed. Set -1 for default
-     * @return true
-     * @return false
+     * @param popup_max_height_in_items Maximum number of items to be displayed in the popup. Set -1 for default.
+     * @return true if value has been modified in the previous frame
+     * @return false otherwise
      */
     bool ComboWithFilter(const char *label, int *current_item, const std::vector<std::string> &items, int popup_max_height_in_items = -1);
 
@@ -128,8 +133,8 @@ namespace ImGui
      *
      * @param str_id Widget label
      * @param v Value retreive by the button
-     * @return true
-     * @return false
+     * @return true if value has been modified in the previous frame
+     * @return false otherwise
      */
     bool ToggleButton(const char *str_id, bool *v);
 };
