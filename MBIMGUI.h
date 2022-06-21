@@ -35,6 +35,19 @@ public:
         DOCK_DOWN
     } MBIDockOption;
 
+    /**
+     * @brief Color scheme
+     *
+     */
+    typedef enum _MBIColorStyle
+    {
+        STYLE_IMGUI_DEFAULT, ///< Default Imgui color style
+        STYLE_IMGUI_DARK,    ///< Default dark Imgui color style
+        STYLE_IMGUI_LIGHT,   ///< Default light Imgui color style
+        STYLE_VISUAL_DARK,   ///< Custom dark style (Style from @MomoDeve : https://github.com/ocornut/imgui/issues/707#issuecomment-670976818)
+        STYLE_CORPORATE_GREY ///< Custom corporate grey  (Style from @malamanteau : https://github.com/ocornut/imgui/issues/707#issuecomment-468798935)
+    } MBIColorStyle;
+
     enum _MBIConfigFlags
     {
         MBIConfig_displayLogWindow = 1 << 1,  ///< Display a log window, below main central window by default
@@ -81,10 +94,11 @@ public:
      * @brief Framework initialisation function. This function must be called before any other operation.
      *
      * @param fontsize Set the displayed font size of the app
+     * @param eStyle Color style for the app
      * @return true If initialisation is successfull
      * @return false If an error occured
      */
-    bool Init(float fontsize = 13.0f) const;
+    bool Init(float fontsize = 13.0f, MBIColorStyle eStyle = STYLE_VISUAL_DARK) const;
     /**
      * @brief Add a window in the application. This window can be docked in the main frame, or free. This may be changed
      * by the user during application lifetime.
@@ -112,7 +126,7 @@ public:
 
 /**
  * @brief Extension widgets
- * 
+ *
  */
 namespace ImGui
 {
