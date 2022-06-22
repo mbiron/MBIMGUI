@@ -356,6 +356,7 @@ bool MBIMGUI::Init(float fontsize, const MBIColorStyle eStyle) const
     style.FrameRounding = 8.0f;
     style.CellPadding.x = 10.0f;
     style.ItemSpacing.x = 15.0f;
+    style.ItemSpacing.y = 6.0f;
     style.FramePadding.x = 6.0f;
 
     // When viewports are enabled we tweak WindowRounding/WindowBg so platform windows can look identical to regular ones.
