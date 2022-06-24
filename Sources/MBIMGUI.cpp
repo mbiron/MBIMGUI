@@ -38,6 +38,8 @@ MBIMGUI::MBIMGUI(const std::string name, int width, int height, MBIConfigFlags f
     m_logFileDialog.SetTypeFilters({".log"});
     m_logFileDialog.SetInputName("logfile.log");
 
+    m_aboutWindow = nullptr;
+
     // ImGuiWindowFlags_NoSavedSettings --> Not compatible with default docking
     //| ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize
 }
@@ -344,7 +346,7 @@ bool MBIMGUI::Init(float fontsize, const MBIColorStyle eStyle) const
     case STYLE_VISUAL_DARK:
         StyleVisualDark();
         break;
-    
+
     case STYLE_CORPORATE_GREY:
     default:
         StyleCorporateGrey();
@@ -371,6 +373,11 @@ bool MBIMGUI::Init(float fontsize, const MBIColorStyle eStyle) const
     return m_pRenderer->Init();
 }
 
+void MBIMGUI::AddAboutWindow(MBIWindow *window)
+{
+    m_aboutWindow = window;
+}
+
 void MBIMGUI::AddWindow(MBIWindow *window, MBIDockOption option)
 {
     m_windows[option] = window;
@@ -379,6 +386,38 @@ void MBIMGUI::AddWindow(MBIWindow *window, MBIDockOption option)
 MBILogger &MBIMGUI::GetLogger()
 {
     return m_logger;
+}
+
+void inline MBIMGUI::ShowAboutWindow(bool *openWindow) const
+{
+    static bool bShowAboutImGui = false;
+    if (m_aboutWindow != nullptr)
+    {
+        if (ImGui::Begin(m_aboutWindow->GetName().c_str(), openWindow, ImGuiWindowFlags_AlwaysAutoResize))
+        {
+            m_aboutWindow->Display();
+            ImGui::Separator();
+        }
+    }
+    else
+    {
+        ImGui::Begin("About MBIMGUI", openWindow, ImGuiWindowFlags_AlwaysAutoResize);
+    }
+
+    if ((*openWindow) == true)
+    {
+        ImGui::Text("This application has been made using MBIMGUI V" MBIMGUI_VERSION);
+        ImGui::Text("MBIMGUI is a simple overlay above ImGui and ImPlot frameworks.");
+        if (ImGui::Button("Show ImGui Infos"))
+        {
+            bShowAboutImGui = true;
+        }
+        if (bShowAboutImGui)
+        {
+            ImGui::ShowAboutWindow(&bShowAboutImGui);
+        }
+    }
+    ImGui::End();
 }
 
 void inline MBIMGUI::ShowOptionWindow(bool &openWindow)
@@ -527,6 +566,7 @@ void MBIMGUI::Show()
             static bool bShowImplotStyle = false;
             static bool bShowAbout = false;
             static bool bShowOptions = false;
+            static bool bShowGraphHelp = false;
             if (ImGui::BeginMainMenuBar())
             {
                 if (ImGui::BeginMenu("File"))
@@ -574,13 +614,22 @@ void MBIMGUI::Show()
                 if (ImGui::BeginMenu("Help"))
                 {
                     ImGui::MenuItem("About", NULL, &bShowAbout);
+                    ImGui::MenuItem("Graph user guide", NULL, &bShowGraphHelp);
                     ImGui::EndMenu();
                 }
                 ImGui::EndMainMenuBar();
             }
             if (bShowAbout)
             {
-                ImGui::ShowAboutWindow(&bShowAbout);
+                ShowAboutWindow(&bShowAbout);
+            }
+            if (bShowGraphHelp)
+            {
+                if (ImGui::Begin("Graph user guide", &bShowGraphHelp))
+                {
+                    ImPlot::ShowUserGuide();
+                }
+                ImGui::End();
             }
             if (bShowMetrics)
             {
@@ -591,26 +640,25 @@ void MBIMGUI::Show()
                 if (ImGui::Begin("GUI Style editor", &bShowImguiStyle))
                 {
                     ImGui::ShowStyleEditor();
-                    ImGui::End();
                 }
+                ImGui::End();
             }
             if (bShowImplotStyle)
             {
                 if (ImGui::Begin("Plot Style editor", &bShowImplotStyle))
                 {
                     ImPlot::ShowStyleEditor();
-                    ImGui::End();
                 }
+                ImGui::End();
             }
             if (bShowOptions)
             {
                 ImGui::SetNextWindowSize(ImVec2(300, 200), ImGuiCond_Appearing);
                 if (ImGui::Begin("Options", &bShowOptions, ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoDocking))
                 {
-
                     ShowOptionWindow(bShowOptions);
-                    ImGui::End();
                 }
+                ImGui::End();
             }
         }
 
@@ -625,8 +673,10 @@ void MBIMGUI::Show()
                     ImGui::SetNextWindowSize(member.second->GetWindowSize(), ImGuiCond_Once);
 
                 // Do not use ImGuiWindowFlags_AlwaysAutoResize. It has a strange behaviour with Implot Windows (TODO : Open an issue to epezent)
-                ImGui::Begin(member.second->GetName().c_str(), NULL, ImGuiWindowFlags_NoCollapse | member.second->GetFlags());
-                member.second->Display();
+                if (ImGui::Begin(member.second->GetName().c_str(), NULL, ImGuiWindowFlags_NoCollapse | member.second->GetFlags()))
+                {
+                    member.second->Display();
+                }
                 ImGui::End();
             }
         }

@@ -13,6 +13,8 @@
 
 class Renderer;
 
+#define MBIMGUI_VERSION "01.00.00.00"
+
 /**
  * @brief Main class of the MBIMGUI framework. You must create an instance of this class and call ::Init, ::AddWindow and
  * ::Show functions to display your UI
@@ -67,6 +69,7 @@ private:
     Renderer *m_pRenderer;
     std::string m_name;
     std::map<MBIDockOption, MBIWindow *> m_windows; // TODO multiple maps ?
+    MBIWindow *m_aboutWindow;
 
     MBIConfigFlags m_confFlags;
     static MBILogger m_logger;
@@ -74,6 +77,7 @@ private:
 
     void SetupDockspace() const;
     void ShowOptionWindow(bool &closeWindow);
+    void ShowAboutWindow(bool *openWindow) const;
 
 public:
     /**
@@ -107,6 +111,14 @@ public:
      * @param option Set the docking state of your window. Choose MBIDockOption::DOCK_NONE if you want the window to be free by default
      */
     void AddWindow(MBIWindow *window, MBIDockOption option = DOCK_NONE);
+
+    /**
+     * @brief Add a window to be displayed in the about menu.
+     *
+     * @param window A pointer to a MBIWindow object.
+     */
+    void AddAboutWindow(MBIWindow *window);
+
     /**
      * @brief Show the application. This will displayed all the windows added by MBIMGUI::AddWindow function
      *
