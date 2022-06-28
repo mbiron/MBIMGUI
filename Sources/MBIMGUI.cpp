@@ -253,8 +253,8 @@ void StyleVisualDark()
     colors[ImGuiCol_ScrollbarGrabHovered] = veryLightBgColor;
     colors[ImGuiCol_ScrollbarGrabActive] = veryLightBgColor;
     colors[ImGuiCol_CheckMark] = panelActiveColor;
-    colors[ImGuiCol_SliderGrab] = panelHoverColor;
-    colors[ImGuiCol_SliderGrabActive] = panelActiveColor;
+    colors[ImGuiCol_SliderGrab] = panelActiveColor;
+    colors[ImGuiCol_SliderGrabActive] = panelHoverColor;
     colors[ImGuiCol_Button] = panelColor;
     colors[ImGuiCol_ButtonHovered] = panelHoverColor;
     colors[ImGuiCol_ButtonActive] = panelHoverColor;

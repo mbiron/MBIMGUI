@@ -46,7 +46,7 @@ public:
         STYLE_IMGUI_DEFAULT, ///< Default Imgui color style
         STYLE_IMGUI_DARK,    ///< Default dark Imgui color style
         STYLE_IMGUI_LIGHT,   ///< Default light Imgui color style
-        STYLE_VISUAL_DARK,   ///< Custom dark style (Style from @MomoDeve : https://github.com/ocornut/imgui/issues/707#issuecomment-670976818)
+        STYLE_VISUAL_DARK,   ///< Custom dark style (Style from @MomoDeve : https://github.com/ocornut/imgui/issues/707#issuecomment-670976818 , slightly modified)
         STYLE_CORPORATE_GREY ///< Custom corporate grey  (Style from @malamanteau : https://github.com/ocornut/imgui/issues/707#issuecomment-468798935)
     } MBIColorStyle;
 
