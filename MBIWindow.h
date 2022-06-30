@@ -55,7 +55,7 @@ public:
      * @param width Windows wifth, useful only if the window is not docked by default
      * @param flags Configuration flags, see ::_MBIWindowConfigFlags
      */
-    MBIWindow(std::string &name, int height = 0, int width = 0, MBIWindowConfigFlags flags = 0);
+    MBIWindow(const std::string &name, int height = 0, int width = 0, MBIWindowConfigFlags flags = 0);
     /**
      * @brief Get the Window Size object
      *

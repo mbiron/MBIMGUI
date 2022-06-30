@@ -70,6 +70,7 @@ private:
     std::string m_name;
     std::map<MBIDockOption, MBIWindow *> m_windows; // TODO multiple maps ?
     MBIWindow *m_aboutWindow;
+    std::vector<MBIWindow *> m_optionsTabs;
 
     MBIConfigFlags m_confFlags;
     static MBILogger m_logger;
@@ -120,6 +121,13 @@ public:
     void AddAboutWindow(MBIWindow *window);
 
     /**
+     * @brief Add a tab to be displayed in the option menu.
+     *
+     * @param window A pointer to a MBIWindow object.
+     */
+    void AddOptionTab(MBIWindow *window);
+
+    /**
      * @brief Show the application. This will displayed all the windows added by MBIMGUI::AddWindow function
      *
      * @warning This function will block until the application is closed by the user !
@@ -134,6 +142,28 @@ public:
     static MBILogger &GetLogger();
 
     // TODO : Persistent option mechanism ?
+    /* Use std::pair ?
+
+    void SaveOption(const MBIOption& opt);
+    void LoadOption(MBIOption& opt);
+    const std::vector<MBIOption>& LoadAllOption();
+
+    template<typename T>
+    class MBIOption
+    {
+        private:
+            std::pair<std::string, T> opt;
+        public:
+            MBIOption() = delete;
+            MBIOption(std::string name);
+            MBIOption(std::string name, T value);
+
+            std::string toString() const; // To serialize to file 
+            void setValue(T value); 
+            T getValue() const;
+
+    }
+    */
 };
 
 /**

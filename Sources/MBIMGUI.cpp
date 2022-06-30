@@ -99,7 +99,7 @@ void MBIMGUI::SetupDockspace() const
             if (m_confFlags & MBIConfig_displayLogBar)
             {
                 ImGuiDockNode *Node = ImGui::DockBuilderGetNode(dock_down_id);
-                Node->LocalFlags |= ImGuiDockNodeFlags_NoTabBar | ImGuiDockNodeFlags_NoWindowMenuButton | ImGuiDockNodeFlags_NoCloseButton | ImGuiDockNodeFlags_NoResizeY;
+                Node->LocalFlags |= ImGuiDockNodeFlags_NoTabBar | ImGuiDockNodeFlags_NoWindowMenuButton | ImGuiDockNodeFlags_NoCloseButton | ImGuiDockNodeFlags_NoResizeY | ImGuiDockNodeFlags_NoDockingOverMe | ImGuiDockNodeFlags_NoDockingSplitMe | ImGuiDockNodeFlags_NoDocking | ImGuiDockNodeFlags_NoSplit;
             }
             dockId = dock_down_id;
             break;
@@ -383,6 +383,11 @@ void MBIMGUI::AddWindow(MBIWindow *window, MBIDockOption option)
     m_windows[option] = window;
 }
 
+void MBIMGUI::AddOptionTab(MBIWindow *window)
+{
+    m_optionsTabs.push_back(window);
+}
+
 MBILogger &MBIMGUI::GetLogger()
 {
     return m_logger;
@@ -428,11 +433,15 @@ void inline MBIMGUI::ShowOptionWindow(bool &openWindow)
 
     if (ImGui::BeginTabBar("MyTabBar"))
     {
-        if (ImGui::BeginTabItem("General"))
+        for (auto tab : m_optionsTabs)
         {
-            ImGui::Text("TODO");
-            ImGui::EndTabItem();
+            if (ImGui::BeginTabItem(tab->GetName().c_str()))
+            {
+                tab->Display();
+                ImGui::EndTabItem();
+            }
         }
+
         if (ImGui::BeginTabItem("Logs"))
         {
             if (ImGui::Checkbox("Popup on error", &popupOnError))
