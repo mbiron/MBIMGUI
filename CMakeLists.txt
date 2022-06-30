@@ -45,6 +45,7 @@ enable_testing()
 aux_source_directory( ${SRC_DIR_REND} RENDERERS_SRC )
 set(SRC_FILES ${IMGUI_SRC} 
               ${IMPLOT_SRC} 
+              ${SRC_DIR}MBIMNG.cpp 
               ${SRC_DIR}MBIMGUI.cpp 
               ${SRC_DIR}MBIWindow.cpp 
               ${SRC_DIR}MBILogger.cpp 

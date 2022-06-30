@@ -16,11 +16,40 @@ class Renderer;
 #define MBIMGUI_VERSION "01.00.00.00"
 
 /**
+ * @brief Color scheme
+ *
+ */
+typedef enum _MBIColorStyle
+{
+    STYLE_IMGUI_DEFAULT, ///< Default Imgui color style
+    STYLE_IMGUI_DARK,    ///< Default dark Imgui color style
+    STYLE_IMGUI_LIGHT,   ///< Default light Imgui color style
+    STYLE_VISUAL_DARK,   ///< Custom dark style (Style from @MomoDeve : https://github.com/ocornut/imgui/issues/707#issuecomment-670976818 , slightly modified)
+    STYLE_CORPORATE_GREY ///< Custom corporate grey  (Style from @malamanteau : https://github.com/ocornut/imgui/issues/707#issuecomment-468798935)
+} MBIColorStyle;
+
+/**
+ * @brief Framework configuration flags
+ *
+ */
+enum _MBIConfigFlags
+{
+    MBIConfig_displayLogWindow = 1 << 1,  ///< Display a log window, below main central window by default
+    MBIConfig_displayMetrics = 1 << 2,    ///< Display the ImGui metrics window by default (useful for debug)
+    MBIConfig_displayImGuiDemo = 1 << 3,  ///< Display the ImGui debug window by default (useful for debug)
+    MBIConfig_displayImPlotDemo = 1 << 4, ///< Display the ImPlot debug window by default (useful for debug)
+    MBIConfig_displayMenuBar = 1 << 5,    ///< Display a top menu with default options (closing, hidding/showing window, help...)
+    MBIConfig_displayLogBar = 1 << 6      ///< Display a log bar at the bottom of the main window
+};
+
+typedef int MBIConfigFlags;
+
+/**
  * @brief Main class of the MBIMGUI framework. You must create an instance of this class and call ::Init, ::AddWindow and
  * ::Show functions to display your UI
  *
  */
-class MBIMGUI
+class MBIMNG
 {
 public:
     /**
@@ -37,34 +66,6 @@ public:
         DOCK_DOWN
     } MBIDockOption;
 
-    /**
-     * @brief Color scheme
-     *
-     */
-    typedef enum _MBIColorStyle
-    {
-        STYLE_IMGUI_DEFAULT, ///< Default Imgui color style
-        STYLE_IMGUI_DARK,    ///< Default dark Imgui color style
-        STYLE_IMGUI_LIGHT,   ///< Default light Imgui color style
-        STYLE_VISUAL_DARK,   ///< Custom dark style (Style from @MomoDeve : https://github.com/ocornut/imgui/issues/707#issuecomment-670976818 , slightly modified)
-        STYLE_CORPORATE_GREY ///< Custom corporate grey  (Style from @malamanteau : https://github.com/ocornut/imgui/issues/707#issuecomment-468798935)
-    } MBIColorStyle;
-
-    enum _MBIConfigFlags
-    {
-        MBIConfig_displayLogWindow = 1 << 1,  ///< Display a log window, below main central window by default
-        MBIConfig_displayMetrics = 1 << 2,    ///< Display the ImGui metrics window by default (useful for debug)
-        MBIConfig_displayImGuiDemo = 1 << 3,  ///< Display the ImGui debug window by default (useful for debug)
-        MBIConfig_displayImPlotDemo = 1 << 4, ///< Display the ImPlot debug window by default (useful for debug)
-        MBIConfig_displayMenuBar = 1 << 5,    ///< Display a top menu with default options (closing, hidding/showing window, help...)
-        MBIConfig_displayLogBar = 1 << 6      ///< Display a log bar at the bottom of the main window
-    };
-    /**
-     * @brief Framework configuration flags
-     *
-     */
-    typedef int MBIConfigFlags;
-
 private:
     Renderer *m_pRenderer;
     std::string m_name;
@@ -73,7 +74,7 @@ private:
     std::vector<MBIWindow *> m_optionsTabs;
 
     MBIConfigFlags m_confFlags;
-    static MBILogger m_logger;
+    MBILogger& m_logger;
     ImGui::FileBrowser m_logFileDialog;
 
     void SetupDockspace() const;
@@ -89,12 +90,12 @@ public:
      * @param height Height of the main frame (each window can be docked in this main frame)
      * @param flags Framework config flags, see MBIMGUI::_MBIConfigFlags
      */
-    MBIMGUI(const std::string name, int width, int height, const MBIConfigFlags flags = 0);
+    MBIMNG(const std::string name, int width, int height, const MBIConfigFlags flags = 0);
     /**
      * @brief Destroy the MBIMGUI object
      *
      */
-    ~MBIMGUI();
+    ~MBIMNG();
     /**
      * @brief Framework initialisation function. This function must be called before any other operation.
      *
@@ -134,12 +135,16 @@ public:
      * All your interactive operations must be implemented in the Display functions of your windows.
      */
     void Show();
+};
+
+namespace MBIMGUI
+{
     /**
      * @brief Get the Logger of the application. The logger can be configurated (see MBILogger class)
      *
      * @return MBILogger& Reference to the logger of the application.
      */
-    static MBILogger &GetLogger();
+    MBILogger &GetLogger();
 
     // TODO : Persistent option mechanism ?
     /* Use std::pair ?
@@ -158,8 +163,8 @@ public:
             MBIOption(std::string name);
             MBIOption(std::string name, T value);
 
-            std::string toString() const; // To serialize to file 
-            void setValue(T value); 
+            std::string toString() const; // To serialize to file
+            void setValue(T value);
             T getValue() const;
 
     }
@@ -167,7 +172,7 @@ public:
 };
 
 /**
- * @brief Extension widgets
+ * @brief Extension widgets for ImGui
  *
  */
 namespace ImGui
