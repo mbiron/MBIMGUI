@@ -3,7 +3,7 @@
 #include <memory>
 
 /**
- * @brief Circular buffer with no automatic growing and dynamic memory allocation
+ * @brief Circular buffer with no automatic growing nor dynamic memory allocation
  *
  * @tparam T
  */
@@ -241,7 +241,7 @@ public:
     {
         if (idx > size())
         {
-            if(m_full) 
+            if (m_full)
             {
                 return m_buff[m_capacity];
             }
@@ -250,7 +250,7 @@ public:
                 return m_buff[m_end];
             }
         }
-            
+        
         int index = (m_begin + idx) % size();
         return m_buff[index];
     }
