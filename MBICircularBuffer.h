@@ -107,12 +107,14 @@ public:
     {
     }
 
+    virtual ~MBICircularBuffer(){};
+
     /**
      * @brief Return the current buffer size
      *
      * @return int number of objects in the buffer
      */
-    int size() const
+    virtual int size() const
     {
         if (m_full && m_end == m_begin)
         {
@@ -128,7 +130,7 @@ public:
      *
      * @param data Object to add
      */
-    void push(T data)
+    virtual void push(T data)
     {
         m_buff[m_end] = data;
 
@@ -144,7 +146,7 @@ public:
      * @brief Empty and reset the buffer
      *
      */
-    void reset()
+    virtual void reset()
     {
         m_begin = 0;
         m_end = 0;
@@ -155,7 +157,7 @@ public:
      *
      * @return T Oldest object inserted into the buffer
      */
-    T pop()
+    virtual T pop()
     {
         if (empty())
             return T();
@@ -255,7 +257,7 @@ public:
         return m_buff[index];
     }
 
-    T &operator[](int idx)
+    virtual T &operator[](int idx)
     {
         if (idx > size())
             return *end();
