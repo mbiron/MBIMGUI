@@ -1,12 +1,14 @@
 #pragma once
+#include <mutex>
 #include "MBICircularBuffer.h"
+
 /**
  * @brief Circular buffer with no automatic growing nor dynamic memory allocation and thread safe
  *
  * @tparam T
  */
 template <typename T>
-class MBISyncCircularBuffer : MBICircularBuffer<T>
+class MBISyncCircularBuffer : public MBICircularBuffer<T>
 {
     std::mutex m_mut;
 
@@ -18,12 +20,6 @@ public:
     {
         std::lock_guard<std::mutex> guard(m_mut);
         MBICircularBuffer::push(data);
-    }
-
-    void reset()
-    {
-        std::lock_guard<std::mutex> guard(m_mut);
-        MBICircularBuffer::reset();
     }
 
     T pop()
@@ -41,6 +37,12 @@ public:
     int size()
     {
         std::lock_guard<std::mutex> guard(m_mut);
-        return MBICircularBuffer::size(); 
+        return MBICircularBuffer::size();
+    }
+
+    T last()
+    {
+        std::lock_guard<std::mutex> guard(m_mut);
+        return MBICircularBuffer::last();
     }
 };

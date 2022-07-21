@@ -3,28 +3,17 @@
 #include <memory>
 
 /**
- * @brief Circular buffer with no automatic growing nor dynamic memory allocation
+ * @brief Circular buffer with no automatic growing nor dynamic memory allocation after construction
  *
  * @tparam T
  */
 template <typename T>
 class MBICircularBuffer
 {
-private:
-    std::unique_ptr<T[]> m_buff;
-    int m_capacity;
-    int m_begin;
-    int m_end;
-    bool m_full;
-
-    void increasecount(int &count)
-    {
-        count = (count + 1) % m_capacity;
-    }
-
 public:
     class MBICircularIterator;
     friend class MBICircularIterator;
+
     /**
      * @brief Forward iterator on a MBICircularBuffer object
      *
@@ -54,6 +43,17 @@ public:
 
         reference operator*() const { return *m_ptr; }
         pointer operator->() { return m_ptr; }
+
+        MBICircularIterator &operator=(const MBICircularIterator &other)
+        {
+            if (this != &other && this->m_circbuff.m_buff == other.m_circbuff.m_buff) // not a self-assignment
+            {
+                this->m_ptr = other.m_ptr;
+                this->m_counter = other.m_counter;
+            }
+            return *this;
+        }
+
         // Prefix increment
         MBICircularIterator &operator++()
         {
@@ -94,6 +94,19 @@ public:
         };
     };
 
+private:
+    std::unique_ptr<T[]> m_buff;
+    int m_capacity;
+    int m_begin;
+    int m_end;
+    bool m_full;
+
+    void increasecount(int &count)
+    {
+        count = (count + 1) % m_capacity;
+    }
+
+public:
     /**
      * @brief Construct a new MBICircularBuffer object
      *
@@ -108,7 +121,19 @@ public:
     }
 
     virtual ~MBICircularBuffer(){};
-
+    /*
+        MBICircularBuffer &operator=(const MBICircularBuffer &other)
+        {
+            if (this != &other && this->m_capacity == other.m_capacity) // not a self-assignment
+            {
+                this->m_begin = other.m_begin;
+                this->m_end = other.m_end;
+                this->m_full = other.m_full;
+                std::copy(&other.m_buff[0], &other.m_buff[0] + other.m_capacity, &this->m_buff[0]);
+            }
+            return *this;
+        }
+    */
     /**
      * @brief Return the current buffer size
      *
@@ -146,7 +171,7 @@ public:
      * @brief Empty and reset the buffer
      *
      */
-    virtual void reset()
+    void reset()
     {
         m_begin = 0;
         m_end = 0;
@@ -169,11 +194,33 @@ public:
     }
 
     /**
+     * @brief Remove the n oldest object inserted into the buffer
+     *
+     * @param n Number of object to remove
+     */
+    void remove(int n)
+    {
+        int test = m_begin;
+        if (size() >= n)
+        {
+            if ((m_begin + n) <= m_end)
+            {
+                m_begin += n;
+            }
+            else
+            {
+                m_begin = n - (m_capacity - m_begin);
+            }
+            m_full = false;
+        }
+    }
+
+    /**
      * @brief Retreive the last object inserted into the buffer
      *
      * @return T Last object inserted into the buffer
      */
-    T last() const
+    virtual T last() const
     {
         if (empty())
             return T();
@@ -252,8 +299,8 @@ public:
                 return m_buff[m_end];
             }
         }
-        
-        int index = (m_begin + idx) % size();
+
+        int index = (m_begin + idx) % m_capacity;
         return m_buff[index];
     }
 
@@ -261,7 +308,8 @@ public:
     {
         if (idx > size())
             return *end();
-        int index = (m_begin + idx) % size();
+
+        int index = (m_begin + idx) % m_capacity;
         return m_buff[index];
     }
 };

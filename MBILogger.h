@@ -2,7 +2,7 @@
 
 #include <fstream>
 
-#include "MBICircularBuffer.h"
+#include "MBISyncCircularBuffer.h"
 
 /**
  * @brief This class represent the logger of the application. The logger allows you to display debug and operational
@@ -45,7 +45,7 @@ private:
         std::string m_time;
     };
 
-    MBICircularBuffer<MBILog> m_logs;
+    MBISyncCircularBuffer<MBILog> m_logs;
     friend class MBILogWindow;
     std::string m_logfile;
     std::ofstream m_filestream;
