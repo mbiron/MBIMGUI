@@ -13,7 +13,7 @@ class MBISyncCircularBuffer : public MBICircularBuffer<T>
     std::mutex m_mut;
 
 public:
-    MBISyncCircularBuffer(int capacity = 100) : MBICircularBuffer(capacity) {}
+    MBISyncCircularBuffer(int capacity = 60) : MBICircularBuffer(capacity) {}
     virtual ~MBISyncCircularBuffer(){};
 
     void push(T data)
