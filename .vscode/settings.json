@@ -66,6 +66,12 @@
         "xlocmon": "cpp",
         "xloctime": "cpp",
         "cstdarg": "cpp",
-        "fstream": "cpp"
+        "fstream": "cpp",
+        "functional": "cpp",
+        "mutex": "cpp",
+        "stop_token": "cpp",
+        "thread": "cpp",
+        "unordered_map": "cpp",
+        "xhash": "cpp"
     }
 }

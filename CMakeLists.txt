@@ -32,6 +32,9 @@ set(IMFILEBROWSER_DIR ../Imgui/imgui-filebrowser)
 ### Memory Editor
 set(IMEMEDIT_DIR ../Imgui/imgui_club/imgui_memory_editor)
 
+### Imspinner
+set(IMSPINNER_DIR ../Imgui/imspinner)
+
 ### Project 
 project(MBIMGUI VERSION 0.1.0)
 
@@ -51,6 +54,7 @@ set(SRC_FILES ${IMGUI_SRC}
               ${SRC_DIR}MBILogger.cpp 
               ${SRC_DIR_WIDGET}imgui_combowithfilter.cpp 
               ${SRC_DIR_WIDGET}imgui_toggle.cpp 
+              ${SRC_DIR_WIDGET}imspinner.cpp 
               ${RENDERERS_SRC} )  
               
 set(HEADER_FILES MBIMGUI.h)
@@ -73,6 +77,7 @@ target_include_directories(${PROJECT_NAME} PRIVATE ${SRC_DIR} ${SRC_DIR_REND}
         ${IMPLOT_DIR}
         ${IMFILEBROWSER_DIR}
         ${IMEMEDIT_DIR}
+		${IMSPINNER_DIR}
         )
 
 ### Linker

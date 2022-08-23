@@ -198,4 +198,13 @@ namespace ImGui
      * @return false otherwise
      */
     bool ToggleButton(const char *str_id, bool *v);
+
+    /**
+     * @brief Double circular spinner 
+     * 
+     * @param label Widget label
+     * @param color1 Main color
+     * @param color2 Second color
+     */
+    void CircularSpinner(const char * label, const ImColor &color1 = 0xffffffff, const ImColor &color2 = 0xff0000ff);
 };
