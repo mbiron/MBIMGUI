@@ -13,7 +13,7 @@
 
 class Renderer;
 
-#define MBIMGUI_VERSION "01.00.00.00"
+#define MBIMGUI_VERSION "1.0"
 
 /**
  * @brief Color scheme
@@ -74,7 +74,7 @@ private:
     std::vector<MBIWindow *> m_optionsTabs;
 
     MBIConfigFlags m_confFlags;
-    MBILogger& m_logger;
+    MBILogger &m_logger;
     ImGui::FileBrowser m_logFileDialog;
 
     void SetupDockspace() const;
@@ -200,11 +200,21 @@ namespace ImGui
     bool ToggleButton(const char *str_id, bool *v);
 
     /**
-     * @brief Double circular spinner 
-     * 
+     * @brief Simple circular spinner
+     *
      * @param label Widget label
-     * @param color1 Main color
-     * @param color2 Second color
+     * @param color Circle color
+     * @param bgColor Background color (must be the same as the current background theme color)
      */
-    void CircularSpinner(const char * label, const ImColor &color1 = 0xffffffff, const ImColor &color2 = 0xff0000ff);
+    void SimpleCircularSpinner(const char *label, const ImColor &color = 0xffffffff);
+
+    /**
+     * @brief Double circular spinner (two circles)
+     *
+     * @param label Widget label
+     * @param color1 Outer circle color
+     * @param color2 Inner circle color
+     */
+    void DoubleCircularSpinner(const char *label, const ImColor &color1 = 0xffffffff, const ImColor &color2 = 0xff0000ff);
+
 };
