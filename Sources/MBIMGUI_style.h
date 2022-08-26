@@ -1,3 +1,8 @@
+
+/**
+ * @brief Custom corporate grey  (Style from @malamanteau : https://github.com/ocornut/imgui/issues/707#issuecomment-468798935)
+ *
+ */
 inline void StyleCorporateGrey()
 {
     ImGuiStyle &style = ImGui::GetStyle();
@@ -84,6 +89,10 @@ inline void StyleCorporateGrey()
 #endif
 }
 
+/**
+ * @brief Custom dark style (Style from @MomoDeve : https://github.com/ocornut/imgui/issues/707#issuecomment-670976818 , slightly modified)
+ * 
+ */
 inline void StyleVisualDark()
 {
     constexpr auto ColorFromBytes = [](uint8_t r, uint8_t g, uint8_t b)
@@ -168,8 +177,14 @@ inline void StyleVisualDark()
 
 namespace MBIMGUI
 {
-    static MBIColorStyle g_currentStyle;
 
+    static MBIColorStyle g_currentStyle; ///< Keep track of the current displayed style
+
+    /**
+     * @brief Set the Style of the application
+     *
+     * @param eStyle Style to be used
+     */
     inline void SetStyle(const MBIColorStyle eStyle)
     {
         g_currentStyle = eStyle;
@@ -194,7 +209,7 @@ namespace MBIMGUI
             break;
         }
 
-        // In any case, keep the global UI configuration
+        /* In any case, keep the global UI configuration */
         ImGuiStyle &style = ImGui::GetStyle();
 
         style.FrameRounding = 8.0f;
@@ -206,6 +221,11 @@ namespace MBIMGUI
         style.Colors[ImGuiCol_WindowBg].w = 1.0f;
     }
 
+    /**
+     * @brief Get the current style of the application
+     *
+     * @return MBIColorStyle current displayed style
+     */
     inline MBIColorStyle GetStyle()
     {
         return g_currentStyle;

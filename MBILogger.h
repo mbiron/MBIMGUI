@@ -60,7 +60,7 @@ private:
 public:
     /**
      * @brief Construct a new MBILogger object
-     * @warning You souhld never call this, the logger of the app is created internally by the framework. You can reterive it using MBIMGUI::GetLogger()
+     * @warning You souhld never call this, the logger of the app is created internally by the framework. You can reterive it using @ref MBIMGUI::GetLogger()
      */
     MBILogger();
 

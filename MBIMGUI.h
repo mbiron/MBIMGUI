@@ -19,7 +19,7 @@ class Renderer;
  * @brief Color scheme
  *
  */
-typedef enum _MBIColorStyle
+typedef enum
 {
     STYLE_IMGUI_DEFAULT, ///< Default Imgui color style
     STYLE_IMGUI_DARK,    ///< Default dark Imgui color style
@@ -137,10 +137,14 @@ public:
     void Show();
 };
 
+/**
+ * @brief Main namespace 
+ * 
+ */
 namespace MBIMGUI
 {
     /**
-     * @brief Get the Logger of the application. The logger can be configurated (see MBILogger class)
+     * @brief Get the Logger of the application. The logger can be configured (see @ref MBILogger)
      *
      * @return MBILogger& Reference to the logger of the application.
      */

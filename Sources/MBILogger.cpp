@@ -61,7 +61,7 @@ void MBILogger::CloseLogFile()
 
 /**
  * @brief Construct a new MBILogger object
- * @warning You never have to called this, the logger of the app is created internally by the framework. You can reterive it using MBIMGUI::GetLogger()
+ * @warning You souhld never call this, the logger of the app is created internally by the framework. You can reterive it using @ref MBIMGUI::GetLogger()
  */
 MBILogger::MBILogger() : m_logs(30), m_logfile(""), m_popupOnError(false), m_displayPopup(false), m_logToFile(false){};
 /**

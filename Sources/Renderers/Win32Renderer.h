@@ -3,6 +3,13 @@
 #include <string>
 #include "Renderer.h"
 
+/**
+ * @brief This class implements the Windows platform backend for ImGui. It contains all the high level functions 
+ * to initialize draw windows and call the official imgui renderer.
+ * 
+ * It must be based on a engine renderer like DirectX one.
+ * 
+ */
 class Win32Renderer : public Renderer
 {
     private:

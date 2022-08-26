@@ -14,8 +14,17 @@
 #pragma comment(lib, "dxguid.lib")
 #endif
 
+/**
+ * @brief This class implements the DirectX12 backend for ImGui. It contains all the high level functions 
+ * to initialize the directx engine and call the official imgui renderer.
+ * 
+ */
 class Dx12Renderer : public Renderer
 {
+    /**
+     * @brief 
+     * 
+     */
     struct FrameContext
     {
         ID3D12CommandAllocator *CommandAllocator;
