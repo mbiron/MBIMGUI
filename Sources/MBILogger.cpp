@@ -5,7 +5,7 @@
 
 #include "MBILogger.h"
 
-MBILogger::MBILog::MBILog(MBILogLevel level, std::string msg) : m_level(level), m_message(msg)
+MBIMGUI::MBILogger::MBILog::MBILog(MBILogLevel level, std::string msg) : m_level(level), m_message(msg)
 {
     tm ltm;
     time_t now = time(0);
@@ -19,12 +19,12 @@ MBILogger::MBILog::MBILog(MBILogLevel level, std::string msg) : m_level(level), 
     }
 };
 
-MBILogger::MBILogLevel MBILogger::MBILog::GetLevel() const
+MBIMGUI::MBILogLevel MBIMGUI::MBILogger::MBILog::GetLevel() const
 {
     return m_level;
 }
 
-const std::string MBILogger::MBILog::GetLevelString() const
+const std::string MBIMGUI::MBILogger::MBILog::GetLevelString() const
 {
     switch (m_level)
     {
@@ -40,16 +40,16 @@ const std::string MBILogger::MBILog::GetLevelString() const
     }
 }
 
-const std::string &MBILogger::MBILog::GetMessageLog() const
+const std::string &MBIMGUI::MBILogger::MBILog::GetMessageLog() const
 {
     return m_message;
 }
-const std::string &MBILogger::MBILog::GetTime() const
+const std::string &MBIMGUI::MBILogger::MBILog::GetTime() const
 {
     return m_time;
 }
 
-void MBILogger::CloseLogFile()
+void MBIMGUI::MBILogger::CloseLogFile()
 {
     if (m_filestream.is_open())
     {
@@ -63,12 +63,12 @@ void MBILogger::CloseLogFile()
  * @brief Construct a new MBILogger object
  * @warning You souhld never call this, the logger of the app is created internally by the framework. You can reterive it using @ref MBIMGUI::GetLogger()
  */
-MBILogger::MBILogger() : m_logs(30), m_logfile(""), m_popupOnError(false), m_displayPopup(false), m_logToFile(false){};
+MBIMGUI::MBILogger::MBILogger() : m_logs(30), m_logfile(""), m_popupOnError(false), m_displayPopup(false), m_logToFile(false){};
 /**
  * @brief Destroy the MBILogger object
  *
  */
-MBILogger::~MBILogger()
+MBIMGUI::MBILogger::~MBILogger()
 {
     CloseLogFile();
 };
@@ -78,7 +78,7 @@ MBILogger::~MBILogger()
  *
  * @return std::string containing the path to the logfile or an empty string if no log file was specified.
  */
-std::string MBILogger::GetLogFullFileName() const
+std::string MBIMGUI::MBILogger::GetLogFullFileName() const
 {
     if (m_logfile.empty())
     {
@@ -95,7 +95,7 @@ std::string MBILogger::GetLogFullFileName() const
  * @param popupOnError Any error log will be displayed in a popup to the user.
  * @param logfile All logs will be written in the specified logfile. To disable the log file, pass an empty string.
  */
-void MBILogger::Configure(bool popupOnError, const std::string &logfile)
+void MBIMGUI::MBILogger::Configure(bool popupOnError, const std::string &logfile)
 {
     // Close previous openned file
     CloseLogFile();
@@ -161,7 +161,7 @@ void MBILogger::Configure(bool popupOnError, const std::string &logfile)
  * @param level Level of the message
  * @param msg Message to be logged
  */
-void MBILogger::Log(MBILogLevel level, std::string &msg)
+void MBIMGUI::MBILogger::Log(MBILogLevel level, std::string &msg)
 {
     MBILog log = MBILog(level, msg);
     m_logs.push(log);
@@ -177,7 +177,7 @@ void MBILogger::Log(MBILogLevel level, std::string &msg)
     }
 }
 
-void MBILogger::Log(MBILogLevel level, const char *msg, ...)
+void MBIMGUI::MBILogger::Log(MBILogLevel level, const char *msg, ...)
 {
     va_list args;
     char str[256];
@@ -194,7 +194,7 @@ void MBILogger::Log(MBILogLevel level, const char *msg, ...)
  *
  * @param msg Message to be logged
  */
-void MBILogger::LogError(std::string &msg) { Log(LOG_LEVEL_ERROR, msg); }
+void MBIMGUI::MBILogger::LogError(std::string &msg) { Log(LOG_LEVEL_ERROR, msg); }
 
 /**
  * @brief Log a message with the level MBILogLevel::LOG_LEVEL_ERROR and display it in a popup.
@@ -202,7 +202,7 @@ void MBILogger::LogError(std::string &msg) { Log(LOG_LEVEL_ERROR, msg); }
  *
  * @param msg Message to be logged and displayed in the popup
  */
-void MBILogger::PopupError(std::string &msg)
+void MBIMGUI::MBILogger::PopupError(std::string &msg)
 {
     LogError(msg);
     if (!m_popupOnError)

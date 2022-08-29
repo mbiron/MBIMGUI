@@ -1,6 +1,6 @@
 #include "MBIMGUI.h"
 
-MBILogger &MBIMGUI::GetLogger()
+MBIMGUI::MBILogger &MBIMGUI::GetLogger()
 {
     static MBILogger logger = MBILogger();
     return logger;

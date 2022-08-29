@@ -13,16 +13,16 @@
  * CTOR & DTOR
  *
  */
-MBIMNG::MBIMNG(const std::string name, int width, int height, MBIConfigFlags flags) : m_name(name),
-                                                                                      m_confFlags(flags),
-                                                                                      m_logFileDialog(ImGuiFileBrowserFlags_EnterNewFilename),
-                                                                                      m_logger(MBIMGUI::GetLogger())
+MBIMGUI::MBIMNG::MBIMNG(const std::string name, int width, int height, MBIConfigFlags flags) : m_name(name),
+                                                                                               m_confFlags(flags),
+                                                                                               m_logFileDialog(ImGuiFileBrowserFlags_EnterNewFilename),
+                                                                                               m_logger(MBIMGUI::GetLogger())
 {
     m_pRenderer = new Win32Renderer(name, width, height);
 
     if ((m_confFlags & MBIConfig_displayLogWindow) && (m_confFlags & MBIConfig_displayLogBar))
     {
-        m_logger.Log(m_logger.LOG_LEVEL_WARNING, "Can't use both log window and log bar. Switching to log window");
+        m_logger.Log(LOG_LEVEL_WARNING, "Can't use both log window and log bar. Switching to log window");
         m_confFlags &= ~MBIConfig_displayLogBar;
     }
 
@@ -45,7 +45,7 @@ MBIMNG::MBIMNG(const std::string name, int width, int height, MBIConfigFlags fla
     //| ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize
 }
 
-MBIMNG::~MBIMNG()
+MBIMGUI::MBIMNG::~MBIMNG()
 {
     delete m_pRenderer;
     if (m_confFlags & MBIConfig_displayLogWindow)
@@ -60,7 +60,7 @@ MBIMNG::~MBIMNG()
  *
  */
 
-void MBIMNG::SetupDockspace() const
+void MBIMGUI::MBIMNG::SetupDockspace() const
 {
     ImGuiViewport *viewport = ImGui::GetMainViewport();
     ImGuiID dockspaceId = ImGui::GetID("MainDockNode");
@@ -126,7 +126,7 @@ void MBIMNG::SetupDockspace() const
     ImGui::DockBuilderFinish(dockspaceId);
 }
 
-inline void MBIMNG::ShowAboutWindow(bool *openWindow) const
+inline void MBIMGUI::MBIMNG::ShowAboutWindow(bool *openWindow) const
 {
     static bool bShowAboutImGui = false;
     if (m_aboutWindow != nullptr)
@@ -156,7 +156,7 @@ inline void MBIMNG::ShowAboutWindow(bool *openWindow) const
     ImGui::End();
 }
 
-inline void MBIMNG::ShowOptionWindow(bool &openWindow)
+inline void MBIMGUI::MBIMNG::ShowOptionWindow(bool &openWindow)
 {
     /* Log Config */
     static bool popupOnError = true;
@@ -216,7 +216,7 @@ inline void MBIMNG::ShowOptionWindow(bool &openWindow)
                 {
                     fileSelected.append(".log");
                 }
-                m_logger.Log(MBILogger::LOG_LEVEL_INFO, "Selected logfile filename " + fileSelected);
+                m_logger.Log(LOG_LEVEL_INFO, "Selected logfile filename " + fileSelected);
                 m_logger.Configure(popupOnError, fileSelected);
                 m_logFileDialog.ClearSelected();
             }
@@ -243,7 +243,7 @@ inline void MBIMNG::ShowOptionWindow(bool &openWindow)
  * PUBLIC Functions
  *
  */
-bool MBIMNG::Init(float fontsize, const MBIColorStyle eStyle) const
+bool MBIMGUI::MBIMNG::Init(float fontsize, const MBIColorStyle eStyle) const
 {
     /* Setup Dear ImGui context */
     IMGUI_CHECKVERSION();
@@ -254,7 +254,7 @@ bool MBIMNG::Init(float fontsize, const MBIColorStyle eStyle) const
 
     io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;   // Enable Docking
     io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable; // Enable Multi-Viewport / Platform Windows
-	// io.ConfigFlags |= ImGuiConfigFlags_DpiEnableScaleFonts // TO TEST ! 
+                                                        // io.ConfigFlags |= ImGuiConfigFlags_DpiEnableScaleFonts // TO TEST !
     io.ConfigWindowsMoveFromTitleBarOnly = true;
 
     /* Disable ini file */
@@ -280,22 +280,22 @@ bool MBIMNG::Init(float fontsize, const MBIColorStyle eStyle) const
     return m_pRenderer->Init();
 }
 
-void MBIMNG::AddAboutWindow(MBIWindow *window)
+void MBIMGUI::MBIMNG::AddAboutWindow(MBIWindow *window)
 {
     m_aboutWindow = window;
 }
 
-void MBIMNG::AddWindow(MBIWindow *window, MBIDockOption option)
+void MBIMGUI::MBIMNG::AddWindow(MBIWindow *window, MBIDockOption option)
 {
     m_windows[option] = window;
 }
 
-void MBIMNG::AddOptionTab(MBIWindow *window)
+void MBIMGUI::MBIMNG::AddOptionTab(MBIWindow *window)
 {
     m_optionsTabs.push_back(window);
 }
 
-void MBIMNG::Show()
+void MBIMGUI::MBIMNG::Show()
 {
     // Main loop
     bool bFirst = true;
@@ -373,10 +373,10 @@ void MBIMNG::Show()
                 if (ImGui::BeginMenu("File"))
                 {
                     if (ImGui::MenuItem("Open"))
-                        m_logger.Log(MBILogger::LOG_LEVEL_DEBUG, "Not implemented yet :)");
+                        m_logger.Log(LOG_LEVEL_DEBUG, "Not implemented yet :)");
 
                     if (ImGui::MenuItem("Log"))
-                        m_logger.Log(MBILogger::LOG_LEVEL_DEBUG, "Welcome in file menu");
+                        m_logger.Log(LOG_LEVEL_DEBUG, "Welcome in file menu");
 
                     ImGui::Separator();
                     ImGui::MenuItem("Options", NULL, &bShowOptions);

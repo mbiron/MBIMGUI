@@ -3,9 +3,10 @@
 #include "MBICircularBuffer.h"
 
 /**
- * @brief Circular buffer with no automatic growing nor dynamic memory allocation and thread safe
+ * @brief Circular buffer with no automatic growing nor dynamic memory allocation and thread safe.
+ * Thread protection is done through a internal mutex.
  *
- * @tparam T
+ * @tparam T Type of the objects to store
  */
 template <typename T>
 class MBISyncCircularBuffer : public MBICircularBuffer<T>

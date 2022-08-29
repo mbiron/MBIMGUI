@@ -5,7 +5,7 @@
 /**
  * @brief Circular buffer with no automatic growing nor dynamic memory allocation after construction
  *
- * @tparam T
+ * @tparam T Type of the objects to store
  */
 template <typename T>
 class MBICircularBuffer
@@ -27,19 +27,26 @@ public:
         using reference = T &;
 
     private:
-        pointer m_ptr;
+        pointer m_ptr; ///<
         int m_counter;
         MBICircularBuffer &m_circbuff;
 
     public:
         /**
-         * @brief Construct a new MBICircularIterator object
+         * @brief Construct a new MBICircularIterator object. This iterator allows to walk through the circular buffer ONCE.
+         * This means that it's safe to use it in a foreach style loop, even if the circular buffer is full. After reaching
+         * the oldest object, the iterator will became invalid.
          *
-         * @param ptr
-         * @param buff
+         * @param ptr Pointer on the iterator ellement
+         * @param buff Circular buffer object containing the pointer.
          */
         MBICircularIterator(pointer ptr, MBICircularBuffer &buff) : m_ptr(ptr), m_circbuff(buff), m_counter(0) {}
         MBICircularIterator() = delete;
+
+        /**
+         * Operators
+         *
+         */
 
         reference operator*() const { return *m_ptr; }
         pointer operator->() { return m_ptr; }
@@ -101,6 +108,11 @@ private:
     int m_end;
     bool m_full;
 
+    /**
+     * @brief Increase internal counter and circle back if needed.
+     *
+     * @param count Reference of the counter to move forward.
+     */
     void increasecount(int &count)
     {
         count = (count + 1) % m_capacity;
@@ -108,9 +120,9 @@ private:
 
 public:
     /**
-     * @brief Construct a new MBICircularBuffer object
+     * @brief Construct a new MBICircularBuffer object.
      *
-     * @param capacity capacity of the buffer
+     * @param capacity capacity of the buffer to be constructed.
      */
     MBICircularBuffer(int capacity = 100) : m_capacity(capacity),
                                             m_buff(std::unique_ptr<T[]>(new T[capacity + 1])),
@@ -286,6 +298,12 @@ public:
         }
     }
 
+    /**
+     * @brief Access an element in the buffer. The idx is an offset from the beginning of the buffer (offset from the oldest object inserted)
+     *
+     * @param idx Offset of the element
+     * @return const T&
+     */
     const T &operator[](int idx) const
     {
         if (idx > size())
@@ -304,6 +322,12 @@ public:
         return m_buff[index];
     }
 
+    /**
+     * @brief Access an element in the buffer. The idx is an offset from the beginning of the buffer (offset from the oldest object inserted)
+     *
+     * @param idx Offset of the element
+     * @return const T&
+     */
     virtual T &operator[](int idx)
     {
         if (idx > size())

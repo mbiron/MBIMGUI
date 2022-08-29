@@ -3,153 +3,156 @@
 #include "MBIWindow.h"
 #include "MBILogger.h"
 
-/**
- * @brief Implements a logging windows displaying log events. This window received logs from the m_logger object.
- *
- */
-class MBILogWindow : public MBIWindow
+namespace MBIMGUI
 {
-public:
     /**
-     * @brief Log windows mode
+     * @brief Implements a logging windows displaying log events. This window received logs from the m_logger object.
      *
      */
-    typedef enum
+    class MBILogWindow : public MBIWindow
     {
-        MODE_WINDOW, ///< Displayed as a dockable window
-        MODE_BAR     ///< Displayed as a bar at the bottom of the application main window
-    } LOGWINDOW_MODE;
-
-    /**
-     * @brief Construct a new MBILogWindow object
-     *
-     * @param name Name of the window, will be displayed at the top
-     * @param eMode Mode of the window, see @ref LOGWINDOW_MODE
-     */
-    MBILogWindow(std::string name, LOGWINDOW_MODE eMode) : MBIWindow(name, 0, 0, MBIWindowConfig_hideableInMenu), m_mode(eMode)
-    {
-        if (m_mode == MODE_BAR)
+    public:
+        /**
+         * @brief Log windows mode
+         *
+         */
+        typedef enum
         {
-            m_imguiFlags = ImGuiWindowFlags_NoNav | ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoInputs;
-        }
-    }
-    /**
-     * @brief Display the window.
-     *
-     */
-    void Display()
-    {
-        static constexpr ImGuiTableFlags flags = ImGuiTableFlags_SizingFixedFit | ImGuiTableFlags_Resizable | ImGuiTableFlags_BordersOuter | ImGuiTableFlags_BordersV;
+            MODE_WINDOW, ///< Displayed as a dockable window
+            MODE_BAR     ///< Displayed as a bar at the bottom of the application main window
+        } LOGWINDOW_MODE;
 
-        if (m_mode == MODE_BAR)
+        /**
+         * @brief Construct a new MBILogWindow object
+         *
+         * @param name Name of the window, will be displayed at the top
+         * @param eMode Mode of the window, see @ref LOGWINDOW_MODE
+         */
+        MBILogWindow(std::string name, LOGWINDOW_MODE eMode) : MBIWindow(name, 0, 0, MBIWindowConfig_hideableInMenu), m_mode(eMode)
         {
-            if (m_logger.m_logs.empty() == false)
+            if (m_mode == MODE_BAR)
             {
-                std::string log;
-                ImVec4 color;
-                /* Always show the latest error in priority */
-                if (m_logger.m_errToPopup.empty() == false)
-                {
-                    log = m_logger.m_errToPopup;
-                    color = GetLevelColor(MBILogger::LOG_LEVEL_ERROR);
-                }
-                else
-                {
-                    /* Otherwise, display the latest log */
-                    log = m_logger.m_logs.last().GetMessageLog();
-                    color = GetLevelColor(m_logger.m_logs.last().GetLevel());
-                }
-                ImGui::ColorButton("#LevelColor", color, ImGuiColorEditFlags_NoInputs | ImGuiColorEditFlags_NoTooltip, ImVec2(15, 15));
-                ImGui::SameLine();
-                ImGui::Text(log.c_str());
+                m_imguiFlags = ImGuiWindowFlags_NoNav | ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoInputs;
             }
         }
-        else
+        /**
+         * @brief Display the window.
+         *
+         */
+        void Display()
         {
-            /* Show logs in a table */
-            if (ImGui::BeginTable("##logTable", 3, flags))
+            static constexpr ImGuiTableFlags flags = ImGuiTableFlags_SizingFixedFit | ImGuiTableFlags_Resizable | ImGuiTableFlags_BordersOuter | ImGuiTableFlags_BordersV;
+
+            if (m_mode == MODE_BAR)
             {
-                /* Submit columns name */
-                ImGui::TableSetupColumn("Level");
-                ImGui::TableSetupColumn("Message", ImGuiTableColumnFlags_WidthStretch);
-                ImGui::TableSetupColumn("Date");
-                ImGui::TableHeadersRow();
-                for (const auto log : m_logger.m_logs)
+                if (m_logger.m_logs.empty() == false)
                 {
-                    /* Add a new row */
-                    ImGui::TableNextRow();
-                    /* Display log level */
-                    ImGui::TableNextColumn();
-                    ImGui::TextColored(GetLevelColor(log.GetLevel()), log.GetLevelString().c_str());
-                    /* Display log text */
-                    ImGui::TableNextColumn();
-                    ImGui::Text(log.GetMessageLog().c_str());
-                    if (ImGui::IsItemHovered())
+                    std::string log;
+                    ImVec4 color;
+                    /* Always show the latest error in priority */
+                    if (m_logger.m_errToPopup.empty() == false)
                     {
-                        // Show tooltip if column is too tight to display full text
-                        ImVec2 textSize = ImGui::CalcTextSize(log.GetMessageLog().c_str());
-                        if (ImGui::GetColumnWidth() < textSize.x)
-                        {
-                            ImGui::SetTooltip(log.GetMessageLog().c_str());
-                        }
+                        log = m_logger.m_errToPopup;
+                        color = GetLevelColor(LOG_LEVEL_ERROR);
                     }
-                    /* Display log date */
-                    ImGui::TableNextColumn();
-                    ImGui::Text(log.GetTime().c_str());
+                    else
+                    {
+                        /* Otherwise, display the latest log */
+                        log = m_logger.m_logs.last().GetMessageLog();
+                        color = GetLevelColor(m_logger.m_logs.last().GetLevel());
+                    }
+                    ImGui::ColorButton("#LevelColor", color, ImGuiColorEditFlags_NoInputs | ImGuiColorEditFlags_NoTooltip, ImVec2(15, 15));
+                    ImGui::SameLine();
+                    ImGui::Text(log.c_str());
                 }
-                ImGui::EndTable();
-
-                /* Auto scroll down when adding new logs */
-                if (ImGui::GetScrollY() >= ImGui::GetScrollMaxY())
-                    ImGui::SetScrollHereY(1.0f);
             }
-        }
-        /* If popup has been activated */
-        if (m_logger.m_popupOnError)
-        {
-            if (m_logger.m_displayPopup)
+            else
             {
-                /* Open the popup */
-                ImGui::OpenPopup("ERROR##popup");
-                m_logger.m_displayPopup = false;
-            }
-            /* Prepare popup for errors */
-            if (ImGui::BeginPopupModal("ERROR##popup", NULL, ImGuiWindowFlags_AlwaysAutoResize))
-            {
-                ImGui::Text(m_logger.m_errToPopup.c_str());
-                ImGui::Separator();
-                if (ImGui::Button("OK", ImVec2(120, 0)))
+                /* Show logs in a table */
+                if (ImGui::BeginTable("##logTable", 3, flags))
                 {
-                    m_logger.m_errToPopup.clear();
-                    ImGui::CloseCurrentPopup();
+                    /* Submit columns name */
+                    ImGui::TableSetupColumn("Level");
+                    ImGui::TableSetupColumn("Message", ImGuiTableColumnFlags_WidthStretch);
+                    ImGui::TableSetupColumn("Date");
+                    ImGui::TableHeadersRow();
+                    for (const auto log : m_logger.m_logs)
+                    {
+                        /* Add a new row */
+                        ImGui::TableNextRow();
+                        /* Display log level */
+                        ImGui::TableNextColumn();
+                        ImGui::TextColored(GetLevelColor(log.GetLevel()), log.GetLevelString().c_str());
+                        /* Display log text */
+                        ImGui::TableNextColumn();
+                        ImGui::Text(log.GetMessageLog().c_str());
+                        if (ImGui::IsItemHovered())
+                        {
+                            // Show tooltip if column is too tight to display full text
+                            ImVec2 textSize = ImGui::CalcTextSize(log.GetMessageLog().c_str());
+                            if (ImGui::GetColumnWidth() < textSize.x)
+                            {
+                                ImGui::SetTooltip(log.GetMessageLog().c_str());
+                            }
+                        }
+                        /* Display log date */
+                        ImGui::TableNextColumn();
+                        ImGui::Text(log.GetTime().c_str());
+                    }
+                    ImGui::EndTable();
+
+                    /* Auto scroll down when adding new logs */
+                    if (ImGui::GetScrollY() >= ImGui::GetScrollMaxY())
+                        ImGui::SetScrollHereY(1.0f);
                 }
-                ImGui::EndPopup();
+            }
+            /* If popup has been activated */
+            if (m_logger.m_popupOnError)
+            {
+                if (m_logger.m_displayPopup)
+                {
+                    /* Open the popup */
+                    ImGui::OpenPopup("ERROR##popup");
+                    m_logger.m_displayPopup = false;
+                }
+                /* Prepare popup for errors */
+                if (ImGui::BeginPopupModal("ERROR##popup", NULL, ImGuiWindowFlags_AlwaysAutoResize))
+                {
+                    ImGui::Text(m_logger.m_errToPopup.c_str());
+                    ImGui::Separator();
+                    if (ImGui::Button("OK", ImVec2(120, 0)))
+                    {
+                        m_logger.m_errToPopup.clear();
+                        ImGui::CloseCurrentPopup();
+                    }
+                    ImGui::EndPopup();
+                }
             }
         }
-    }
 
-private:
-    /**
-     * @brief Convert the log level to the appropiate color object to be displayed by ImGui
-     *
-     * @param eLevel Level of the log 
-     * @return const ImVec4 Color corresponding to the log level
-     */
-    const ImVec4 inline GetLevelColor(MBILogger::MBILogLevel eLevel) const
-    {
-        switch (eLevel)
+    private:
+        /**
+         * @brief Convert the log level to the appropiate color object to be displayed by ImGui
+         *
+         * @param eLevel Level of the log
+         * @return const ImVec4 Color corresponding to the log level
+         */
+        const ImVec4 inline GetLevelColor(MBILogLevel eLevel) const
         {
-        case MBILogger::LOG_LEVEL_WARNING:
-            return ImVec4(255, 200, 0, 255); // Yellow
-        case MBILogger::LOG_LEVEL_ERROR:
-            return ImVec4(255, 0, 0, 255); // Red
-        case MBILogger::LOG_LEVEL_DEBUG:
-            return ImVec4(0, 100, 255, 255); // Blue
-        default:
-        case MBILogger::LOG_LEVEL_INFO:
-            return ImVec4(0, 150, 0, 255); // Green
+            switch (eLevel)
+            {
+            case LOG_LEVEL_WARNING:
+                return ImVec4(255, 200, 0, 255); // Yellow
+            case LOG_LEVEL_ERROR:
+                return ImVec4(255, 0, 0, 255); // Red
+            case LOG_LEVEL_DEBUG:
+                return ImVec4(0, 100, 255, 255); // Blue
+            default:
+            case LOG_LEVEL_INFO:
+                return ImVec4(0, 150, 0, 255); // Green
+            }
         }
-    }
 
-    LOGWINDOW_MODE m_mode; ///< Store the current mode of the window
-};
+        LOGWINDOW_MODE m_mode; ///< Store the current mode of the window
+    };
+}

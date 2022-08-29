@@ -1,6 +1,8 @@
 #include <iostream>
 #include "MBIMGUI.h"
 
+using namespace MBIMGUI;
+
 class TestWindow : public MBIWindow
 {
 private:
