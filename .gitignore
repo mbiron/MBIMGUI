@@ -1,3 +1,5 @@
 build/
 lib/
 doc/
+doxygen_stderr.txt
+doxygen_stdout.txt

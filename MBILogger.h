@@ -18,7 +18,7 @@ namespace MBIMGUI
         LOG_LEVEL_ERROR,   ///< Error log
         LOG_LEVEL_DEBUG    ///< Debug log
     } MBILogLevel;
-    
+
     /**
      * @brief This class represent the logger of the application. The logger allows you to display debug and operational
      * logs to the users, to write them into a logfile, to display error popup etc.
@@ -125,6 +125,13 @@ namespace MBIMGUI
          * @param msg Message to be logged
          */
         void Log(MBILogLevel level, std::string &msg);
+        /**
+         * @brief Log a message
+         *
+         * @param level Level of the message
+         * @param msg Message to be logged
+         * @param ... Varargs
+         */
         void Log(MBILogLevel level, const char *msg, ...);
         /**
          * @brief Log a message with the level MBILogLevel::LOG_LEVEL_ERROR
@@ -137,7 +144,7 @@ namespace MBIMGUI
 
         /**
          * @brief Log a message with the level MBILogLevel::LOG_LEVEL_ERROR and display it in a popup.
-         * The popup will appear even if the ::Configure function has been used to disable automatic popup on error.
+         * The popup will appear even if the @ref Configure function has been used to disable automatic popup on error.
          *
          * @param msg Message to be logged and displayed in the popup
          */

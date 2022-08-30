@@ -11,7 +11,7 @@ namespace MBIMGUI
 
     /**
      * @brief This class described a window in the app. To add a window in your app, you must derivate
-     * your classes from this one, implementing the Display method with ImGui:: calls to create your UI.
+     * your classes from this one, implementing the Display method with %ImGui:: calls to create your UI.
      *
      * Each of the MBIWindow classes have an acces to the m_logger member which allows you to configure
      * and use the internal log mechanism.
@@ -28,7 +28,8 @@ namespace MBIMGUI
         {
             MBIWindowConfig_hideableInMenu = 1 << 1, ///< Display the window in the view window, making it hideable/showable from there
         };
-        typedef int MBIWindowConfigFlags;
+
+        typedef int MBIWindowConfigFlags; ///< Configuration flags for the window, must be passed when constructing the MBIWindow object
 
     private:
         ImVec2 m_size;                ///< Current size of the window
@@ -56,7 +57,7 @@ namespace MBIMGUI
          * @param name Windows name, will be displayed at the top of the window
          * @param height Windows height, useful only if the window is not docked by default
          * @param width Windows wifth, useful only if the window is not docked by default
-         * @param flags Configuration flags, see ::_MBIWindowConfigFlags
+         * @param flags Configuration flags, see MBIWindow::_MBIWindowConfigFlags
          */
         MBIWindow(const std::string &name, int height = 0, int width = 0, MBIWindowConfigFlags flags = 0);
         /**

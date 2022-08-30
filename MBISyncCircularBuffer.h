@@ -14,6 +14,11 @@ class MBISyncCircularBuffer : public MBICircularBuffer<T>
     std::mutex m_mut;
 
 public:
+    /**
+     * @brief Construct a new MBISyncCircularBuffer object with the specified capacity
+     *
+     * @param capacity Size of the buffer
+     */
     MBISyncCircularBuffer(int capacity = 60) : MBICircularBuffer(capacity) {}
     virtual ~MBISyncCircularBuffer(){};
 
@@ -35,12 +40,22 @@ public:
         return MBICircularBuffer::operator[](idx);
     }
 
+    /**
+     * @brief Get the current size of the buffer
+     *
+     * @return int
+     */
     int size()
     {
         std::lock_guard<std::mutex> guard(m_mut);
         return MBICircularBuffer::size();
     }
 
+    /**
+     * @brief Retreive the last inserted object
+     *
+     * @return T
+     */
     T last()
     {
         std::lock_guard<std::mutex> guard(m_mut);

@@ -48,9 +48,25 @@ public:
          *
          */
 
+        /**
+         * @brief Retreive item
+         *
+         * @return reference on the current item
+         */
         reference operator*() const { return *m_ptr; }
+        /**
+         * @brief Retreive item
+         *
+         * @return pointer on the current item
+         */
         pointer operator->() { return m_ptr; }
 
+        /**
+         * @brief Assignment operator
+         *
+         * @param other
+         * @return MBICircularIterator&
+         */
         MBICircularIterator &operator=(const MBICircularIterator &other)
         {
             if (this != &other && this->m_circbuff.m_buff == other.m_circbuff.m_buff) // not a self-assignment
@@ -61,7 +77,11 @@ public:
             return *this;
         }
 
-        // Prefix increment
+        /**
+         * @brief Prefix increment
+         *
+         * @return MBICircularIterator&
+         */
         MBICircularIterator &operator++()
         {
             if (m_circbuff.full() && m_counter == m_circbuff.m_capacity - 1)
@@ -83,7 +103,11 @@ public:
             return *this;
         }
 
-        // Postfix increment
+        /**
+         * @brief Postfix increment
+         *
+         * @return MBICircularIterator
+         */
         MBICircularIterator operator++(int)
         {
             MBICircularIterator tmp = *this;
@@ -91,10 +115,26 @@ public:
             return tmp;
         }
 
+        /**
+         * @brief Comparison operator
+         *
+         * @param a
+         * @param b
+         * @return true
+         * @return false
+         */
         friend bool operator==(const MBICircularIterator &a, const MBICircularIterator &b)
         {
             return a.m_ptr == b.m_ptr;
         };
+        /**
+         * @brief Comparison operator
+         *
+         * @param a
+         * @param b
+         * @return true
+         * @return false
+         */
         friend bool operator!=(const MBICircularIterator &a, const MBICircularIterator &b)
         {
             return a.m_ptr != b.m_ptr;

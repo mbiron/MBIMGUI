@@ -32,9 +32,9 @@ namespace MBIMGUI
         STYLE_IMGUI_DEFAULT, ///< Default Imgui color style
         STYLE_IMGUI_DARK,    ///< Default dark Imgui color style
         STYLE_IMGUI_LIGHT,   ///< Default light Imgui color style
-        STYLE_VISUAL_DARK,   ///< Custom dark style (Style from @MomoDeve : https://github.com/ocornut/imgui/issues/707#issuecomment-670976818 , slightly modified)
-        STYLE_CORPORATE_GREY ///< Custom corporate grey  (Style from @malamanteau : https://github.com/ocornut/imgui/issues/707#issuecomment-468798935)
-    }MBIColorStyle;
+        STYLE_VISUAL_DARK,   ///< Custom dark style (Style from MomoDeve : https://github.com/ocornut/imgui/issues/707#issuecomment-670976818 , slightly modified)
+        STYLE_CORPORATE_GREY ///< Custom corporate grey  (Style from malamanteau : https://github.com/ocornut/imgui/issues/707#issuecomment-468798935)
+    } MBIColorStyle;
 
     /**
      * @brief Framework configuration flags
@@ -51,8 +51,8 @@ namespace MBIMGUI
     };
 
     /**
-     * @brief Main class of the MBIMGUI framework. You must create an instance of this class and call ::Init, ::AddWindow and
-     * ::Show functions to display your UI
+     * @brief Main class of the MBIMGUI framework. You must create an instance of this class and call MBIMNG::Init, MBIMNG::AddWindow and
+     * MBIMNG::Show functions to display your UI.
      *
      */
     class MBIMNG
@@ -131,7 +131,7 @@ namespace MBIMGUI
          * by the user during application lifetime.
          *
          * @param window A pointer to a MBIWindow object.
-         * @param option Set the docking state of your window. Choose MBIDockOption::DOCK_NONE if you want the window to be free by default
+         * @param option Set the docking state of your window. Choose @ref DOCK_NONE if you want the window to be free by default
          */
         void AddWindow(MBIWindow *window, MBIDockOption option = DOCK_NONE);
 
@@ -223,7 +223,6 @@ namespace ImGui
      *
      * @param label Widget label
      * @param color Circle color
-     * @param bgColor Background color (must be the same as the current background theme color)
      */
     void SimpleCircularSpinner(const char *label, const ImColor &color = 0xffffffff);
 

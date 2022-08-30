@@ -15,15 +15,15 @@
 #endif
 
 /**
- * @brief This class implements the DirectX12 backend for ImGui. It contains all the high level functions 
+ * @brief This class implements the DirectX12 backend for ImGui. It contains all the high level functions
  * to initialize the directx engine and call the official imgui renderer.
- * 
+ *
  */
 class Dx12Renderer : public Renderer
 {
     /**
-     * @brief 
-     * 
+     * @brief
+     *
      */
     struct FrameContext
     {
@@ -59,6 +59,11 @@ private:
     void WaitForLastSubmittedFrame();
 
 public:
+    /**
+     * @brief Construct a new Dx12 Renderer object
+     *
+     * @param hwnd Handle on the WINAPI Windows object
+     */
     Dx12Renderer(HWND hwnd);
     ~Dx12Renderer();
     bool Init();

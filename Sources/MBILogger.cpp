@@ -59,25 +59,13 @@ void MBIMGUI::MBILogger::CloseLogFile()
     }
 }
 
-/**
- * @brief Construct a new MBILogger object
- * @warning You souhld never call this, the logger of the app is created internally by the framework. You can reterive it using @ref MBIMGUI::GetLogger()
- */
 MBIMGUI::MBILogger::MBILogger() : m_logs(30), m_logfile(""), m_popupOnError(false), m_displayPopup(false), m_logToFile(false){};
-/**
- * @brief Destroy the MBILogger object
- *
- */
+
 MBIMGUI::MBILogger::~MBILogger()
 {
     CloseLogFile();
 };
 
-/**
- * @brief Get the Log Full File Name if a log file was setted.
- *
- * @return std::string containing the path to the logfile or an empty string if no log file was specified.
- */
 std::string MBIMGUI::MBILogger::GetLogFullFileName() const
 {
     if (m_logfile.empty())
@@ -89,12 +77,7 @@ std::string MBIMGUI::MBILogger::GetLogFullFileName() const
         return std::filesystem::canonical(m_logfile).string();
     }
 }
-/**
- * @brief Configure the logger behaviour.
- *
- * @param popupOnError Any error log will be displayed in a popup to the user.
- * @param logfile All logs will be written in the specified logfile. To disable the log file, pass an empty string.
- */
+
 void MBIMGUI::MBILogger::Configure(bool popupOnError, const std::string &logfile)
 {
     // Close previous openned file
@@ -155,12 +138,7 @@ void MBIMGUI::MBILogger::Configure(bool popupOnError, const std::string &logfile
 
     m_popupOnError = popupOnError;
 }
-/**
- * @brief Log a message
- *
- * @param level Level of the message
- * @param msg Message to be logged
- */
+
 void MBIMGUI::MBILogger::Log(MBILogLevel level, std::string &msg)
 {
     MBILog log = MBILog(level, msg);
@@ -189,19 +167,8 @@ void MBIMGUI::MBILogger::Log(MBILogLevel level, const char *msg, ...)
     Log(level, std::string(str));
 }
 
-/**
- * @brief Log a message with the level MBILogLevel::LOG_LEVEL_ERROR
- *
- * @param msg Message to be logged
- */
 void MBIMGUI::MBILogger::LogError(std::string &msg) { Log(LOG_LEVEL_ERROR, msg); }
 
-/**
- * @brief Log a message with the level MBILogLevel::LOG_LEVEL_ERROR and display it in a popup.
- * The popup will appear even if the ::Configure function has been used to disable automatic popup on error.
- *
- * @param msg Message to be logged and displayed in the popup
- */
 void MBIMGUI::MBILogger::PopupError(std::string &msg)
 {
     LogError(msg);
