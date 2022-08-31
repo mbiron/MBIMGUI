@@ -4,10 +4,12 @@ cmake_minimum_required(VERSION 3.0.0)
 set(SRC_DIR Sources/)
 set(SRC_DIR_REND Sources/Renderers)
 set(SRC_DIR_WIDGET Sources/Widgets/)
+set(SUB_MOD_DIR imgui/)
+
 
 ### IMGUI
-set(IMGUI_DIR ../Imgui/imgui)
-set(IMGUI_BACKENDS_DIR ../Imgui/imgui/backends)
+set(IMGUI_DIR ${SUB_MOD_DIR}/Imgui)
+set(IMGUI_BACKENDS_DIR ${IMGUI_DIR}/backends)
 
 set(IMGUI_SRC ${IMGUI_DIR}/imgui.cpp
               ${IMGUI_DIR}/imgui_demo.cpp
@@ -19,7 +21,7 @@ set(IMGUI_SRC ${IMGUI_DIR}/imgui.cpp
 )
 
 ### IMPLOT
-set(IMPLOT_DIR ../Imgui/implot)
+set(IMPLOT_DIR ${SUB_MOD_DIR}/implot)
 
 set(IMPLOT_SRC  ${IMPLOT_DIR}/implot.cpp
                 ${IMPLOT_DIR}/implot_items.cpp
@@ -27,13 +29,13 @@ set(IMPLOT_SRC  ${IMPLOT_DIR}/implot.cpp
 )
 
 ### IMFILEBROWSER
-set(IMFILEBROWSER_DIR ../Imgui/imgui-filebrowser)
+set(IMFILEBROWSER_DIR ${SUB_MOD_DIR}/imgui-filebrowser)
 
 ### Memory Editor
-set(IMEMEDIT_DIR ../Imgui/imgui_club/imgui_memory_editor)
+set(IMEMEDIT_DIR ${SUB_MOD_DIR}/imgui_club/imgui_memory_editor)
 
 ### Imspinner
-set(IMSPINNER_DIR ../Imgui/imspinner)
+set(IMSPINNER_DIR ${SUB_MOD_DIR}/imspinner)
 
 ### Project 
 project(MBIMGUI VERSION 0.1.0)

@@ -1,0 +1,17 @@
+[submodule "imgui/Imgui"]
+	path = imgui/Imgui
+	url = https://github.com/ocornut/imgui
+[submodule ".\\imgui\\Imgui"]
+	branch = docking
+[submodule "imgui/Implot"]
+	path = imgui/Implot
+	url = https://github.com/epezent/implot
+[submodule "imgui/Imgui_club"]
+	path = imgui/Imgui_club
+	url = https://github.com/ocornut/imgui_club
+[submodule "imgui/Imspinner"]
+	path = imgui/Imspinner
+	url = https://github.com/dalerank/imspinner
+[submodule "imgui/Imgui-filebrowser"]
+	path = imgui/Imgui-filebrowser
+	url = https://github.com/AirGuanZ/imgui-filebrowser
