@@ -269,7 +269,15 @@ bool MBIMGUI::MBIMNG::Init(float fontsize, const MBIColorStyle eStyle) const
     io.Fonts->AddFontFromFileTTF("..\\..\\..\\Imgui\\imgui\\misc\\fonts\\Karla-Regular.ttf",fontsize);
     io.Fonts->AddFontFromFileTTF("..\\..\\..\\Imgui\\imgui\\misc\\fonts\\ProggyTiny.ttf",fontsize);
     */
-    io.Fonts->AddFontFromFileTTF("..\\..\\..\\Imgui\\imgui\\misc\\fonts\\Roboto-Medium.ttf", fontsize * scale);
+
+    // TODO : Load font from installation directory
+
+    /* Try loading from installation dir */
+    if (io.Fonts->AddFontFromFileTTF(".\\fonts\\Roboto-Medium.ttf", fontsize * scale))
+    {
+        /* Try loading from imgui dir */
+        io.Fonts->AddFontFromFileTTF("..\\..\\..\\Imgui\\imgui\\misc\\fonts\\Roboto-Medium.ttf", fontsize * scale);
+    }
 
     /* Style configuration */
     MBIMGUI::SetStyle(eStyle);

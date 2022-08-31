@@ -1,6 +1,6 @@
 
 /**
- * @brief Custom corporate grey  (Style from @malamanteau : https://github.com/ocornut/imgui/issues/707#issuecomment-468798935)
+ * @brief Custom corporate grey (Style from [malamanteau](https://github.com/ocornut/imgui/issues/707#issuecomment-468798935) )
  *
  */
 inline void StyleCorporateGrey()
@@ -90,7 +90,7 @@ inline void StyleCorporateGrey()
 }
 
 /**
- * @brief Custom dark style (Style from @MomoDeve : https://github.com/ocornut/imgui/issues/707#issuecomment-670976818 , slightly modified)
+ * @brief Custom dark style (Style from [MomoDeve](https://github.com/ocornut/imgui/issues/707#issuecomment-670976818) , slightly modified)
  * 
  */
 inline void StyleVisualDark()
