@@ -1,17 +1,22 @@
 #include "MBIMGUI.h"
 
 MBIMGUI::MBIWindow::MBIWindow(const std::string &name, int height, int width, MBIWindowConfigFlags flags) : m_name(name),
-                                                                                             m_bVisible(true),
-                                                                                             m_flags(flags),
-                                                                                             m_logger(MBIMGUI::GetLogger()),
-                                                                                             m_size(ImVec2((float)width, (float)height)),
-                                                                                             m_imguiFlags(0)
+                                                                                                            m_bVisible(true),
+                                                                                                            m_flags(flags),
+                                                                                                            m_logger(MBIMGUI::GetLogger()),
+                                                                                                            m_size(ImVec2((float)width, (float)height)),
+                                                                                                            m_imguiFlags(0)
 {
 }
 
 ImVec2 MBIMGUI::MBIWindow::GetWindowSize() const
 {
     return m_size;
+}
+
+ImVec2 MBIMGUI::MBIWindow::GetWindowPos() const
+{
+    return m_pos;
 }
 
 const std::string &MBIMGUI::MBIWindow::GetName() const
@@ -37,4 +42,11 @@ bool MBIMGUI::MBIWindow::IsVisible() const
 void MBIMGUI::MBIWindow::SetVisible(bool bVisible)
 {
     m_bVisible = bVisible;
+}
+
+void MBIMGUI::MBIWindow::UpdateAndDisplay()
+{
+    m_size = ImGui::GetWindowSize();
+    m_pos = ImGui::GetWindowPos();
+    Display();
 }

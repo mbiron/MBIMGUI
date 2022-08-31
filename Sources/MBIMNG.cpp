@@ -145,6 +145,7 @@ inline void MBIMGUI::MBIMNG::ShowAboutWindow(bool *openWindow) const
     if ((*openWindow) == true)
     {
         ImGui::Text("This application has been made using MBIMGUI V" MBIMGUI_VERSION);
+        ImGui::Text("Build on %s %s", __DATE__, __TIME__);
         ImGui::Text("MBIMGUI is a simple overlay above ImGui and ImPlot frameworks.");
 
         if (ImGui::Button("Show ImGui Infos"))
@@ -476,7 +477,7 @@ void MBIMGUI::MBIMNG::Show()
                 // Do not use ImGuiWindowFlags_AlwaysAutoResize. It has a strange behaviour with Implot Windows (TODO : Open an issue to epezent)
                 if (ImGui::Begin(member.second->GetName().c_str(), NULL, ImGuiWindowFlags_NoCollapse | member.second->GetFlags()))
                 {
-                    member.second->Display();
+                    member.second->UpdateAndDisplay();
                 }
                 ImGui::End();
             }

@@ -33,6 +33,7 @@ namespace MBIMGUI
 
     private:
         ImVec2 m_size;                ///< Current size of the window
+        ImVec2 m_pos;                 ///< Current position of the window
         std::string m_name;           ///< Name of the window
         bool m_bVisible;              ///< Current visible state of the window
         MBIWindowConfigFlags m_flags; ///< Configuration flags for the window.
@@ -66,6 +67,13 @@ namespace MBIMGUI
          * @return ImVec2
          */
         virtual ImVec2 GetWindowSize() const;
+
+        /**
+         * @brief Get the Window Pos object
+         *
+         * @return ImVec2
+         */
+        virtual ImVec2 GetWindowPos() const;
         /**
          * @brief Get the the window name
          *
@@ -79,6 +87,12 @@ namespace MBIMGUI
          * @return ImGuiWindowFlags
          */
         ImGuiWindowFlags GetFlags() const;
+
+        /**
+         * @brief Internal method, called at each frame and call Display method
+         *
+         */
+        void UpdateAndDisplay();
 
         /**
          * @brief Main method, called at each frame to display your window
