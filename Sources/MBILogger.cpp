@@ -5,7 +5,7 @@
 
 #include "MBILogger.h"
 
-MBIMGUI::MBILogger::MBILog::MBILog(MBILogLevel level, std::string msg) : m_level(level), m_message(msg)
+MBIMGUI::MBILogger::MBILog::MBILog(MBILogLevel level, const std::string &msg) : m_level(level), m_message(msg)
 {
     tm ltm;
     time_t now = time(0);
@@ -139,7 +139,7 @@ void MBIMGUI::MBILogger::Configure(bool popupOnError, const std::string &logfile
     m_popupOnError = popupOnError;
 }
 
-void MBIMGUI::MBILogger::Log(MBILogLevel level, std::string &msg)
+void MBIMGUI::MBILogger::Log(MBILogLevel level, const std::string &msg)
 {
     MBILog log = MBILog(level, msg);
     m_logs.push(log);
@@ -167,9 +167,9 @@ void MBIMGUI::MBILogger::Log(MBILogLevel level, const char *msg, ...)
     Log(level, std::string(str));
 }
 
-void MBIMGUI::MBILogger::LogError(std::string &msg) { Log(LOG_LEVEL_ERROR, msg); }
+void MBIMGUI::MBILogger::LogError(const std::string &msg) { Log(LOG_LEVEL_ERROR, msg); }
 
-void MBIMGUI::MBILogger::PopupError(std::string &msg)
+void MBIMGUI::MBILogger::PopupError(const std::string &msg)
 {
     LogError(msg);
     if (!m_popupOnError)

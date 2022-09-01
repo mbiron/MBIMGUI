@@ -26,7 +26,6 @@ namespace MBIMGUI
      */
     class MBILogger
     {
-    public:
     private:
         /**
          * @brief Internal class to represent a log element
@@ -41,7 +40,7 @@ namespace MBIMGUI
              * @param level Level of the log
              * @param msg Message of the log
              */
-            MBILog(MBILogLevel level = LOG_LEVEL_INFO, std::string msg = "");
+            explicit MBILog(MBILogLevel level = LOG_LEVEL_INFO, const std::string &msg = "");
 
             /**
              * @brief Get the Log level as an object
@@ -124,7 +123,7 @@ namespace MBIMGUI
          * @param level Level of the message
          * @param msg Message to be logged
          */
-        void Log(MBILogLevel level, std::string &msg);
+        void Log(MBILogLevel level, const std::string &msg);
         /**
          * @brief Log a message
          *
@@ -138,7 +137,7 @@ namespace MBIMGUI
          *
          * @param msg Message to be logged
          */
-        void LogError(std::string &msg);
+        void LogError(const std::string &msg);
 
         // TODO : LogInfo ? LogOnce ! May be useful for debug
 
@@ -148,6 +147,6 @@ namespace MBIMGUI
          *
          * @param msg Message to be logged and displayed in the popup
          */
-        void PopupError(std::string &msg);
+        void PopupError(const std::string &msg);
     };
 }
