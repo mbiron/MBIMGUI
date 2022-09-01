@@ -5,7 +5,7 @@
 
 #include "MBILogger.h"
 
-MBIMGUI::MBILogger::MBILog::MBILog(MBILogLevel level, const std::string &msg) : m_level(level), m_message(msg)
+MBIMGUI::MBILogger::MBILog::MBILog(MBILogLevel level, std::string_view  msg) : m_level(level), m_message(msg)
 {
     tm ltm;
     time_t now = time(0);
@@ -78,7 +78,7 @@ std::string MBIMGUI::MBILogger::GetLogFullFileName() const
     }
 }
 
-void MBIMGUI::MBILogger::Configure(bool popupOnError, const std::string &logfile)
+void MBIMGUI::MBILogger::Configure(bool popupOnError, std::string_view logfile)
 {
     // Close previous openned file
     CloseLogFile();
@@ -108,7 +108,7 @@ void MBIMGUI::MBILogger::Configure(bool popupOnError, const std::string &logfile
         {
             m_logToFile = false;
             m_logfile = "";
-            LogError("Can't open logfile " + logfile);
+            LogError(std::string("Can't open logfile ") + logfile.data());
         }
         else
         {
@@ -139,7 +139,7 @@ void MBIMGUI::MBILogger::Configure(bool popupOnError, const std::string &logfile
     m_popupOnError = popupOnError;
 }
 
-void MBIMGUI::MBILogger::Log(MBILogLevel level, const std::string &msg)
+void MBIMGUI::MBILogger::Log(MBILogLevel level, std::string_view msg)
 {
     MBILog log = MBILog(level, msg);
     m_logs.push(log);
@@ -167,9 +167,9 @@ void MBIMGUI::MBILogger::Log(MBILogLevel level, const char *msg, ...)
     Log(level, std::string(str));
 }
 
-void MBIMGUI::MBILogger::LogError(const std::string &msg) { Log(LOG_LEVEL_ERROR, msg); }
+void MBIMGUI::MBILogger::LogError(std::string_view  msg) { Log(LOG_LEVEL_ERROR, msg); }
 
-void MBIMGUI::MBILogger::PopupError(const std::string &msg)
+void MBIMGUI::MBILogger::PopupError(std::string_view msg)
 {
     LogError(msg);
     if (!m_popupOnError)

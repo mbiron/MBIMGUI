@@ -62,12 +62,12 @@ static LRESULT WINAPI WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
  * @brief Construct a new Win32 Renderer:: Win32 Renderer object
  *
  */
-Win32Renderer::Win32Renderer(std::string name, int width, int height) : m_width(width), m_heigt(height)
+Win32Renderer::Win32Renderer(std::string_view name, int width, int height) : m_width(width), m_heigt(height)
 {
     m_pRenderer = NULL;
     m_wc = {sizeof(WNDCLASSEX), CS_CLASSDC, WndProc, 0L, 0L, GetModuleHandle(NULL), NULL, NULL, NULL, NULL, _T("MBIMGUI"), NULL};
     ::RegisterClassEx(&m_wc);
-    m_hwnd = ::CreateWindow(m_wc.lpszClassName, _T(name.c_str()), MBIMGUI_WINDOW_STYLE, 100, 100, width, height, NULL, NULL, m_wc.hInstance, this);
+    m_hwnd = ::CreateWindow(m_wc.lpszClassName, _T(name.data()), MBIMGUI_WINDOW_STYLE, 100, 100, width, height, NULL, NULL, m_wc.hInstance, this);
 
     m_pRenderer = new Dx12Renderer(m_hwnd);
     if (m_pRenderer == NULL)

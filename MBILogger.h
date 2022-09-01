@@ -1,6 +1,7 @@
 #pragma once
 
 #include <fstream>
+#include <string_view>
 
 #include "MBISyncCircularBuffer.h"
 
@@ -40,7 +41,7 @@ namespace MBIMGUI
              * @param level Level of the log
              * @param msg Message of the log
              */
-            explicit MBILog(MBILogLevel level = LOG_LEVEL_INFO, const std::string &msg = "");
+            explicit MBILog(MBILogLevel level = LOG_LEVEL_INFO, std::string_view msg = "");
 
             /**
              * @brief Get the Log level as an object
@@ -115,7 +116,7 @@ namespace MBIMGUI
          * @param popupOnError Any error log will be displayed in a popup to the user.
          * @param logfile All logs will be written in the specified logfile. To disable the log file, pass an empty string.
          */
-        void Configure(bool popupOnError = false, const std::string &logfile = "");
+        void Configure(bool popupOnError = false, std::string_view logfile = "");
 
         /**
          * @brief Log a message
@@ -123,7 +124,7 @@ namespace MBIMGUI
          * @param level Level of the message
          * @param msg Message to be logged
          */
-        void Log(MBILogLevel level, const std::string &msg);
+        void Log(MBILogLevel level, std::string_view msg);
         /**
          * @brief Log a message
          *
@@ -137,7 +138,7 @@ namespace MBIMGUI
          *
          * @param msg Message to be logged
          */
-        void LogError(const std::string &msg);
+        void LogError(std::string_view msg);
 
         // TODO : LogInfo ? LogOnce ! May be useful for debug
 
@@ -147,6 +148,6 @@ namespace MBIMGUI
          *
          * @param msg Message to be logged and displayed in the popup
          */
-        void PopupError(const std::string &msg);
+        void PopupError( std::string_view msg);
     };
 }

@@ -13,7 +13,7 @@
  * CTOR & DTOR
  *
  */
-MBIMGUI::MBIMNG::MBIMNG(const std::string name, int width, int height, MBIConfigFlags flags) : m_name(name),
+MBIMGUI::MBIMNG::MBIMNG(std::string_view name, int width, int height, MBIConfigFlags flags) : m_name(name),
                                                                                                m_confFlags(flags),
                                                                                                m_logFileDialog(ImGuiFileBrowserFlags_EnterNewFilename),
                                                                                                m_logger(MBIMGUI::GetLogger())

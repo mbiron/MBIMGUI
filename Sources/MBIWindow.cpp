@@ -1,6 +1,6 @@
 #include "MBIMGUI.h"
 
-MBIMGUI::MBIWindow::MBIWindow(const std::string &name, int height, int width, MBIWindowConfigFlags flags) : m_name(name),
+MBIMGUI::MBIWindow::MBIWindow(std::string_view name, int height, int width, MBIWindowConfigFlags flags) : m_name(name),
                                                                                                             m_bVisible(true),
                                                                                                             m_flags(flags),
                                                                                                             m_logger(MBIMGUI::GetLogger()),

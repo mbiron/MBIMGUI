@@ -28,7 +28,7 @@ public:
      * @param width Width of the window of pixels
      * @param height Height of the window of pixels
      */
-    Win32Renderer(std::string name, int width, int height);
+    Win32Renderer(std::string_view name, int width, int height);
     ~Win32Renderer();
     bool Init();
     void NewFrame();
