@@ -272,12 +272,25 @@ public:
      *
      * @return T Last object inserted into the buffer
      */
-    virtual T last() const
+    virtual const T last() const
     {
         if (empty())
             return T();
         return m_buff[m_end - 1];
     }
+    
+    /**
+     * @brief Retreive the last object inserted into the buffer
+     *
+     * @return T Last object inserted into the buffer
+     */
+    virtual T last()
+    {
+        if (empty())
+            return T();
+        return m_buff[m_end - 1];
+    }
+
     /**
      * @brief Retreive the oldest object inserted into the buffer
      *
