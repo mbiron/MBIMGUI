@@ -85,7 +85,7 @@ namespace MBIMGUI
                         ImGui::TextColored(GetLevelColor(log.GetLevel()), log.GetLevelString().c_str());
                         /* Display log text */
                         ImGui::TableNextColumn();
-                        ImGui::Text(log.GetMessageLog().c_str());
+                        ImGui::Selectable(log.GetMessageLog().c_str());
                         if (ImGui::IsItemHovered())
                         {
                             // Show tooltip if column is too tight to display full text

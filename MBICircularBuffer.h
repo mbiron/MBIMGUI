@@ -153,9 +153,26 @@ private:
      *
      * @param count Reference of the counter to move forward.
      */
-    void increasecount(int &count)
+    void inline increasecount(int &count)
     {
         count = (count + 1) % m_capacity;
+    }
+
+    /**
+     * @brief Internal size calculation to avoid overloading class to deadlock (occurs when size() is called as an inner call like in operator[]).
+     *
+     * @return int size of the buffer
+     */
+    int inline size_unlocked() const
+    {
+        if (m_full && m_end == m_begin)
+        {
+            return m_capacity;
+        }
+        else
+        {
+            return (m_end >= m_begin) ? (m_end - m_begin) : (m_capacity - m_begin + m_end);
+        }
     }
 
 public:
@@ -193,14 +210,7 @@ public:
      */
     virtual int size() const
     {
-        if (m_full && m_end == m_begin)
-        {
-            return m_capacity;
-        }
-        else
-        {
-            return (m_end >= m_begin) ? (m_end - m_begin) : (m_capacity - m_begin + m_end);
-        }
+        return size_unlocked();
     }
     /**
      * @brief Add an object at the end of the buffer. If the buffer is full, the object will replace the oldest one.
@@ -253,7 +263,7 @@ public:
     void remove(int n)
     {
         int test = m_begin;
-        if (size() >= n)
+        if (size_unlocked() >= n)
         {
             if ((m_begin + n) <= m_end)
             {
@@ -278,7 +288,7 @@ public:
             return T();
         return m_buff[m_end - 1];
     }
-    
+
     /**
      * @brief Retreive the last object inserted into the buffer
      *
@@ -359,7 +369,7 @@ public:
      */
     const T &operator[](int idx) const
     {
-        if (idx > size())
+        if (idx > size_unlocked())
         {
             if (m_full)
             {
@@ -383,7 +393,7 @@ public:
      */
     virtual T &operator[](int idx)
     {
-        if (idx > size())
+        if (idx > size_unlocked())
             return *end();
 
         int index = (m_begin + idx) % m_capacity;

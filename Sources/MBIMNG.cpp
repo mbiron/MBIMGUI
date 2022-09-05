@@ -274,7 +274,7 @@ bool MBIMGUI::MBIMNG::Init(float fontsize, const MBIColorStyle eStyle) const
     // TODO : Load font from installation directory
 
     /* Try loading from installation dir */
-    if (io.Fonts->AddFontFromFileTTF(".\\fonts\\Roboto-Medium.ttf", fontsize * scale))
+    if (io.Fonts->AddFontFromFileTTF(".\\fonts\\Roboto-Medium.ttf", fontsize * scale) == nullptr)
     {
         /* Try loading from imgui dir */
         io.Fonts->AddFontFromFileTTF("..\\..\\..\\Imgui\\imgui\\misc\\fonts\\Roboto-Medium.ttf", fontsize * scale);
@@ -282,6 +282,9 @@ bool MBIMGUI::MBIMNG::Init(float fontsize, const MBIColorStyle eStyle) const
 
     /* Style configuration */
     MBIMGUI::SetStyle(eStyle);
+
+    /* Make auto fit leave a 5% space to the fit extents of X and Y */
+    ImPlot::GetStyle().FitPadding = ImVec2(0.05f,0.05f);
 
     // DPI stuff : doesn't work ?
     // style.ScaleAllSizes(scale);

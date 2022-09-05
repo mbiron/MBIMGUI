@@ -35,7 +35,6 @@ public:
     void push(T data)
     {
         WriteLock w_lock(m_mut);
-        // std::lock_guard<std::mutex> guard(m_mut);
         MBICircularBuffer::push(data);
     }
 
@@ -47,7 +46,6 @@ public:
     T pop()
     {
         WriteLock w_lock(m_mut);
-        // std::lock_guard<std::mutex> guard(m_mut);
         return MBICircularBuffer::pop();
     }
 
@@ -60,7 +58,6 @@ public:
     T &operator[](int idx)
     {
         WriteLock w_lock(m_mut);
-        // std::lock_guard<std::mutex> guard(m_mut);
         return MBICircularBuffer::operator[](idx);
     }
 
@@ -73,7 +70,6 @@ public:
     const T &operator[](int idx) const
     {
         ReadLock w_lock(m_mut);
-        // std::lock_guard<std::mutex> guard(m_mut);
         return MBICircularBuffer::operator[](idx);
     }
 
@@ -85,7 +81,6 @@ public:
     int size() const
     {
         ReadLock w_lock(m_mut);
-        // std::lock_guard<std::mutex> guard(m_mut);
         return MBICircularBuffer::size();
     }
 
@@ -97,7 +92,6 @@ public:
     const T last() const
     {
         ReadLock w_lock(m_mut);
-        // std::lock_guard<std::mutex> guard(m_mut);
         return MBICircularBuffer::last();
     }
 };
