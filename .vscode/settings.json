@@ -72,6 +72,9 @@
         "stop_token": "cpp",
         "thread": "cpp",
         "unordered_map": "cpp",
-        "xhash": "cpp"
+        "xhash": "cpp",
+        "condition_variable": "cpp",
+        "shared_mutex": "cpp",
+        "string_view": "cpp"
     }
 }

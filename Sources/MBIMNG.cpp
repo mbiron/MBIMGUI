@@ -1,4 +1,4 @@
-//#include <string>
+#include <sstream>
 
 // Internal for advanced docking functions
 #include "Imgui_internal.h"
@@ -8,15 +8,77 @@
 #include "MBILogWindow.h"
 #include "Win32Renderer.h"
 
+namespace MBIMGUI
+{
+    static std::map<std::string, std::string> g_optionMap;
+
+    namespace
+    {
+        static std::string g_optionFile = "./etc/pref.conf";
+
+        void ReadAllOptions()
+        {
+            std::ifstream ifile;
+            std::string szLine;
+            std::string key;
+            std::string val;
+
+            szLine.reserve(128);
+
+            ifile.open(g_optionFile, std::ifstream::in);
+            while (std::getline(ifile, szLine))
+            {
+                std::istringstream istream(szLine);
+                /* Parse line */
+                if ((istream >> key >> std::string(" = ") >> val))
+                {
+                    g_optionMap[key] = val;
+                }
+            }
+        }
+
+        void WriteAllOptions()
+        {
+            std::ofstream ofile;
+
+            ofile.open(g_optionFile, std::ofstream::out);
+
+            for (auto it : g_optionMap)
+            {
+                ofile << it.first << " = " << it.second << std::endl;
+            }
+        }
+    }
+
+    void MBIOPTMGR::WriteOption(std::string_view key, std::string_view val)
+    {
+        g_optionMap[key.data()] = val;
+    }
+
+    const std::string &MBIOPTMGR::ReadOption(std::string_view key)
+    {
+        // TODO : Find a better error management...
+        static const std::string emptyStr = "";
+        if (g_optionMap.find(key.data()) == g_optionMap.end())
+        {
+            return emptyStr;
+        }
+        else
+        {
+            return g_optionMap.at(key.data());
+        }
+    }
+}
+
 /***
  *
  * CTOR & DTOR
  *
  */
 MBIMGUI::MBIMNG::MBIMNG(std::string_view name, int width, int height, MBIConfigFlags flags) : m_name(name),
-                                                                                               m_confFlags(flags),
-                                                                                               m_logFileDialog(ImGuiFileBrowserFlags_EnterNewFilename),
-                                                                                               m_logger(MBIMGUI::GetLogger())
+                                                                                              m_confFlags(flags),
+                                                                                              m_logFileDialog(ImGuiFileBrowserFlags_EnterNewFilename),
+                                                                                              m_logger(MBIMGUI::GetLogger())
 {
     m_pRenderer = new Win32Renderer(name, width, height);
 
@@ -41,12 +103,15 @@ MBIMGUI::MBIMNG::MBIMNG(std::string_view name, int width, int height, MBIConfigF
 
     m_aboutWindow = nullptr;
 
-    // ImGuiWindowFlags_NoSavedSettings --> Not compatible with default docking
-    //| ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize
+    /* Option management : retreive all stored options */
+    MBIMGUI::ReadAllOptions();
 }
 
 MBIMGUI::MBIMNG::~MBIMNG()
 {
+    /* Save all options before leaving */
+    MBIMGUI::WriteAllOptions();
+
     delete m_pRenderer;
     if (m_confFlags & MBIConfig_displayLogWindow)
     {
@@ -244,7 +309,7 @@ inline void MBIMGUI::MBIMNG::ShowOptionWindow(bool &openWindow)
  * PUBLIC Functions
  *
  */
-bool MBIMGUI::MBIMNG::Init(float fontsize, const MBIColorStyle eStyle) const
+bool MBIMGUI::MBIMNG::Init(float fontsize, const MBIColorStyle eStyle)
 {
     /* Setup Dear ImGui context */
     IMGUI_CHECKVERSION();
@@ -284,7 +349,7 @@ bool MBIMGUI::MBIMNG::Init(float fontsize, const MBIColorStyle eStyle) const
     MBIMGUI::SetStyle(eStyle);
 
     /* Make auto fit leave a 5% space to the fit extents of X and Y */
-    ImPlot::GetStyle().FitPadding = ImVec2(0.05f,0.05f);
+    ImPlot::GetStyle().FitPadding = ImVec2(0.05f, 0.05f);
 
     // DPI stuff : doesn't work ?
     // style.ScaleAllSizes(scale);

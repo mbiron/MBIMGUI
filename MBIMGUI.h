@@ -111,7 +111,7 @@ namespace MBIMGUI
          * @param height Height of the main frame (each window can be docked in this main frame)
          * @param flags Framework config flags, see MBIMGUI::_MBIConfigFlags
          */
-        MBIMNG(std::string_view, int width, int height, const MBIConfigFlags flags = 0);
+        MBIMNG(std::string_view name, int width, int height, const MBIConfigFlags flags = 0);
         /**
          * @brief Destroy the MBIMGUI object
          *
@@ -125,7 +125,7 @@ namespace MBIMGUI
          * @return true If initialisation is successfull
          * @return false If an error occured
          */
-        bool Init(float fontsize = 13.0f, MBIColorStyle eStyle = STYLE_VISUAL_DARK) const;
+        bool Init(float fontsize = 13.0f, MBIColorStyle eStyle = STYLE_VISUAL_DARK);
         /**
          * @brief Add a window in the application. This window can be docked in the main frame, or free. This may be changed
          * by the user during application lifetime.
@@ -159,36 +159,180 @@ namespace MBIMGUI
     };
 
     /**
+     * @brief Private namespace handling option management.
+     * @warning Should not be used directly ! Use @ref MBIMGUI::LoadOption and @ref MBIMGUI::SaveOption
+     *
+     */
+    namespace MBIOPTMGR
+    {
+        /**
+         * @brief Generic template for options value retreiving
+         *
+         * @tparam T Type of the option
+         * @param str Value as a string
+         * @param val Value as T
+         */
+        template <typename T>
+        void ConvertOptionValue(std::string_view str, T *val);
+
+        template <>
+        inline void ConvertOptionValue(std::string_view str, int *val)
+        {
+            *val = std::stoi(str.data());
+        }
+        template <>
+        inline void ConvertOptionValue(std::string_view str, double *val)
+        {
+            *val = std::stod(str.data());
+        }
+        template <>
+        inline void ConvertOptionValue(std::string_view str, float *val)
+        {
+            *val = std::stof(str.data());
+        }
+        template <>
+        inline void ConvertOptionValue(std::string_view str, std::string *val)
+        {
+            *val = str.data();
+        }
+
+        /**
+         * @brief Store an option in RAM.
+         * @warning Option will not be saved unti @ref WriteAllOptions has been called
+         *
+         * @param key Key of the option
+         * @param val Value of the option
+         */
+        void WriteOption(std::string_view key, std::string_view val);
+        /**
+         * @brief Read the value of an option in RAM
+         *
+         * @param key Key of the option
+         * @return const std::string& Value of the option as a string
+         */
+        const std::string &ReadOption(std::string_view key);
+    };
+
+    /**
      * @brief Get the Logger of the application. The logger can be configured (see @ref MBILogger)
      *
      * @return MBILogger& Reference to the logger of the application.
      */
     MBILogger &GetLogger();
 
-    // TODO : Persistent option mechanism ?
-    /* Use std::pair ?
-
-    void SaveOption(const MBIOption& opt);
-    void LoadOption(MBIOption& opt);
-    const std::vector<MBIOption>& LoadAllOption();
-
-    template<typename T>
+    /**
+     * @brief Class describing a SW configuration options. This can be use to declare and store persistent options
+     * for SW developped using MBIMGUI. Currently, options are stored in a file.
+     *
+     * @warning Keys used for options must be unique !
+     *
+     * @tparam T Type of the option
+     */
+    template <typename T>
     class MBIOption
     {
-        private:
-            std::pair<std::string, T> opt;
-        public:
-            MBIOption() = delete;
-            MBIOption(std::string name);
-            MBIOption(std::string name, T value);
+    private:
+        std::pair<std::string, T> opt; ///< Option is a pair <key,value>
 
-            std::string toString() const; // To serialize to file
-            void setValue(T value);
-            T getValue() const;
+    public:
+        MBIOption() = delete;
+        /**
+         * @brief Construct a new MBIOption object with the provided key.
+         *
+         * @param key Option key, must be unique.
+         */
+        MBIOption(std::string_view key)
+        {
+            opt.first = key;
+        }
+        /**
+         * @brief Construct a new MBIOption object with the provided key and value.
+         *
+         * @param key Option key, must be unique.
+         * @param value Option value.
+         */
+        MBIOption(std::string_view key, T value) : opt(key, value) {}
 
+        /**
+         * @brief Retreive value as a string
+         *
+         * @return std::string Value of the option
+         */
+        std::string valToString() const
+        {
+            return std::to_string(opt.second);
+        }
+        /**
+         * @brief Get the key of the option
+         *
+         * @return std::string_view Option key
+         */
+        std::string_view getKey() const
+        {
+            return opt.first;
+        }
+        /**
+         * @brief Set the value of the option
+         *
+         * @param value New value of the option
+         */
+        void setValue(T value)
+        {
+            opt.second = value;
+        }
+        /**
+         * @brief Get the value of the option
+         *
+         * @return T Current value of the option
+         */
+        T getValue() const
+        {
+            return opt.second;
+        }
+    };
+
+    /**
+     * @brief Save the provided option in a persistent area. After this function return, the option is loadable through LoadOption
+     *
+     * @tparam T Type of the option
+     * @param opt Option to be saved
+     */
+    template <typename T>
+    void SaveOption(const MBIMGUI::MBIOption<T> &opt)
+    {
+        MBIOPTMGR::WriteOption(opt.getKey(), opt.valToString());
     }
-    */
-};
+
+    /**
+     * @brief Load the requested option from the persistent area.
+     *
+     * @tparam T Type of the option
+     * @param opt Option to load. Use MBIOption::getValue() to retreive the value.
+     * @return true If the option is found.
+     * @return false If the option doesn't exist. Use SaveOption to create an entry.
+     */
+    template <typename T>
+    bool LoadOption(MBIMGUI::MBIOption<T> &opt)
+    {
+        std::string_view str = MBIOPTMGR::ReadOption(opt.getKey());
+        if (str.empty())
+        {
+            return false;
+        }
+        else
+        {
+            T val;
+            MBIOPTMGR::ConvertOptionValue(str, &val);
+            opt.setValue(val);
+            return true;
+        }
+    }
+
+    // const std::vector<std::string_view> &GetOptionsAvailable();
+    // void SetOptionFullFileName(std::string_view filename);
+    // std::string_view GetOptionFullFileName();
+
+}; /* namespace MBIMGUI */
 
 /**
  * @brief Extension widgets for [ImGui](https://github.com/ocornut/imgui)
@@ -198,6 +342,9 @@ namespace ImGui
 {
     /**
      * @brief A combo with an input text and a filter mechanism.
+     *
+     * This widget is based on idbrii's work from https://github.com/ocornut/imgui/issues/1658#issuecomment-1086193100
+     * with modifications proposed by ambrosiogabe.
      *
      * @param label Widget label
      * @param current_item Current item selected in the list
@@ -211,6 +358,9 @@ namespace ImGui
     /**
      * @brief A basic toggle button
      *
+     * Toggle from nerdtronik, slightly modified by me.
+     * https://github.com/ocornut/imgui/issues/1537#issuecomment-780262461
+     *
      * @param str_id Widget label
      * @param v Value retreive by the button
      * @return true if value has been modified in the previous frame
@@ -221,6 +371,8 @@ namespace ImGui
     /**
      * @brief Simple circular spinner
      *
+     * From ImSpinner by Dalerank
+     *
      * @param label Widget label
      * @param color Circle color
      */
@@ -228,6 +380,8 @@ namespace ImGui
 
     /**
      * @brief Double circular spinner (two circles)
+     *
+     * From ImSpinner by Dalerank
      *
      * @param label Widget label
      * @param color1 Outer circle color
