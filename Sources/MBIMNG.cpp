@@ -70,6 +70,14 @@ namespace MBIMGUI
     }
 }
 
+inline const std::wstring s2ws(const std::string& str)
+{
+    int size_needed = MultiByteToWideChar(CP_UTF8, 0, &str[0], (int)str.size(), NULL, 0);
+    std::wstring wstrTo( size_needed, 0 );
+    MultiByteToWideChar(CP_UTF8, 0, &str[0], (int)str.size(), &wstrTo[0], size_needed);
+    return wstrTo;
+}
+
 /***
  *
  * CTOR & DTOR
@@ -80,6 +88,8 @@ MBIMGUI::MBIMNG::MBIMNG(std::string_view name, int width, int height, MBIConfigF
                                                                                               m_logFileDialog(ImGuiFileBrowserFlags_EnterNewFilename),
                                                                                               m_logger(MBIMGUI::GetLogger())
 {
+    /* ImGui win32 backend handle Wchar for multiple languages. For now, keep it simple */
+    //std::wstring wname = s2ws(name.data());
     m_pRenderer = new Win32Renderer(name, width, height);
 
     if ((m_confFlags & MBIConfig_displayLogWindow) && (m_confFlags & MBIConfig_displayLogBar))
