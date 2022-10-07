@@ -12,8 +12,6 @@
 template <typename T>
 class MBISyncCircularBuffer : public MBICircularBuffer<T>
 {
-    // std::mutex m_mut;
-
     typedef std::unique_lock<std::shared_mutex> WriteLock;
     typedef std::shared_lock<std::shared_mutex> ReadLock;
     mutable std::shared_mutex m_mut;
