@@ -83,6 +83,17 @@ public:
     }
 
     /**
+     * @brief Retreive the first inserted object
+     *
+     * @return T
+     */
+    const T first() const
+    {
+        ReadLock w_lock(m_mut);
+        return MBICircularBuffer::first();
+    }
+
+    /**
      * @brief Retreive the last inserted object
      *
      * @return T
