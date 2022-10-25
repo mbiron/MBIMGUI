@@ -333,8 +333,9 @@ bool MBIMGUI::MBIMNG::Init(float fontsize, const MBIColorStyle eStyle)
                                                         // io.ConfigFlags |= ImGuiConfigFlags_DpiEnableScaleFonts // TO TEST !
     io.ConfigWindowsMoveFromTitleBarOnly = true;
 
-    /* Disable ini file */
-    io.IniFilename = NULL;
+    /* Set ini file */
+    io.IniFilename = ".\\ImGui.ini";
+    /* Disable log file */
     io.LogFilename = NULL;
 
     /* Handle fonts */
@@ -345,8 +346,6 @@ bool MBIMGUI::MBIMNG::Init(float fontsize, const MBIColorStyle eStyle)
     io.Fonts->AddFontFromFileTTF("..\\..\\..\\Imgui\\imgui\\misc\\fonts\\Karla-Regular.ttf",fontsize);
     io.Fonts->AddFontFromFileTTF("..\\..\\..\\Imgui\\imgui\\misc\\fonts\\ProggyTiny.ttf",fontsize);
     */
-
-    // TODO : Load font from installation directory
 
     /* Try loading from installation dir */
     if (io.Fonts->AddFontFromFileTTF(".\\fonts\\Roboto-Medium.ttf", fontsize * scale) == nullptr)

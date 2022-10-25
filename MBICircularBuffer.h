@@ -141,6 +141,134 @@ public:
         };
     };
 
+    /**
+     * @brief Forward const iterator on a MBICircularBuffer object
+     *
+     */
+    class MBIConstCircularIterator
+    {
+        using iterator_category = std::forward_iterator_tag;
+        using difference_type = std::ptrdiff_t;
+        using value_type = const T;
+        using pointer = const T *;
+        using reference = const T &;
+
+    private:
+        pointer m_ptr;
+        int m_counter;
+        const MBICircularBuffer &m_circbuff;
+
+    public:
+        /**
+         * @brief Construct a new MBIConstCircularIterator object. This iterator allows to walk through the circular buffer ONCE.
+         * This means that it's safe to use it in a foreach style loop, even if the circular buffer is full. After reaching
+         * the oldest object, the iterator will became invalid.
+         *
+         * @param ptr Pointer on the iterator ellement
+         * @param buff Circular buffer object containing the pointer.
+         */
+        MBIConstCircularIterator(pointer ptr, const MBICircularBuffer &buff) : m_ptr(ptr), m_circbuff(buff), m_counter(0) {}
+        MBIConstCircularIterator() = delete;
+
+        /**
+         * Operators
+         *
+         */
+
+        /**
+         * @brief Retreive item
+         *
+         * @return reference on the current item
+         */
+        reference operator*() const { return *m_ptr; }
+        /**
+         * @brief Retreive item
+         *
+         * @return pointer on the current item
+         */
+        pointer operator->() { return m_ptr; }
+
+        /**
+         * @brief Assignment operator
+         *
+         * @param other
+         * @return MBICircularIterator&
+         */
+        
+        MBIConstCircularIterator &operator=(const MBIConstCircularIterator &other)
+        {
+            if (this != &other && this->m_circbuff.m_buff == other.m_circbuff.m_buff) // not a self-assignment
+            {
+                this->m_ptr = other.m_ptr;
+                this->m_counter = other.m_counter;
+            }
+            return *this;
+        }
+
+        /**
+         * @brief Prefix increment
+         *
+         * @return MBICircularIterator&
+         */
+        MBIConstCircularIterator &operator++()
+        {
+            if (m_circbuff.full() && m_counter == m_circbuff.m_capacity - 1)
+            {
+                // If buffer is full, as begin == end, we rely on a counter to detect the last element
+                m_ptr = &(m_circbuff.m_buff[m_circbuff.m_capacity]);
+            }
+            else if (m_ptr == &(m_circbuff.m_buff[m_circbuff.m_capacity - 1]))
+            {
+                // Go back to start
+                m_ptr = &(m_circbuff.m_buff[0]);
+            }
+            else
+            {
+                // Move in the buffer
+                m_ptr++;
+            }
+            m_counter++;
+            return *this;
+        }
+
+        /**
+         * @brief Postfix increment
+         *
+         * @return MBICircularIterator
+         */
+        MBIConstCircularIterator operator++(int)
+        {
+            MBICircularIterator tmp = *this;
+            ++(*this);
+            return tmp;
+        }
+
+        /**
+         * @brief Comparison operator
+         *
+         * @param a
+         * @param b
+         * @return true
+         * @return false
+         */
+        friend bool operator==(const MBIConstCircularIterator &a, const MBIConstCircularIterator &b)
+        {
+            return a.m_ptr == b.m_ptr;
+        };
+        /**
+         * @brief Comparison operator
+         *
+         * @param a
+         * @param b
+         * @return true
+         * @return false
+         */
+        friend bool operator!=(const MBIConstCircularIterator &a, const MBIConstCircularIterator &b)
+        {
+            return a.m_ptr != b.m_ptr;
+        };
+    };
+
 private:
     std::unique_ptr<T[]> m_buff;
     int m_capacity;
@@ -163,7 +291,7 @@ private:
      *
      * @return int size of the buffer
      */
-    int inline size_unlocked() const
+    size_t inline size_unlocked() const
     {
         if (m_full && m_end == m_begin)
         {
@@ -208,7 +336,7 @@ public:
      *
      * @return int number of objects in the buffer
      */
-    virtual int size() const
+    virtual size_t size() const
     {
         return size_unlocked();
     }
@@ -374,12 +502,39 @@ public:
     }
 
     /**
+     * @brief Reterive a const iterator on the oldest object in the buffer
+     *
+     * @return MBIConstCircularIterator
+     */
+    virtual MBIConstCircularIterator cbegin() const
+    {
+        return MBIConstCircularIterator(&(m_buff[m_begin]), *this);
+    }
+
+    /**
+     * @brief Reterive a const iterator on the end the buffer
+     *
+     * @return MBIConstCircularIterator
+     */
+    MBIConstCircularIterator cend() const
+    {
+        if (m_full)
+        {
+            return MBIConstCircularIterator(&(m_buff[m_capacity]), *this);
+        }
+        else
+        {
+            return MBIConstCircularIterator(&(m_buff[m_end]), *this);
+        }
+    }
+
+    /**
      * @brief Access an element in the buffer. The idx is an offset from the beginning of the buffer (offset from the oldest object inserted)
      *
      * @param idx Offset of the element
      * @return const T&
      */
-    const T &operator[](int idx) const
+    const T &operator[](size_t idx) const
     {
         if (idx > size_unlocked())
         {
@@ -403,12 +558,12 @@ public:
      * @param idx Offset of the element
      * @return const T&
      */
-    virtual T &operator[](int idx)
+    virtual T &operator[](size_t idx)
     {
         if (idx > size_unlocked())
             return *end();
 
-        int index = (m_begin + idx) % m_capacity;
+        size_t index = (m_begin + idx) % m_capacity;
         return m_buff[index];
     }
 };

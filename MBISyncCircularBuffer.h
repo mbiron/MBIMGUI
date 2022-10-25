@@ -53,7 +53,7 @@ public:
      * @param idx Offset of the element
      * @return const T&
      */
-    T &operator[](int idx)
+    T &operator[](size_t idx)
     {
         WriteLock w_lock(m_mut);
         return MBICircularBuffer::operator[](idx);
@@ -65,9 +65,9 @@ public:
      * @param idx Offset of the element
      * @return const T&
      */
-    const T &operator[](int idx) const
+    const T &operator[](size_t idx) const
     {
-        ReadLock w_lock(m_mut);
+        ReadLock r_lock(m_mut);
         return MBICircularBuffer::operator[](idx);
     }
 
@@ -76,9 +76,9 @@ public:
      *
      * @return int
      */
-    int size() const
+    size_t size() const
     {
-        ReadLock w_lock(m_mut);
+        ReadLock r_lock(m_mut);
         return MBICircularBuffer::size();
     }
 
@@ -89,7 +89,7 @@ public:
      */
     const T first() const
     {
-        ReadLock w_lock(m_mut);
+        ReadLock r_lock(m_mut);
         return MBICircularBuffer::first();
     }
 
@@ -100,7 +100,13 @@ public:
      */
     const T last() const
     {
-        ReadLock w_lock(m_mut);
+        ReadLock r_lock(m_mut);
         return MBICircularBuffer::last();
+    }
+
+    MBICircularBuffer::MBIConstCircularIterator cbegin() const
+    {
+        ReadLock r_lock(m_mut);
+        return MBICircularBuffer::cbegin();
     }
 };
