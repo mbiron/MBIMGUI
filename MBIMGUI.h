@@ -200,6 +200,12 @@ namespace MBIMGUI
         {
             *val = str.data();
         }
+        template <>
+        inline void ConvertOptionValue(std::string_view str, bool *val)
+        {
+            // TODO : ugly
+            *val = (str.data()[0] == '1');
+        }
 
         /**
          * @brief Store an option in RAM.
