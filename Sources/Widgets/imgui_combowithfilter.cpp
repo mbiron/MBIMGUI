@@ -2,9 +2,10 @@
 // with modifications proposed by ambrosiogabe.
 
 // My modified ComboWithFilter with fts_fuzzy_match as include.
+// Using dear imgui, v1.89 WIP
 //
-// Adds arrow navigation, Enter to confirm, max_height_in_items, and fixed
-// focus on open and avoids drawing past window edges.
+// Adds arrow/pgup/pgdn navigation, Enter to confirm, max_height_in_items, and
+// fixed focus on open and avoids drawing past window edges.
 // My contributions are CC0/public domain.
 
 // Posted in issue: https://github.com/ocornut/imgui/issues/1658#issuecomment-1086193100
@@ -83,7 +84,8 @@ namespace ImGui
         bool value_changed = false;
 
         const ImGuiID id = window->GetID(label);
-        static bool is_already_open = IsPopupOpen(id, ImGuiPopupFlags_None);
+        const ImGuiID popup_id = ImHashStr("##ComboPopup", 0, id); // copied from BeginCombo
+        const bool is_already_open = IsPopupOpen(popup_id, ImGuiPopupFlags_None);
         const bool is_filtering = is_already_open && pattern_buffer[0] != '\0';
 
         int show_count = items_count;
@@ -136,11 +138,8 @@ namespace ImGui
         ImGui::PushItemWidth(-FLT_MIN);
         // Filter input
         if (!is_already_open)
-        {
             ImGui::SetKeyboardFocusHere();
-            is_already_open = true;
-        }
-        InputText("##ComboWithFilter_inputText", pattern_buffer, 256);
+        InputText("##ComboWithFilter_inputText", pattern_buffer, 256, ImGuiInputTextFlags_AutoSelectAll);
 
         const ImVec2 label_size = CalcTextSize(ICON_FA_SEARCH, NULL, true);
         const ImVec2 search_icon_pos(
@@ -151,13 +150,21 @@ namespace ImGui
         ImGui::PopStyleColor(2);
 
         int move_delta = 0;
-        if (IsKeyPressedMap(ImGuiKey_UpArrow))
+        if (IsKeyPressed(ImGuiKey_UpArrow))
         {
             --move_delta;
         }
-        else if (IsKeyPressedMap(ImGuiKey_DownArrow))
+        else if (IsKeyPressed(ImGuiKey_DownArrow))
         {
             ++move_delta;
+        }
+        else if (IsKeyPressed(ImGuiKey_PageUp))
+        {
+            move_delta -= popup_max_height_in_items;
+        }
+        else if (IsKeyPressed(ImGuiKey_PageDown))
+        {
+            move_delta += popup_max_height_in_items;
         }
 
         if (move_delta != 0)
@@ -167,21 +174,25 @@ namespace ImGui
                 int current_score_idx = index_of_key(itemScoreVector, focus_idx);
                 if (current_score_idx >= 0)
                 {
-                    const int count = (int)itemScoreVector.size();
-                    current_score_idx = (current_score_idx + move_delta + count) % count;
+                    const int count = static_cast<int>(itemScoreVector.size());
+                    current_score_idx = ImClamp(current_score_idx + move_delta, 0, count - 1);
                     focus_idx = itemScoreVector[current_score_idx].first;
                 }
             }
             else
             {
-                focus_idx = (focus_idx + move_delta + items_count) % items_count;
+                focus_idx = ImClamp(focus_idx + move_delta, 0, items_count - 1);
             }
         }
 
-        ImVec2 list_box_header_size;
-        list_box_header_size.x = 0.0f;
-        list_box_header_size.y = ImGui::GetTextLineHeightWithSpacing() * popup_max_height_in_items + g.Style.FramePadding.y * 2.0f;
-        if (ImGui::ListBoxHeader("##ComboWithFilter_itemList", list_box_header_size))
+        // Copied from ListBoxHeader
+        // If popup_max_height_in_items == -1, default height is maximum 7.
+        float height_in_items_f = (popup_max_height_in_items < 0 ? ImMin(items_count, 7) : popup_max_height_in_items) + 0.25f;
+        ImVec2 size;
+        size.x = 0.0f;
+        size.y = GetTextLineHeightWithSpacing() * height_in_items_f + g.Style.FramePadding.y * 2.0f;
+
+        if (ImGui::BeginListBox("##ComboWithFilter_itemList", size))
         {
             for (int i = 0; i < show_count; i++)
             {
@@ -207,12 +218,17 @@ namespace ImGui
                 }
                 PopID();
             }
-            ImGui::ListBoxFooter();
+            ImGui::EndListBox();
 
-            if (IsKeyPressedMap(ImGuiKey_Enter))
+            if (IsKeyPressed(ImGuiKey_Enter))
             {
                 value_changed = true;
                 *current_item = focus_idx;
+                CloseCurrentPopup();
+            }
+            else if (IsKeyPressed(ImGuiKey_Escape))
+            {
+                value_changed = false;
                 CloseCurrentPopup();
             }
         }
@@ -220,12 +236,7 @@ namespace ImGui
         ImGui::EndCombo();
 
         if (value_changed)
-        {
-            is_already_open = false;
-
-            // Not sure if this is actually necessary
-            ImGui::MarkItemEdited(g.CurrentWindow->DC.NavFocusScopeIdCurrent);
-        }
+            MarkItemEdited(g.LastItemData.ID);
 
         return value_changed;
     }

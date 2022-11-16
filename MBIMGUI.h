@@ -181,6 +181,11 @@ namespace MBIMGUI
             *val = std::stoi(str.data());
         }
         template <>
+        inline void ConvertOptionValue(std::string_view str, size_t *val)
+        {
+            *val = std::stoull(str.data());
+        }
+        template <>
         inline void ConvertOptionValue(std::string_view str, double *val)
         {
             *val = std::stod(str.data());
