@@ -533,7 +533,7 @@ void MBIMGUI::MBIMNG::Show()
             }
             if (bShowOptions)
             {
-                ImGui::SetNextWindowSize(ImVec2(300, 300), ImGuiCond_Appearing);
+                ImGui::SetNextWindowSize(ImVec2(400, 400), ImGuiCond_Appearing);
                 if (ImGui::Begin("Options", &bShowOptions, ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoDocking))
                     ShowOptionWindow(bShowOptions);
 

@@ -193,8 +193,7 @@ public:
          *
          * @param other
          * @return MBICircularIterator&
-         */
-        
+         */        
         MBIConstCircularIterator &operator=(const MBIConstCircularIterator &other)
         {
             if (this != &other && this->m_circbuff.m_buff == other.m_circbuff.m_buff) // not a self-assignment
@@ -556,7 +555,7 @@ public:
      * @brief Access an element in the buffer. The idx is an offset from the beginning of the buffer (offset from the oldest object inserted)
      *
      * @param idx Offset of the element
-     * @return const T&
+     * @return T&
      */
     virtual T &operator[](size_t idx)
     {
