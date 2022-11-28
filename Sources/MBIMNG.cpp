@@ -70,10 +70,10 @@ namespace MBIMGUI
     }
 }
 
-inline const std::wstring s2ws(const std::string& str)
+inline const std::wstring s2ws(const std::string &str)
 {
     int size_needed = MultiByteToWideChar(CP_UTF8, 0, &str[0], (int)str.size(), NULL, 0);
-    std::wstring wstrTo( size_needed, 0 );
+    std::wstring wstrTo(size_needed, 0);
     MultiByteToWideChar(CP_UTF8, 0, &str[0], (int)str.size(), &wstrTo[0], size_needed);
     return wstrTo;
 }
@@ -89,7 +89,7 @@ MBIMGUI::MBIMNG::MBIMNG(std::string_view name, int width, int height, MBIConfigF
                                                                                               m_logger(MBIMGUI::GetLogger())
 {
     /* ImGui win32 backend handle Wchar for multiple languages. For now, keep it simple */
-    //std::wstring wname = s2ws(name.data());
+    // std::wstring wname = s2ws(name.data());
     m_pRenderer = new Win32Renderer(name, width, height);
 
     if ((m_confFlags & MBIConfig_displayLogWindow) && (m_confFlags & MBIConfig_displayLogBar))
@@ -384,8 +384,9 @@ void MBIMGUI::MBIMNG::AddOptionTab(MBIWindow *window)
 void MBIMGUI::MBIMNG::Show()
 {
     // Main loop
-    bool bFirst = true;
     bool bQuit = false;
+    // Set dockspace layout the first time
+    bool bResetDockspace = true;
 
     while (!bQuit)
     {
@@ -438,19 +439,24 @@ void MBIMGUI::MBIMNG::Show()
             // Submit the DockSpace
             ImGui::DockSpace(dockspaceId, ImVec2(0.0f, 0.0f), ImGuiDockNodeFlags_None);
 
-            if (bFirst)
+            /* If dockspace already exists, it means it has been loaded according to user-specifics layout modifications
+            So we don't need to setup dockspace to its default position, unless a reset has been requested */
+            if (bResetDockspace ||
+                (ImGui::DockBuilderGetNode(dockspaceId) == NULL))
             {
                 SetupDockspace();
-                bFirst = false;
+                bResetDockspace = false;
             }
         }
 
         // Create menu
         if (m_confFlags & MBIConfig_displayMenuBar)
         {
+#ifdef _DEBUG
             static bool bShowMetrics = false;
             static bool bShowImguiStyle = false;
             static bool bShowImplotStyle = false;
+#endif
             static bool bShowAbout = false;
             static bool bShowOptions = false;
             static bool bShowGraphHelp = false;
@@ -459,10 +465,7 @@ void MBIMGUI::MBIMNG::Show()
                 if (ImGui::BeginMenu("File"))
                 {
                     if (ImGui::MenuItem("Open"))
-                        m_logger.Log(LOG_LEVEL_DEBUG, "Not implemented yet :)");
-
-                    if (ImGui::MenuItem("Log"))
-                        m_logger.Log(LOG_LEVEL_DEBUG, "Welcome in file menu");
+                        m_logger.Log(LOG_LEVEL_DEBUG, "Not implemented yet");
 
                     ImGui::Separator();
                     ImGui::MenuItem("Options", NULL, &bShowOptions);
@@ -475,6 +478,8 @@ void MBIMGUI::MBIMNG::Show()
                 }
                 if (ImGui::BeginMenu("View"))
                 {
+                    bResetDockspace = ImGui::MenuItem("Reset to default layout");
+                    ImGui::Separator();
                     // Set windows in menu file
                     for (const auto &member : m_windows)
                     {
@@ -488,11 +493,12 @@ void MBIMGUI::MBIMNG::Show()
                             }
                         }
                     }
+#ifdef _DEBUG
                     ImGui::Separator();
                     ImGui::MenuItem("HMI Debug/Metrics", NULL, &bShowMetrics);
                     ImGui::MenuItem("GUI Style editor", NULL, &bShowImguiStyle);
                     ImGui::MenuItem("Plot Style editor", NULL, &bShowImplotStyle);
-
+#endif
                     ImGui::EndMenu();
                 }
                 if (ImGui::BeginMenu("Help"))
@@ -514,6 +520,7 @@ void MBIMGUI::MBIMNG::Show()
 
                 ImGui::End();
             }
+#ifdef _DEBUG
             if (bShowMetrics)
                 ImGui::ShowMetricsWindow(&bShowMetrics);
 
@@ -531,6 +538,7 @@ void MBIMGUI::MBIMNG::Show()
 
                 ImGui::End();
             }
+#endif
             if (bShowOptions)
             {
                 ImGui::SetNextWindowSize(ImVec2(400, 400), ImGuiCond_Appearing);
