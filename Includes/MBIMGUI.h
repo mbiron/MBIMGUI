@@ -69,17 +69,36 @@ namespace MBIMGUI
             DOCK_LEFT,  ///< The window is docked at the left of the main one
             DOCK_RIGHT, ///< The window is docked at the right of the main one
             DOCK_UP,    ///< The window is docked above the main one
-            DOCK_DOWN   ///< The window is docked below the main one
+            DOCK_DOWN,  ///< The window is docked below the main one
+            DOCK_LOG
         } MBIDockOption;
 
+        /**
+         * @brief Callback on file open menu
+         *
+         */
+        using MBIOpenFileHandler = void (*)(const std::string &filename);
+
     private:
-        Renderer *m_pRenderer;                          ///< Pointer on the current Renderer of the app.
-        std::string m_name;                             ///< Name of the app (name of the main window)
-        std::map<MBIDockOption, MBIWindow *> m_windows; ///< Stores all the windows of the app and their location. @TODO : Use multiple map to tab multiple docked windows ?
-        MBIWindow *m_aboutWindow;                       ///< About window of the app
+        /**
+         * Internal types
+         */
+        using WindowMapPair = std::pair<MBIDockOption, MBIWindow *>; ///< Internal pair for a window and its docking location
+
+        /**
+         * Members
+         */
+
+        Renderer *m_pRenderer;                               ///< Pointer on the current Renderer of the app.
+        std::string m_name;                                  ///< Name of the app (name of the main window)
+        std::multimap<MBIDockOption, MBIWindow *> m_windows; ///< Stores all the windows of the app and their location.
+        MBIWindow *m_aboutWindow;                            ///< About window of the app
 
         std::vector<MBIWindow *> m_optionsTabs; ///< Option windows of the app. Will be shown as tab inside the option window in File-->Options
         ImGui::FileBrowser m_logFileDialog;     ///< File browser displayed when setting logfile in option menu
+
+        ImGui::FileBrowser m_openFileDialog; ///< File browser displayed when setting logfile in option menu
+        MBIOpenFileHandler m_openFileHandler;
 
         MBIConfigFlags m_confFlags; ///< Current framework flags
         MBILogger &m_logger;        ///< Logger of the application
@@ -148,6 +167,14 @@ namespace MBIMGUI
          * @param window A pointer to a MBIWindow object.
          */
         void AddOptionTab(MBIWindow *window);
+
+        /**
+         * @brief Add a File->Open menu.
+         *
+         * @param filters Allowed file filter in the form {".bin"}
+         * @param openFileHandler Function called when file is selected
+         */
+        void EnableOpenMenu(const std::vector<std::string> &filters, MBIOpenFileHandler openFileHandler);
 
         /**
          * @brief Show the application. This will displayed all the windows added by MBIMGUI::AddWindow function
