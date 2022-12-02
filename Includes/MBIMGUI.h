@@ -6,7 +6,6 @@
 #include "imgui.h"
 #include "imfilebrowser.h"
 #include "implot.h"
-#include "imgui_memory_editor.h"
 
 #include "MBIWindow.h"
 #include "MBILogger.h"
