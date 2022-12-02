@@ -86,6 +86,9 @@ inline const std::wstring s2ws(const std::string &str)
 MBIMGUI::MBIMNG::MBIMNG(std::string_view name, int width, int height, MBIConfigFlags flags) : m_name(name),
                                                                                               m_confFlags(flags),
                                                                                               m_logFileDialog(ImGuiFileBrowserFlags_EnterNewFilename),
+                                                                                              m_openFileDialog(),
+                                                                                              m_openFileHandler(nullptr),
+                                                                                              m_aboutWindow(nullptr),
                                                                                               m_logger(MBIMGUI::GetLogger())
 {
     /* ImGui win32 backend handle Wchar for multiple languages. For now, keep it simple */
@@ -100,18 +103,18 @@ MBIMGUI::MBIMNG::MBIMNG(std::string_view name, int width, int height, MBIConfigF
 
     if (m_confFlags & MBIConfig_displayLogWindow)
     {
-        m_windows[DOCK_DOWN] = new MBILogWindow("Logs", MBILogWindow::MODE_WINDOW);
+        m_windows.insert(WindowMapPair(DOCK_LOG, new MBILogWindow("Logs", MBILogWindow::MODE_WINDOW)));
     }
     else if (m_confFlags & MBIConfig_displayLogBar)
     {
-        m_windows[DOCK_DOWN] = new MBILogWindow("Logs", MBILogWindow::MODE_BAR);
+        m_windows.insert(WindowMapPair(DOCK_LOG, new MBILogWindow("Logs", MBILogWindow::MODE_BAR)));
     }
 
     m_logFileDialog.SetTitle("Choose log file");
     m_logFileDialog.SetTypeFilters({".log"});
     m_logFileDialog.SetInputName("logfile.log");
 
-    m_aboutWindow = nullptr;
+    m_openFileDialog.SetTitle("Open file");
 
     /* Option management : retreive all stored options */
     MBIMGUI::ReadAllOptions();
@@ -125,7 +128,9 @@ MBIMGUI::MBIMNG::~MBIMNG()
     delete m_pRenderer;
     if (m_confFlags & MBIConfig_displayLogWindow)
     {
-        delete m_windows[DOCK_DOWN];
+        /* Delete log window if exists */
+        delete m_windows.find(DOCK_LOG)->second;
+        // delete m_windows[DOCK_LOG];
     }
 }
 
@@ -170,13 +175,17 @@ void MBIMGUI::MBIMNG::SetupDockspace() const
         ImGuiID dockId = 0;
         switch (member.first)
         {
-        case DOCK_DOWN:
+        case DOCK_LOG:
             // If log bar, don't show tab bar and make it static
             if (m_confFlags & MBIConfig_displayLogBar)
             {
                 ImGuiDockNode *Node = ImGui::DockBuilderGetNode(dock_down_id);
-                Node->LocalFlags |= ImGuiDockNodeFlags_NoTabBar | ImGuiDockNodeFlags_NoWindowMenuButton | ImGuiDockNodeFlags_NoCloseButton | ImGuiDockNodeFlags_NoResizeY | ImGuiDockNodeFlags_NoDockingOverMe | ImGuiDockNodeFlags_NoDockingSplitMe | ImGuiDockNodeFlags_NoDocking | ImGuiDockNodeFlags_NoSplit;
+                Node->LocalFlags |= ImGuiDockNodeFlags_NoTabBar | ImGuiDockNodeFlags_NoWindowMenuButton | ImGuiDockNodeFlags_NoCloseButton |
+                                    ImGuiDockNodeFlags_NoResizeX | ImGuiDockNodeFlags_NoResizeY | ImGuiDockNodeFlags_NoDockingOverMe |
+                                    ImGuiDockNodeFlags_NoDockingSplitMe | ImGuiDockNodeFlags_NoDocking | ImGuiDockNodeFlags_NoSplit;
             }
+            dockId = dock_down_id;
+        case DOCK_DOWN:
             dockId = dock_down_id;
             break;
         case DOCK_UP:
@@ -373,7 +382,7 @@ void MBIMGUI::MBIMNG::AddAboutWindow(MBIWindow *window)
 
 void MBIMGUI::MBIMNG::AddWindow(MBIWindow *window, MBIDockOption option)
 {
-    m_windows[option] = window;
+    m_windows.insert(WindowMapPair(option, window));
 }
 
 void MBIMGUI::MBIMNG::AddOptionTab(MBIWindow *window)
@@ -381,12 +390,17 @@ void MBIMGUI::MBIMNG::AddOptionTab(MBIWindow *window)
     m_optionsTabs.push_back(window);
 }
 
+void MBIMGUI::MBIMNG::EnableOpenMenu(const std::vector<std::string> &filters, MBIOpenFileHandler openFileHandler)
+{
+    m_openFileDialog.SetTypeFilters(filters);
+    m_openFileHandler = openFileHandler;
+}
+
 void MBIMGUI::MBIMNG::Show()
 {
     // Main loop
     bool bQuit = false;
-    // Set dockspace layout the first time
-    bool bResetDockspace = true;
+    bool bResetDockspace = false;
 
     while (!bQuit)
     {
@@ -436,16 +450,22 @@ void MBIMGUI::MBIMNG::Show()
             ImGui::PopStyleVar(3);
 
             ImGuiID dockspaceId = ImGui::GetID("MainDockNode");
-            // Submit the DockSpace
-            ImGui::DockSpace(dockspaceId, ImVec2(0.0f, 0.0f), ImGuiDockNodeFlags_None);
 
             /* If dockspace already exists, it means it has been loaded according to user-specifics layout modifications
             So we don't need to setup dockspace to its default position, unless a reset has been requested */
             if (bResetDockspace ||
                 (ImGui::DockBuilderGetNode(dockspaceId) == NULL))
             {
+                // Submit the DockSpace before setup
+                ImGui::DockSpace(dockspaceId, ImVec2(0.0f, 0.0f), ImGuiDockNodeFlags_None);
+
                 SetupDockspace();
                 bResetDockspace = false;
+            }
+            else
+            {
+                // Submit the DockSpace previously saved
+                ImGui::DockSpace(dockspaceId, ImVec2(0.0f, 0.0f), ImGuiDockNodeFlags_None);
             }
         }
 
@@ -464,10 +484,14 @@ void MBIMGUI::MBIMNG::Show()
             {
                 if (ImGui::BeginMenu("File"))
                 {
-                    if (ImGui::MenuItem("Open"))
-                        m_logger.Log(LOG_LEVEL_DEBUG, "Not implemented yet");
-
-                    ImGui::Separator();
+                    if (m_openFileHandler)
+                    {
+                        if (ImGui::MenuItem("Open"))
+                        {
+                            m_openFileDialog.Open();
+                        }
+                        ImGui::Separator();
+                    }
                     ImGui::MenuItem("Options", NULL, &bShowOptions);
                     ImGui::Separator();
 
@@ -546,6 +570,15 @@ void MBIMGUI::MBIMNG::Show()
                     ShowOptionWindow(bShowOptions);
 
                 ImGui::End();
+            }
+
+            m_openFileDialog.Display();
+            if (m_openFileDialog.HasSelected())
+            {
+                std::string fileSelected = m_openFileDialog.GetSelected().string();
+                /* Call user hadler */
+                m_openFileHandler(fileSelected);
+                m_openFileDialog.ClearSelected();
             }
         }
 

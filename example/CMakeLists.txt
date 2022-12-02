@@ -3,23 +3,13 @@ cmake_minimum_required(VERSION 3.0.0)
 ### Project 
 project(MBIMGUI_TEST VERSION 0.1.0)
 
-### Global variables
-set(SRC_DIR ./)
-set(MBIMGUI_DIR ../)
-set(IMGUI_DIR ../../imgui/imgui/)
-set(IMGUIBROWSER_DIR ../../imgui/imgui-filebrowser/)
-set(IMPLOT_DIR ../../imgui/implot/)
-set(IMEMEDIT_DIR ../../Imgui/imgui_club/imgui_memory_editor)
+include(GNUInstallDirs)
 
-### Includes
-include(CTest)
-enable_testing()
+# ## Dependencies
+find_package(MBIMGUI CONFIG REQUIRED)
 
-#message(STATUS ${CMAKE_VS_WINDOWS_TARGET_PLATFORM_VERSION})
-#message(WARNING ${D3D12_INCLUDE_DIRS})
-
-### Dependencies
-add_subdirectory(${MBIMGUI_DIR} ./dep/MBIMGUI)
+# ## Global variables
+set(SRC_DIR Sources/)
 
 ### Sources
 set(SRC_FILES   ${SRC_DIR}/main.cpp  )

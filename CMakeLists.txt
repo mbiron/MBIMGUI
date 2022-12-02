@@ -1,65 +1,35 @@
-cmake_minimum_required(VERSION 3.0.0)
-
-### Global variables
-set(SRC_DIR Sources/)
-set(SRC_DIR_REND Sources/Renderers)
-set(SRC_DIR_WIDGET Sources/Widgets/)
-set(SUB_MOD_DIR imgui/)
-
-
-### IMGUI
-set(IMGUI_DIR ${SUB_MOD_DIR}/Imgui)
-set(IMGUI_BACKENDS_DIR ${IMGUI_DIR}/backends)
-
-set(IMGUI_SRC ${IMGUI_DIR}/imgui.cpp
-              ${IMGUI_DIR}/imgui_demo.cpp
-              ${IMGUI_DIR}/imgui_draw.cpp
-              ${IMGUI_DIR}/imgui_tables.cpp
-              ${IMGUI_DIR}/imgui_widgets.cpp
-              ${IMGUI_BACKENDS_DIR}/imgui_impl_win32.cpp
-              ${IMGUI_BACKENDS_DIR}/imgui_impl_dx12.cpp
-)
-
-### IMPLOT
-set(IMPLOT_DIR ${SUB_MOD_DIR}/implot)
-
-set(IMPLOT_SRC  ${IMPLOT_DIR}/implot.cpp
-                ${IMPLOT_DIR}/implot_items.cpp
-                ${IMPLOT_DIR}/implot_demo.cpp
-)
-
-### IMFILEBROWSER
-set(IMFILEBROWSER_DIR ${SUB_MOD_DIR}/imgui-filebrowser)
-
-### Memory Editor
-set(IMEMEDIT_DIR ${SUB_MOD_DIR}/imgui_club/imgui_memory_editor)
-
-### Imspinner
-set(IMSPINNER_DIR ${SUB_MOD_DIR}/imspinner)
+cmake_minimum_required(VERSION 3.9)
 
 ### Project 
 project(MBIMGUI VERSION 0.1.0)
 
-### Includes
-include(CTest)
-enable_testing()
+# Set parent dir
+set(MBIMGUI_DIR ../MBIMGUI/)
 
-#message(STATUS ${CMAKE_VS_WINDOWS_TARGET_PLATFORM_VERSION})
+# Include Imgui and co
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/cmake")
+# Defines IMGUI_DEP_DIRS and IMGUI_DEP_SRCS
+find_package(Imgui REQUIRED)
+
+### Global variables
+set(INC_DIR Includes/)
+set(SRC_DIR Sources/)
+set(SRC_DIR_REND Sources/Renderers)
+set(SRC_DIR_WIDGET Sources/Widgets/)
 
 ### Sources
 aux_source_directory( ${SRC_DIR_REND} RENDERERS_SRC )
-set(SRC_FILES ${IMGUI_SRC} 
-              ${IMPLOT_SRC} 
+set(SRC_FILES ${IMGUI_DEP_SRCS}
               ${SRC_DIR}MBIMNG.cpp 
               ${SRC_DIR}MBIMGUI.cpp 
               ${SRC_DIR}MBIWindow.cpp 
               ${SRC_DIR}MBILogger.cpp 
               ${SRC_DIR_WIDGET}imgui_combowithfilter.cpp 
-              ${SRC_DIR_WIDGET}imgui_toggle.cpp 
-              ${SRC_DIR_WIDGET}imspinner.cpp 
+              #${SRC_DIR_WIDGET}imgui_toggle.cpp 
+              ${SRC_DIR_WIDGET}imspinner.cpp               
               ${RENDERERS_SRC} )  
               
-set(HEADER_FILES MBIMGUI.h)
+set(HEADER_FILES ${INC_DIR}MBIMGUI.h)
 
 ### Output
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/lib)
@@ -74,19 +44,60 @@ set_property(TARGET ${PROJECT_NAME} PROPERTY CXX_STANDARD 17)
 
 ### Preproc
 target_include_directories(${PROJECT_NAME} PRIVATE ${SRC_DIR} ${SRC_DIR_REND} 
-        ${PROJECT_SOURCE_DIR} 
-        ${IMGUI_DIR} ${IMGUI_BACKENDS_DIR}
-        ${IMPLOT_DIR}
-        ${IMFILEBROWSER_DIR}
-        ${IMEMEDIT_DIR}
-		${IMSPINNER_DIR}
-        )
+        ${INC_DIR} 
+        ${IMGUI_DEP_DIRS})
 
 ### Linker
-target_link_libraries(${PROJECT_NAME} d3d12.lib) 
-target_link_libraries(${PROJECT_NAME} dxgi.lib) 
+target_link_libraries(${PROJECT_NAME} PRIVATE d3d12.lib) 
+target_link_libraries(${PROJECT_NAME} PRIVATE dxgi.lib) 
 
-### CPack
-set(CPACK_PROJECT_NAME ${PROJECT_NAME})
-set(CPACK_PROJECT_VERSION ${PROJECT_VERSION})
-include(CPack)
+# Introduce variables:
+# * CMAKE_INSTALL_LIBDIR
+# * CMAKE_INSTALL_BINDIR
+# * CMAKE_INSTALL_INCLUDEDIR
+include(GNUInstallDirs)
+
+# Layout. This works for all platforms:
+#   * <prefix>/lib*/cmake/<PROJECT-NAME>
+#   * <prefix>/lib*/
+#   * <prefix>/include/
+set(config_install_dir "${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME}")
+
+# Configuration
+set(project_config "cmake/MBIMGUIConfig.cmake")
+
+# Export lib
+install(
+    TARGETS ${PROJECT_NAME}
+    EXPORT "${TARGETS_EXPORT_NAME}"
+    LIBRARY DESTINATION "${CMAKE_INSTALL_LIBDIR}"
+    ARCHIVE DESTINATION "${CMAKE_INSTALL_LIBDIR}"
+    RUNTIME DESTINATION "${CMAKE_INSTALL_BINDIR}"
+    INCLUDES DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}"
+)
+
+# Export headers
+install(
+    DIRECTORY ${INC_DIR}
+    DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}"
+    FILES_MATCHING PATTERN "*.h"
+)
+
+install(
+    DIRECTORY ${SUB_MOD_DIR}
+    DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}"
+    FILES_MATCHING 
+    PATTERN "*.h"
+    PATTERN "docs" EXCLUDE
+    PATTERN "misc" EXCLUDE
+    PATTERN "examples" EXCLUDE
+    PATTERN "backends" EXCLUDE
+    PATTERN "*github" EXCLUDE
+)
+
+# Config
+#   * <prefix>/lib/cmake/MBIMGUI/MBIMGUIConfig.cmake
+install(
+    FILES "${project_config}"
+    DESTINATION "${config_install_dir}"
+)

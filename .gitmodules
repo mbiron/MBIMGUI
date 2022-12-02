@@ -15,3 +15,6 @@
 [submodule "imgui/Imgui-filebrowser"]
 	path = imgui/Imgui-filebrowser
 	url = https://github.com/AirGuanZ/imgui-filebrowser
+[submodule "imgui/imgui_toggle"]
+	path = imgui/imgui_toggle
+	url = https://github.com/cmdwtf/imgui_toggle
