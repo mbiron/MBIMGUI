@@ -7,7 +7,6 @@
 
 #define MBIMGUI_WINDOW_STYLE (WS_OVERLAPPEDWINDOW)
 
-
 extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
 // Win32 message handler
@@ -41,6 +40,12 @@ static LRESULT WINAPI WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 
     switch (msg)
     {
+    case WM_DROPFILES:
+        TCHAR buffer[MAX_PATH + 1];
+        DragQueryFile((HDROP)wParam, 0, buffer, MAX_PATH + 1);
+        pThis->setDragAndDropFileName(std::string(buffer));
+        return 0;
+        break;
     case WM_SIZE:
         if (wParam != SIZE_MINIMIZED)
         {
@@ -62,7 +67,7 @@ static LRESULT WINAPI WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
  * @brief Construct a new Win32 Renderer:: Win32 Renderer object
  *
  */
-Win32Renderer::Win32Renderer(std::string_view name, int width, int height) : m_width(width), m_heigt(height)
+Win32Renderer::Win32Renderer(std::string_view name, int width, int height) : m_width(width), m_heigt(height), m_DnDfileName("")
 {
     m_pRenderer = NULL;
     m_wc = {sizeof(WNDCLASSEX), CS_CLASSDC, WndProc, 0L, 0L, GetModuleHandle(NULL), NULL, NULL, NULL, NULL, _T("MBIMGUI"), NULL};
@@ -123,6 +128,37 @@ bool Win32Renderer::Init()
     return res;
 }
 
+void Win32Renderer::EnableDragAndDrop()
+{
+    /* Make file draggable into app */
+    DragAcceptFiles(m_hwnd, TRUE);
+}
+void Win32Renderer::DisableDragAndDrop()
+{
+    /* Make file draggable into app */
+    DragAcceptFiles(m_hwnd, FALSE);
+}
+
+void Win32Renderer::setDragAndDropFileName(const std::string &filename)
+{
+    m_DnDfileName = filename;
+    m_dndReceived = true;
+}
+
+bool Win32Renderer::isFileDropped() const
+{
+    return m_dndReceived;
+}
+
+void Win32Renderer::getDragAndDropFileName(std::string &filename)
+{
+    if (m_dndReceived)
+    {
+        filename = m_DnDfileName;
+        m_dndReceived = false;
+    }
+}
+
 void Win32Renderer::Resize(void *param)
 {
     if (m_pRenderer)
@@ -149,6 +185,7 @@ void Win32Renderer::NewFrame()
 
 void Win32Renderer::Destroy()
 {
+    DisableDragAndDrop();
     m_pRenderer->Destroy();
     DestroyWindow(m_hwnd);
     UnregisterClass(m_wc.lpszClassName, m_wc.hInstance);

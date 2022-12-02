@@ -98,6 +98,7 @@ namespace MBIMGUI
 
         ImGui::FileBrowser m_openFileDialog; ///< File browser displayed when setting logfile in option menu
         MBIOpenFileHandler m_openFileHandler;
+        bool m_dndActiv;
 
         MBIConfigFlags m_confFlags; ///< Current framework flags
         MBILogger &m_logger;        ///< Logger of the application
@@ -173,7 +174,7 @@ namespace MBIMGUI
          * @param filters Allowed file filter in the form {".bin"}
          * @param openFileHandler Function called when file is selected
          */
-        void EnableOpenMenu(const std::vector<std::string> &filters, MBIOpenFileHandler openFileHandler);
+        void EnableOpenMenu(const std::vector<std::string> &filters, MBIOpenFileHandler openFileHandler, bool enableDragAndDrop = false);
 
         /**
          * @brief Show the application. This will displayed all the windows added by MBIMGUI::AddWindow function

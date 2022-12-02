@@ -20,6 +20,9 @@ private:
     int m_heigt;
     int m_width;
 
+    bool m_dndReceived;
+    std::string m_DnDfileName;
+
 public:
     /**
      * @brief Construct a new Win 3 2 Renderer object
@@ -42,6 +45,14 @@ public:
      * @return HWND Handle of the WINAPI windows handle
      */
     HWND getWindowHandle();
+
+    void EnableDragAndDrop();
+    void DisableDragAndDrop();
+
+    void setDragAndDropFileName(const std::string &filename);
+    bool isFileDropped() const;
+    void getDragAndDropFileName(std::string &filename);
+
     /**
      * @brief Internal handler to manage windows events
      *

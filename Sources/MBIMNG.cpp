@@ -88,6 +88,7 @@ MBIMGUI::MBIMNG::MBIMNG(std::string_view name, int width, int height, MBIConfigF
                                                                                               m_logFileDialog(ImGuiFileBrowserFlags_EnterNewFilename),
                                                                                               m_openFileDialog(),
                                                                                               m_openFileHandler(nullptr),
+                                                                                              m_dndActiv(false),
                                                                                               m_aboutWindow(nullptr),
                                                                                               m_logger(MBIMGUI::GetLogger())
 {
@@ -390,10 +391,18 @@ void MBIMGUI::MBIMNG::AddOptionTab(MBIWindow *window)
     m_optionsTabs.push_back(window);
 }
 
-void MBIMGUI::MBIMNG::EnableOpenMenu(const std::vector<std::string> &filters, MBIOpenFileHandler openFileHandler)
+void MBIMGUI::MBIMNG::EnableOpenMenu(const std::vector<std::string> &filters,
+                                     MBIOpenFileHandler openFileHandler,
+                                     bool enableDragAndDrop)
 {
     m_openFileDialog.SetTypeFilters(filters);
     m_openFileHandler = openFileHandler;
+    m_dndActiv = enableDragAndDrop;
+    if(m_dndActiv)
+    {
+        // Specific for now
+        ((Win32Renderer*)m_pRenderer)->EnableDragAndDrop();
+    }
 }
 
 void MBIMGUI::MBIMNG::Show()
@@ -581,8 +590,18 @@ void MBIMGUI::MBIMNG::Show()
                 m_openFileDialog.ClearSelected();
             }
         }
-
         ImGui::End();
+
+        /* Handle Drag And Drop */
+        if(m_dndActiv && ((Win32Renderer*)m_pRenderer)->isFileDropped())
+        {
+            /* Get filename */
+            std::string filename;
+            ((Win32Renderer*)m_pRenderer)->getDragAndDropFileName(filename);
+            /* Call user function */
+            m_openFileHandler(filename);
+
+        }
 
         /* Call windows */
         for (const auto &member : m_windows)
