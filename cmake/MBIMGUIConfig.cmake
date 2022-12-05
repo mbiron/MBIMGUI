@@ -2,6 +2,7 @@
 # This file is used by modules using MBIMGUI to locate MBIMGUI 
 # and its dependencies
 ###########################################################
+include(GNUInstallDirs)
 
 #Global variables
 set(MBIMGUI_DIR ${CMAKE_INSTALL_PREFIX}/../MBIMGUI/${CMAKE_INSTALL_INCLUDEDIR})
