@@ -68,13 +68,14 @@ set(config_install_dir "${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME}")
 
 # Configuration
 set(project_config "cmake/MBIMGUIConfig.cmake")
+set(config_suffix "$<CONFIG>")
 
 # Export lib
 install(
     TARGETS ${PROJECT_NAME}
     EXPORT "${TARGETS_EXPORT_NAME}"
     LIBRARY DESTINATION "${CMAKE_INSTALL_LIBDIR}"
-    ARCHIVE DESTINATION "${CMAKE_INSTALL_LIBDIR}"
+    ARCHIVE DESTINATION "${CMAKE_INSTALL_LIBDIR}/${config_suffix}"
     RUNTIME DESTINATION "${CMAKE_INSTALL_BINDIR}"
     INCLUDES DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}"
 )
@@ -109,11 +110,10 @@ message("${CMAKE_CONFIGURATION_TYPES}")
 
 # PDB files
 set(pdb_output_dir "${CMAKE_ARCHIVE_OUTPUT_DIRECTORY}")
-set(config_suffix "$<CONFIG>")
-set(pdb_dst ${CMAKE_INSTALL_LIBDIR})
+set(pdb_dst ${CMAKE_INSTALL_LIBDIR}/${config_suffix})
 
 install(
     DIRECTORY "${pdb_output_dir}/${config_suffix}/"
     DESTINATION ${pdb_dst}
-    PATTERN "*.pdb"
+    FILES_MATCHING PATTERN "*.pdb"
 )
