@@ -18,3 +18,6 @@
 [submodule "imgui/imgui_toggle"]
 	path = imgui/imgui_toggle
 	url = https://github.com/cmdwtf/imgui_toggle
+[submodule "imgui/IconFontCppHeaders"]
+	path = imgui/IconFontCppHeaders
+	url = https://github.com/juliettef/IconFontCppHeaders

@@ -10,6 +10,8 @@
 #include "MBIWindow.h"
 #include "MBILogger.h"
 
+#include "IconsFontAwesome5.h"
+
 class Renderer;
 
 #define MBIMGUI_VERSION "1.0"

@@ -1,6 +1,6 @@
-###########################################################
+# ##########################################################
 # This file is used by MBIMGUI to locate its dependencies #
-###########################################################
+# ##########################################################
 
 # ## Global variables
 set(SUB_MOD_DIR ${MBIMGUI_DIR}/imgui)
@@ -11,6 +11,7 @@ set(IMPLOT_DIR ${SUB_MOD_DIR}/implot/)
 set(IMEMEDIT_DIR ${SUB_MOD_DIR}/imgui_club/imgui_memory_editor)
 set(IMSPINNER_DIR ${SUB_MOD_DIR}/imspinner/)
 set(IMTOGGLE_DIR ${SUB_MOD_DIR}/imgui_toggle)
+set(ICONFONT_DIR ${SUB_MOD_DIR}/IconFontCppHeaders)
 
 # ## IMGUI
 set(IMGUI_DIR ${SUB_MOD_DIR}/Imgui)
@@ -44,7 +45,17 @@ set(IMSPINNER_DIR ${SUB_MOD_DIR}/imspinner)
 
 # ### Imgui_toggle
 set(IMTOGGLE_DIR ${SUB_MOD_DIR}/imgui_toggle)
-set(IMTOGGLE_SRC ${IMTOGGLE_DIR}/imgui_toggle.cpp)
+set(IMTOGGLE_SRC ${IMTOGGLE_DIR}/imgui_toggle.cpp
+    ${IMTOGGLE_DIR}/imgui_toggle_palette.cpp
+    ${IMTOGGLE_DIR}/imgui_toggle_presets.cpp
+    ${IMTOGGLE_DIR}/imgui_toggle_renderer.cpp)
 
-set(IMGUI_DEP_DIRS ${IMGUI_DIR} ${IMGUI_BACKENDS_DIR} ${IMPLOT_DIR} ${IMFILEBROWSER_DIR} ${IMEMEDIT_DIR} ${IMSPINNER_DIR} ${IMTOGGLE_DIR})
+set(IMGUI_DEP_DIRS ${IMGUI_DIR}
+    ${IMGUI_BACKENDS_DIR}
+    ${IMPLOT_DIR}
+    ${IMFILEBROWSER_DIR}
+    ${IMEMEDIT_DIR}
+    ${IMSPINNER_DIR}
+    ${IMTOGGLE_DIR}
+    ${ICONFONT_DIR})
 set(IMGUI_DEP_SRCS ${IMGUI_SRC} ${IMPLOT_SRC} ${IMTOGGLE_SRC})

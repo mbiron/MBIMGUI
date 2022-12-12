@@ -104,7 +104,7 @@ MBIMGUI::MBIMNG::MBIMNG(std::string_view name, int width, int height, MBIConfigF
 
     if (m_confFlags & MBIConfig_displayLogWindow)
     {
-        m_windows.insert(WindowMapPair(DOCK_LOG, new MBILogWindow("Logs", MBILogWindow::MODE_WINDOW)));
+        m_windows.insert(WindowMapPair(DOCK_LOG, new MBILogWindow(ICON_FA_BOOK " Logs", MBILogWindow::MODE_WINDOW)));
     }
     else if (m_confFlags & MBIConfig_displayLogBar)
     {
@@ -224,7 +224,7 @@ inline void MBIMGUI::MBIMNG::ShowAboutWindow(bool *openWindow) const
     }
     else
     {
-        ImGui::Begin("About MBIMGUI", openWindow, ImGuiWindowFlags_AlwaysAutoResize);
+        ImGui::Begin(ICON_FA_INFO_CIRCLE " About MBIMGUI", openWindow, ImGuiWindowFlags_AlwaysAutoResize);
     }
 
     if ((*openWindow) == true)
@@ -233,7 +233,7 @@ inline void MBIMGUI::MBIMNG::ShowAboutWindow(bool *openWindow) const
         ImGui::Text("Build on %s %s", __DATE__, __TIME__);
         ImGui::Text("MBIMGUI is a simple overlay above ImGui and ImPlot frameworks.");
 
-        if (ImGui::Button("Show ImGui Infos"))
+        if (ImGui::Button(ICON_FA_QUESTION_CIRCLE " Show ImGui Infos"))
             bShowAboutImGui = true;
 
         if (bShowAboutImGui)
@@ -260,18 +260,18 @@ inline void MBIMGUI::MBIMNG::ShowOptionWindow(bool &openWindow)
             }
         }
 
-        if (ImGui::BeginTabItem("Logs & Style"))
+        if (ImGui::BeginTabItem(ICON_FA_PAINT_BRUSH " Logs & Style"))
         {
-            ImGui::Text("Logs configuration");
+            ImGui::Text( ICON_FA_FILE_ARCHIVE " Logs configuration");
             ImGui::Separator();
-            if (ImGui::Checkbox("Popup on error", &popupOnError))
+            if (ImGui::Checkbox(ICON_FA_WINDOW_RESTORE " Popup on error", &popupOnError))
                 m_logger.Configure(popupOnError);
 
             if (ImGui::IsItemHovered())
                 ImGui::SetTooltip("When activated, any occuring error will be displayed in a popup in addition to the log window");
 
             ImGui::SameLine();
-            if (ImGui::Checkbox("Log to file", &logToFile))
+            if (ImGui::Checkbox(ICON_FA_DATABASE " Log to file", &logToFile))
             {
                 if (!logToFile)
                 {
@@ -308,7 +308,7 @@ inline void MBIMGUI::MBIMNG::ShowOptionWindow(bool &openWindow)
             }
 
             ImGui::Spacing();
-            ImGui::Text("Style configuration");
+            ImGui::Text(ICON_FA_PALETTE " Style configuration");
             ImGui::Separator();
             if (ImGui::Combo("Style", &choosenStyle, "ImGui Default\0ImGui Dark\0ImGui Light\0Visual Dark\0Corporate Grey\0", 5))
                 MBIMGUI::SetStyle((MBIColorStyle)choosenStyle);
@@ -336,7 +336,8 @@ bool MBIMGUI::MBIMNG::Init(float fontsize, const MBIColorStyle eStyle)
     ImGui::CreateContext();
     ImPlot::CreateContext();
     ImGuiIO &io = ImGui::GetIO();
-    float scale = 1.0f; // To handle DPI but I'm not able to make it works for now
+    const float scale = 1.0f; // To handle DPI but I'm not able to make it works for now
+    const float correctedSize = fontsize * scale;
 
     io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;   // Enable Docking
     io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable; // Enable Multi-Viewport / Platform Windows
@@ -349,20 +350,20 @@ bool MBIMGUI::MBIMNG::Init(float fontsize, const MBIColorStyle eStyle)
     io.LogFilename = NULL;
 
     /* Handle fonts */
-    /*
-    io.Fonts->AddFontDefault(); // ProggyClean 13px
-    io.Fonts->AddFontFromFileTTF("..\\..\\..\\Imgui\\imgui\\misc\\fonts\\DroidSans.ttf",fontsize);
-    io.Fonts->AddFontFromFileTTF("..\\..\\..\\Imgui\\imgui\\misc\\fonts\\Cousine-Regular.ttf",fontsize);
-    io.Fonts->AddFontFromFileTTF("..\\..\\..\\Imgui\\imgui\\misc\\fonts\\Karla-Regular.ttf",fontsize);
-    io.Fonts->AddFontFromFileTTF("..\\..\\..\\Imgui\\imgui\\misc\\fonts\\ProggyTiny.ttf",fontsize);
-    */
-
     /* Try loading from installation dir */
-    if (io.Fonts->AddFontFromFileTTF(".\\fonts\\Roboto-Medium.ttf", fontsize * scale) == nullptr)
+    if (io.Fonts->AddFontFromFileTTF(".\\fonts\\Roboto-Medium.ttf", correctedSize) == nullptr)
     {
         /* Try loading from imgui dir */
         io.Fonts->AddFontFromFileTTF("..\\..\\..\\Imgui\\imgui\\misc\\fonts\\Roboto-Medium.ttf", fontsize * scale);
     }
+
+    /* Merge in icons from Font Awesome */
+    static const ImWchar icons_ranges[] = {ICON_MIN_FA, ICON_MAX_FA, 0}; // Will not be copied by AddFont* so keep in scope using static.
+    ImFontConfig icons_config;
+    icons_config.MergeMode = true;
+    icons_config.PixelSnapH = true;
+    io.Fonts->AddFontFromFileTTF(".\\fonts\\" FONT_ICON_FILE_NAME_FAS, correctedSize, &icons_config, icons_ranges);
+    io.Fonts->Build();
 
     /* Style configuration */
     MBIMGUI::SetStyle(eStyle);
@@ -398,10 +399,10 @@ void MBIMGUI::MBIMNG::EnableOpenMenu(const std::vector<std::string> &filters,
     m_openFileDialog.SetTypeFilters(filters);
     m_openFileHandler = openFileHandler;
     m_dndActiv = enableDragAndDrop;
-    if(m_dndActiv)
+    if (m_dndActiv)
     {
         // Specific for now
-        ((Win32Renderer*)m_pRenderer)->EnableDragAndDrop();
+        ((Win32Renderer *)m_pRenderer)->EnableDragAndDrop();
     }
 }
 
@@ -495,23 +496,23 @@ void MBIMGUI::MBIMNG::Show()
                 {
                     if (m_openFileHandler)
                     {
-                        if (ImGui::MenuItem("Open"))
+                        if (ImGui::MenuItem(ICON_FA_FOLDER_OPEN " Open"))
                         {
                             m_openFileDialog.Open();
                         }
                         ImGui::Separator();
                     }
-                    ImGui::MenuItem("Options", NULL, &bShowOptions);
+                    ImGui::MenuItem(ICON_FA_WRENCH " Options", NULL, &bShowOptions);
                     ImGui::Separator();
 
-                    if (ImGui::MenuItem("Quit"))
+                    if (ImGui::MenuItem(ICON_FA_DOOR_CLOSED " Quit"))
                         bQuit = true;
 
                     ImGui::EndMenu();
                 }
                 if (ImGui::BeginMenu("View"))
                 {
-                    bResetDockspace = ImGui::MenuItem("Reset to default layout");
+                    bResetDockspace = ImGui::MenuItem(ICON_FA_ARROW_CIRCLE_LEFT " Reset to default layout");
                     ImGui::Separator();
                     // Set windows in menu file
                     for (const auto &member : m_windows)
@@ -536,8 +537,8 @@ void MBIMGUI::MBIMNG::Show()
                 }
                 if (ImGui::BeginMenu("Help"))
                 {
-                    ImGui::MenuItem("About", NULL, &bShowAbout);
-                    ImGui::MenuItem("Graph user guide", NULL, &bShowGraphHelp);
+                    ImGui::MenuItem(ICON_FA_QUESTION_CIRCLE " About", NULL, &bShowAbout);
+                    ImGui::MenuItem(ICON_FA_CHART_LINE " Graph user guide", NULL, &bShowGraphHelp);
                     ImGui::EndMenu();
                 }
                 ImGui::EndMainMenuBar();
@@ -593,14 +594,13 @@ void MBIMGUI::MBIMNG::Show()
         ImGui::End();
 
         /* Handle Drag And Drop */
-        if(m_dndActiv && ((Win32Renderer*)m_pRenderer)->isFileDropped())
+        if (m_dndActiv && ((Win32Renderer *)m_pRenderer)->isFileDropped())
         {
             /* Get filename */
             std::string filename;
-            ((Win32Renderer*)m_pRenderer)->getDragAndDropFileName(filename);
+            ((Win32Renderer *)m_pRenderer)->getDragAndDropFileName(filename);
             /* Call user function */
             m_openFileHandler(filename);
-
         }
 
         /* Call windows */
