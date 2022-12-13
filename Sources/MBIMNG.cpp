@@ -108,7 +108,7 @@ MBIMGUI::MBIMNG::MBIMNG(std::string_view name, int width, int height, MBIConfigF
     }
     else if (m_confFlags & MBIConfig_displayLogBar)
     {
-        m_windows.insert(WindowMapPair(DOCK_LOG, new MBILogWindow("Logs", MBILogWindow::MODE_BAR)));
+        m_windows.insert(WindowMapPair(DOCK_LOG, new MBILogWindow(ICON_FA_BOOK " Logs", MBILogWindow::MODE_BAR)));
     }
 
     m_logFileDialog.SetTitle("Choose log file");
