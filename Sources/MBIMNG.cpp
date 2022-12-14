@@ -131,7 +131,6 @@ MBIMGUI::MBIMNG::~MBIMNG()
     {
         /* Delete log window if exists */
         delete m_windows.find(DOCK_LOG)->second;
-        // delete m_windows[DOCK_LOG];
     }
 }
 
