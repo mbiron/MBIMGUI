@@ -109,4 +109,10 @@ public:
         ReadLock r_lock(m_mut);
         return MBICircularBuffer::cbegin();
     }
+
+    MBICircularBuffer::MBIConstCircularIterator cend() const
+    {
+        ReadLock r_lock(m_mut);
+        return MBICircularBuffer::cend();
+    }
 };

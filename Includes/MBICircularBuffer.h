@@ -237,7 +237,7 @@ public:
          */
         MBIConstCircularIterator operator++(int)
         {
-            MBICircularIterator tmp = *this;
+            MBIConstCircularIterator tmp = *this;
             ++(*this);
             return tmp;
         }
