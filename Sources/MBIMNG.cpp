@@ -261,8 +261,8 @@ inline void MBIMGUI::MBIMNG::ShowOptionWindow(bool &openWindow)
 
         if (ImGui::BeginTabItem(ICON_FA_PAINT_BRUSH " Logs & Style"))
         {
-            ImGui::Text( ICON_FA_FILE_ARCHIVE " Logs configuration");
-            ImGui::Separator();
+            //ImGui::Text( ICON_FA_FILE_ARCHIVE " Logs configuration");
+            ImGui::SeparatorText(ICON_FA_FILE_ARCHIVE " Logs configuration");
             if (ImGui::Checkbox(ICON_FA_WINDOW_RESTORE " Popup on error", &popupOnError))
                 m_logger.Configure(popupOnError);
 
@@ -307,8 +307,8 @@ inline void MBIMGUI::MBIMNG::ShowOptionWindow(bool &openWindow)
             }
 
             ImGui::Spacing();
-            ImGui::Text(ICON_FA_PALETTE " Style configuration");
-            ImGui::Separator();
+            //ImGui::Text(ICON_FA_PALETTE " Style configuration");
+            ImGui::SeparatorText(ICON_FA_PALETTE " Style configuration");
             if (ImGui::Combo("Style", &choosenStyle, "ImGui Default\0ImGui Dark\0ImGui Light\0Visual Dark\0Corporate Grey\0", 5))
                 MBIMGUI::SetStyle((MBIColorStyle)choosenStyle);
 
@@ -527,7 +527,7 @@ void MBIMGUI::MBIMNG::Show()
                         }
                     }
 #ifdef _DEBUG
-                    ImGui::Separator();
+                    ImGui::SeparatorText("Debug"); // TODO : Try TextSeparator()
                     ImGui::MenuItem("HMI Debug/Metrics", NULL, &bShowMetrics);
                     ImGui::MenuItem("GUI Style editor", NULL, &bShowImguiStyle);
                     ImGui::MenuItem("Plot Style editor", NULL, &bShowImplotStyle);
