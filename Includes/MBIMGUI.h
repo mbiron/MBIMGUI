@@ -3,6 +3,10 @@
 #include <map>
 
 // Include everything needed by users
+#ifndef IMGUI_DEFINE_MATH_OPERATORS
+#define IMGUI_DEFINE_MATH_OPERATORS
+#endif // IMGUI_DEFINE_MATH_OPERATORS
+
 #include "imgui.h"
 #include "imfilebrowser.h"
 #include "implot.h"
