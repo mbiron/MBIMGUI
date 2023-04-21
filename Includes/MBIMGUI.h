@@ -14,6 +14,7 @@
 #include "MBIOption.h"
 #include "MBIWindow.h"
 #include "MBILogger.h"
+#include "MBIPlotChart.h"
 
 #include "IconsFontAwesome5.h"
 
