@@ -3,7 +3,40 @@
 #include <unordered_set>
 #include <map>
 #include "MBISyncCircularBuffer.h"
-#include "SpiedDataPoint.h"
+
+/**
+ * @brief Struct describing a data occurence. It's basically a value with the corresponding date.
+ */
+struct DataPoint
+{
+    float m_time; ///< Time in s
+    float m_data; ///< Data value
+
+    /**
+     * @brief Construct a new Spied Data Point object
+     *
+     * @param x x-axis data : time
+     * @param y y-axis data : value
+     */
+    DataPoint::DataPoint(float x = 0, float y = 0) : m_time(x),
+                                                     m_data(y)
+    {
+    }
+};
+
+/**
+ * @brief Struct describing an annotation displayed on a graph.
+ *
+ */
+struct DataAnnotation
+{
+    float m_x; ///< Time in s
+    float m_y; ///< Data value
+
+    DataAnnotation(float x = 0, float y = 0) : m_x(x), m_y(y) {}
+
+    virtual const char *getLabel() const { return ""; };
+};
 
 /**
  * @brief Generic real time plot chart with time as x-axis, multiple variables visualization, LTTB downsampling,
@@ -110,7 +143,7 @@ public:
      * @param period Period of the data in ms. Set to zero for non periodic data
      * @return VarId Variable identifier to be used for other functions calls.
      */
-    VarId CreateVariable(const MBISyncCircularBuffer<SpiedDataPoint> *const dataPtr, uint32_t period = 0);
+    VarId CreateVariable(const MBISyncCircularBuffer<DataPoint> *const dataPtr, uint32_t period = 0);
 
     /**
      * @brief Remove the specified variable from the plot
@@ -315,7 +348,7 @@ private:
     struct DataRenderInfos
     {
     public:
-        const MBISyncCircularBuffer<SpiedDataPoint> *const data; ///< Address of the curve data
+        const MBISyncCircularBuffer<DataPoint> *const data;      ///< Address of the curve data
         const MBISyncCircularBuffer<DataAnnotation> *annotation; ///< Data annotation, if exists
 
         bool bShowAnnotations; ///< Show annotations on the graph for the current variable
@@ -333,16 +366,16 @@ private:
          *
          * @param showLabels Show annotations on the graph ?
          */
-        DataRenderInfos(const MBISyncCircularBuffer<SpiedDataPoint> *ptrData, bool showLabels = false, uint32_t downSamplingSize = 50000) : data(ptrData),
-                                                                                                                                            bShowAnnotations(showLabels),
-                                                                                                                                            bHidden(false),
-                                                                                                                                            bMoved(false),
-                                                                                                                                            color(255, 255, 255, 255),
-                                                                                                                                            name(""),
-                                                                                                                                            unit(INVALID_UNIT, ""),
-                                                                                                                                            axis(ImAxis_COUNT),
-                                                                                                                                            dataOffset(0),
-                                                                                                                                            dataPeriodMs(1)
+        DataRenderInfos(const MBISyncCircularBuffer<DataPoint> *ptrData, bool showLabels = false, uint32_t downSamplingSize = 50000) : data(ptrData),
+                                                                                                                                       bShowAnnotations(showLabels),
+                                                                                                                                       bHidden(false),
+                                                                                                                                       bMoved(false),
+                                                                                                                                       color(255, 255, 255, 255),
+                                                                                                                                       name(""),
+                                                                                                                                       unit(INVALID_UNIT, ""),
+                                                                                                                                       axis(ImAxis_COUNT),
+                                                                                                                                       dataOffset(0),
+                                                                                                                                       dataPeriodMs(1)
         {
         }
 
@@ -383,10 +416,10 @@ private:
         int DownSampleLTTB(int start, int rawSamplesCount, int downSampleSize);
 
     private:
-        ImVector<SpiedDataPoint> dsData; ///< Down sampled curve data
-        // SpiedDataPoint dsData[]  : TODO : can use array and stride with PlotLine
+        ImVector<DataPoint> dsData; ///< Down sampled curve data
+        // DataPoint dsData[]  : TODO : can use array and stride with PlotLine
 
-        inline const SpiedDataPoint &GetDataAt(int offset, int idx) const
+        inline const DataPoint &GetDataAt(int offset, int idx) const
         {
             return (*data)[offset + idx];
         }

@@ -419,7 +419,7 @@ void MBIPlotChart::AddVariable(const VarId &dataId)
     }
 }
 
-MBIPlotChart::VarId MBIPlotChart::CreateVariable(const MBISyncCircularBuffer<SpiedDataPoint> *const dataPtr, uint32_t period)
+MBIPlotChart::VarId MBIPlotChart::CreateVariable(const MBISyncCircularBuffer<DataPoint> *const dataPtr, uint32_t period)
 {
     DataRenderInfos *dataRender = nullptr;
     const VarId id = MakeUUID();
@@ -557,7 +557,7 @@ inline void MBIPlotChart::DisplayMarkers(UnitId unit)
 ImPlotPoint MBIPlotChart::DataRenderInfos::PrtDataGetter(int idx, void *user_data)
 {
     const MBIPlotChart::DataRenderInfos *const comdata = static_cast<MBIPlotChart::DataRenderInfos *>(user_data);
-    const SpiedDataPoint &point = (*(comdata->data))[idx + comdata->dataOffset];
+    const DataPoint &point = (*(comdata->data))[idx + comdata->dataOffset];
     return ImPlotPoint(point.m_time, point.m_data);
 }
 /**
@@ -571,7 +571,7 @@ ImPlotPoint MBIPlotChart::DataRenderInfos::PrtDataGetter(int idx, void *user_dat
 ImPlotPoint MBIPlotChart::DataRenderInfos::PrtDsDataGetter(int idx, void *user_data)
 {
     const MBIPlotChart::DataRenderInfos *const comdata = static_cast<MBIPlotChart::DataRenderInfos *>(user_data);
-    const SpiedDataPoint &point = comdata->dsData[idx];
+    const DataPoint &point = comdata->dsData[idx];
     return ImPlotPoint(point.m_time, point.m_data);
 }
 
@@ -602,7 +602,7 @@ int MBIPlotChart::DataRenderInfos::DownSampleLTTB(int start, int rawSamplesCount
         double avgY = 0.0;
         for (; avgRangeStart < avgRangeEnd; ++avgRangeStart)
         {
-            SpiedDataPoint sample = GetDataAt(start, avgRangeStart);
+            DataPoint sample = GetDataAt(start, avgRangeStart);
             if (sample.m_data != NAN)
             {
                 avgX += sample.m_time;
@@ -616,12 +616,12 @@ int MBIPlotChart::DataRenderInfos::DownSampleLTTB(int start, int rawSamplesCount
         int rangeTo = (int)((i + 1) * every) + 1;
         if (rangeTo > downSampleSize)
             rangeTo = downSampleSize;
-        SpiedDataPoint samplePrev = GetDataAt(start, aIndex);
+        DataPoint samplePrev = GetDataAt(start, aIndex);
         double maxArea = -1.0;
         int nextAIndex = rangeOffs;
         for (; rangeOffs < rangeTo; ++rangeOffs)
         {
-            SpiedDataPoint sampleAtRangeOffs = GetDataAt(start, rangeOffs);
+            DataPoint sampleAtRangeOffs = GetDataAt(start, rangeOffs);
             if (sampleAtRangeOffs.m_data != NAN)
             {
                 const double area = fabs((samplePrev.m_time - avgX) * (sampleAtRangeOffs.m_data - samplePrev.m_data) - (samplePrev.m_time - sampleAtRangeOffs.m_time) * (avgY - samplePrev.m_data)) / 2.0;
