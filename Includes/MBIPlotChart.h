@@ -137,7 +137,7 @@ public:
     void AddVariable(const VarId &dataId);
 
     /**
-     * @brief Create a variable object to be add on the plot.
+     * @brief Create a variable object and add it to the plot.
      *
      * @param dataPtr Data of the variable
      * @param period Period of the data in ms. Set to zero for non periodic data
@@ -349,6 +349,7 @@ private:
     {
     public:
         const MBISyncCircularBuffer<DataPoint> *const data;      ///< Address of the curve data
+        ImVector<DataPoint> dsData; ///< Down sampled curve data
         const MBISyncCircularBuffer<DataAnnotation> *annotation; ///< Data annotation, if exists
 
         bool bShowAnnotations; ///< Show annotations on the graph for the current variable
@@ -416,8 +417,6 @@ private:
         int DownSampleLTTB(int start, int rawSamplesCount, int downSampleSize);
 
     private:
-        ImVector<DataPoint> dsData; ///< Down sampled curve data
-        // DataPoint dsData[]  : TODO : can use array and stride with PlotLine
 
         inline const DataPoint &GetDataAt(int offset, int idx) const
         {

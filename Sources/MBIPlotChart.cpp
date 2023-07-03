@@ -211,11 +211,13 @@ void MBIPlotChart::Display(double currentTimeS)
                     dataRenderInfos.DownSampleLTTB(dataOffset, (int)dataSize, (int)m_downSamplingSize);
                 }
                 ImPlot::PlotLineG(dataRenderInfos.name.c_str(), DataRenderInfos::PrtDsDataGetter, (void *)&dataRenderInfos, (int)m_downSamplingSize);
+                //  TODO : Test stride ?
+                //ImPlot::PlotLine(dataRenderInfos.name.c_str(), &dataRenderInfos.dsData[0].m_time, dataRenderInfos.dsData[0].m_data, dataRenderInfos.dsData.Size, 0, 0, 2 * sizeof(float));
                 m_downSampled = true;
             }
             else
             {
-                // TODO : Test stride ?
+
                 ImPlot::PlotLineG(dataRenderInfos.name.c_str(), DataRenderInfos::PrtDataGetter, (void *)&dataRenderInfos, (int)dataSize);
                 if (dataRenderInfos.bHidden == false)
                 {
