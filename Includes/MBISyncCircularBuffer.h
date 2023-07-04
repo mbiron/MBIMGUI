@@ -12,8 +12,8 @@
 template <typename T>
 class MBISyncCircularBuffer : public MBICircularBuffer<T>
 {
-    typedef std::unique_lock<std::shared_mutex> WriteLock;
-    typedef std::shared_lock<std::shared_mutex> ReadLock;
+    using WriteLock = std::unique_lock<std::shared_mutex>;
+    using ReadLock = std::shared_lock<std::shared_mutex>;
     mutable std::shared_mutex m_mut;
 
 public:
@@ -30,7 +30,7 @@ public:
      *
      * @param data Object to add
      */
-    void push(T data)
+    void push(T data) override
     {
         WriteLock w_lock(m_mut);
         MBICircularBuffer::push(data);
@@ -41,7 +41,7 @@ public:
      *
      * @return T Oldest object inserted into the buffer
      */
-    T pop()
+    T pop() override
     {
         WriteLock w_lock(m_mut);
         return MBICircularBuffer::pop();
@@ -53,7 +53,7 @@ public:
      * @param idx Offset of the element
      * @return const T&
      */
-    T &operator[](size_t idx)
+    T &operator[](size_t idx) override
     {
         WriteLock w_lock(m_mut);
         return MBICircularBuffer::operator[](idx);
@@ -76,7 +76,7 @@ public:
      *
      * @return int
      */
-    size_t size() const
+    size_t size() const override
     {
         ReadLock r_lock(m_mut);
         return MBICircularBuffer::size();
@@ -87,7 +87,7 @@ public:
      *
      * @return T
      */
-    const T first() const
+    const T first() const override
     {
         ReadLock r_lock(m_mut);
         return MBICircularBuffer::first();
@@ -98,19 +98,19 @@ public:
      *
      * @return T
      */
-    const T last() const
+    const T last() const override
     {
         ReadLock r_lock(m_mut);
         return MBICircularBuffer::last();
     }
 
-    MBICircularBuffer::MBIConstCircularIterator cbegin() const
+    MBICircularBuffer::MBIConstCircularIterator cbegin() const override
     {
         ReadLock r_lock(m_mut);
         return MBICircularBuffer::cbegin();
     }
 
-    MBICircularBuffer::MBIConstCircularIterator cend() const
+    MBICircularBuffer::MBIConstCircularIterator cend() const override
     {
         ReadLock r_lock(m_mut);
         return MBICircularBuffer::cend();

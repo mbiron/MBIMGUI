@@ -515,7 +515,7 @@ public:
      *
      * @return MBIConstCircularIterator
      */
-    MBIConstCircularIterator cend() const
+    virtual MBIConstCircularIterator cend() const
     {
         if (m_full)
         {

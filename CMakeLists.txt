@@ -26,6 +26,7 @@ set(SRC_FILES ${IMGUI_DEP_SRCS}
     ${SRC_DIR}MBIWindow.cpp
     ${SRC_DIR}MBILogger.cpp
     ${SRC_DIR}MBIPlotChart.cpp
+    ${SRC_DIR}MBIRealtimePlotChart.cpp
     ${SRC_DIR_WIDGET}imgui_combowithfilter.cpp
     ${SRC_DIR_WIDGET}imspinner.cpp
     ${RENDERERS_SRC})

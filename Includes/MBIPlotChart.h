@@ -2,7 +2,6 @@
 
 #include <unordered_set>
 #include <map>
-#include "MBISyncCircularBuffer.h"
 
 /**
  * @brief Struct describing a data occurence. It's basically a value with the corresponding date.
@@ -39,7 +38,159 @@ struct DataAnnotation
 };
 
 /**
- * @brief Generic real time plot chart with time as x-axis, multiple variables visualization, LTTB downsampling,
+ * @brief Describe a variable displayed on the graph
+ *
+ */
+struct DataDescriptor
+{
+    using UnitId = uint8_t;
+    using DataUnit = std::pair<UnitId, std::string>;
+    static constexpr UnitId INVALID_UNIT = ((UnitId)-1); ///< Invalid unit, only for init value
+
+    bool bShowAnnotations; ///< Show annotations on the graph for the current variable
+    bool bHidden;          ///< Data showned on the graph ?
+    bool bMoved;           ///< True if the data has just been moved from a graph to another. Used to force data visibility after dnd
+    ImVec4 color;          ///< Color of the curve
+    std::string name;      ///< Name of the curve
+    DataUnit unit;         ///< Unit of the variable. Use to determine the axis
+    ImAxis axis;           ///< Current axis used to display data
+
+    DataDescriptor(bool showLabels = false) : bShowAnnotations(showLabels),
+                                              bHidden(false),
+                                              bMoved(false),
+                                              color(255, 255, 255, 255),
+                                              name(""),
+                                              unit(INVALID_UNIT, ""),
+                                              axis(ImAxis_COUNT)
+    {
+    }
+};
+
+/**
+ * @brief Define a curve displayed on the graph
+ *
+ */
+template <template <typename> class Container>
+struct DataRenderInfos
+{
+public:
+    const Container<DataPoint> *const data;                  ///< Curve data points
+    ImVector<DataPoint> dsData;                              ///< Down sampled curve data
+    const MBISyncCircularBuffer<DataAnnotation> *annotation; ///< Data annotation, if exists
+
+    uint32_t dataOffset;       ///< Start display offset of data
+    uint32_t dataPeriodMs;     ///< Sampling data period in ms
+    DataDescriptor descriptor; ///< Curve descriptor
+
+    /**
+     * @brief Construct a new DataRenderInfos object
+     *
+     * @param showLabels Show annotations on the graph ?
+     */
+    DataRenderInfos(const Container<DataPoint> *ptrData, bool showLabels = false, uint32_t downSamplingSize = 50000) : data(ptrData),
+                                                                                                                       dataOffset(0),
+                                                                                                                       dataPeriodMs(1),
+                                                                                                                       descriptor(showLabels)
+
+    {
+    }
+
+    /**
+     * @brief Copy construct a new Data Render Infos object
+     *
+     * @param other
+     */
+    DataRenderInfos(const DataRenderInfos *const other) : data(other->data),
+                                                          descriptor(other->descriptor),
+                                                          dataOffset(0),
+                                                          dataPeriodMs(other->dataPeriodMs)
+    {
+    }
+
+    /**
+     * @brief Apply LTTB down sampling algorithm to data and store result sampled data in dsData.
+     * Taken from https://github.com/epezent/implot/pull/389/commits/cf3e4a76bd8fea7dd067e2acd591d2365edb3c0d
+     * slightly modified by me
+     *
+     * @param start Offset of the data to display
+     * @param rawSamplesCount Total size of origin data samples
+     * @param downSampleSize Down sample size
+     * @return int Size of dsData.
+     */
+    int DownSampleLTTB(int start, int rawSamplesCount, int downSampleSize)
+    {
+        // Largest Triangle Three Buckets (LTTB) Downsampling Algorithm
+        //  "Downsampling time series for visual representation" by Sveinn Steinarsson.
+        //  https://skemman.is/bitstream/1946/15343/3/SS_MSthesis.pdf
+        //  https://github.com/sveinn-steinarsson/flot-downsample
+
+        const double every = ((double)rawSamplesCount) / ((double)downSampleSize);
+        int aIndex = 0;
+        dsData.clear();
+        dsData.reserve(downSampleSize);
+
+        // fill first sample
+        dsData.push_back(GetDataAt(start, 0));
+        //   loop over samples
+        for (int i = 0; i < downSampleSize - 2; ++i)
+        {
+            int avgRangeStart = (int)(i * every) + 1;
+            int avgRangeEnd = (int)((i + 1) * every) + 1;
+            if (avgRangeEnd > downSampleSize)
+                avgRangeEnd = downSampleSize;
+
+            const int avgRangeLength = avgRangeEnd - avgRangeStart;
+            double avgX = 0.0;
+            double avgY = 0.0;
+            for (; avgRangeStart < avgRangeEnd; ++avgRangeStart)
+            {
+                DataPoint sample = GetDataAt(start, avgRangeStart);
+                if (sample.m_data != NAN)
+                {
+                    avgX += sample.m_time;
+                    avgY += sample.m_data;
+                }
+            }
+            avgX /= (double)avgRangeLength;
+            avgY /= (double)avgRangeLength;
+
+            int rangeOffs = (int)(i * every) + 1;
+            int rangeTo = (int)((i + 1) * every) + 1;
+            if (rangeTo > downSampleSize)
+                rangeTo = downSampleSize;
+            DataPoint samplePrev = GetDataAt(start, aIndex);
+            double maxArea = -1.0;
+            int nextAIndex = rangeOffs;
+            for (; rangeOffs < rangeTo; ++rangeOffs)
+            {
+                DataPoint sampleAtRangeOffs = GetDataAt(start, rangeOffs);
+                if (sampleAtRangeOffs.m_data != NAN)
+                {
+                    const double area = fabs((samplePrev.m_time - avgX) * (sampleAtRangeOffs.m_data - samplePrev.m_data) - (samplePrev.m_time - sampleAtRangeOffs.m_time) * (avgY - samplePrev.m_data)) / 2.0;
+                    if (area > maxArea)
+                    {
+                        maxArea = area;
+                        nextAIndex = rangeOffs;
+                    }
+                }
+            }
+            dsData.push_back(GetDataAt(start, nextAIndex));
+            aIndex = nextAIndex;
+        }
+        // fill last sample
+        dsData.push_back(GetDataAt(start, rawSamplesCount - 1));
+        return downSampleSize;
+    }
+
+private:
+    inline const DataPoint &GetDataAt(int offset, int idx) const
+    {
+        return (*data)[offset + idx];
+    }
+};
+
+/**
+ * @brief Generic plot chart with time as x-axis, multiple variables visualization, LTTB downsampling,
  * markers and 3 y-axis units available.
  *
  */
@@ -47,15 +198,17 @@ class MBIPlotChart
 {
 public:
     using VarId = uint32_t;
-    using UnitId = uint8_t;
-    using DataUnit = std::pair<UnitId, std::string>;
+    using DataContainer = ImVector<DataPoint>;
+    using DataRender = DataRenderInfos<ImVector>;
+    using UnitId = DataDescriptor::UnitId;
+    using DataUnit = DataDescriptor::DataUnit;
     using DataDescriptorHandle = const void *const;
 
-    static constexpr UnitId INVALID_UNIT = ((UnitId)-1);      ///< Invalid unit, only for init value
-    static constexpr UnitId UNIT_NONE = ((UnitId)0);          ///< No unit, means no label will be displayed. All variables without unit are on the same axis
-    static constexpr UnitId UNIT_USER_MIN = ((UnitId)1);      ///< Start of the user-defined units. Use this as an enum start value
-    static constexpr UnitId UNIT_USER_MAX = ((UnitId)99);     ///< End of the user-defined units. Use this as an enum start value
-    static constexpr UnitId UNIT_TIME_X_AXIS = ((UnitId)100); ///< Useful for vertical markers
+    static constexpr UnitId UNIT_NONE = ((UnitId)0);                ///< No unit, means no label will be displayed. All variables without unit are on the same axis
+    static constexpr UnitId UNIT_USER_MIN = ((UnitId)1);            ///< Start of the user-defined units. Use this as an enum start value
+    static constexpr UnitId UNIT_USER_MAX = ((UnitId)99);           ///< End of the user-defined units. Use this as an enum start value
+    static constexpr UnitId UNIT_TIME_X_AXIS = ((UnitId)100);       ///< Useful for vertical markers
+    static constexpr char *DND_LABEL_FROM_GRAPH = "ParamFromGraph"; ///< Useful for vertical markers
 
     /**
      * @brief Class defining a marker to be drawn on graph
@@ -143,7 +296,7 @@ public:
      * @param period Period of the data in ms. Set to zero for non periodic data
      * @return VarId Variable identifier to be used for other functions calls.
      */
-    VarId CreateVariable(const MBISyncCircularBuffer<DataPoint> *const dataPtr, uint32_t period = 0);
+    VarId CreateVariable(const DataContainer *const dataPtr, uint32_t period = 0);
 
     /**
      * @brief Remove the specified variable from the plot
@@ -318,118 +471,19 @@ public:
      *  Main
      *
      * *********************************************************/
-    /**
-     * @brief Set running state the plot. If paused, the x-axis will stop scrolling.
-     *
-     * @param pause True : The plot is paused.
-     *              False : The plot is running
-     */
-    void Pause(bool pause);
-
-    /**
-     * @brief Set the history depth
-     *
-     * @param history History depth in seconds
-     */
-    void SetHistory(float history);
 
     /**
      * @brief Main function displaying the plot.
      *
      * @param currentTimeS Current time in seconds
      */
-    void Display(double currentTimeS);
+    virtual void Display();
 
-private:
-    /**
-     * @brief Define a curve displayed on the graph
-     *
-     */
-    struct DataRenderInfos
-    {
-    public:
-        const MBISyncCircularBuffer<DataPoint> *const data;      ///< Address of the curve data
-        ImVector<DataPoint> dsData; ///< Down sampled curve data
-        const MBISyncCircularBuffer<DataAnnotation> *annotation; ///< Data annotation, if exists
+protected:
+    ImAxis GetYAxisOffset(const UnitId &eUnit) const;
 
-        bool bShowAnnotations; ///< Show annotations on the graph for the current variable
-        bool bHidden;          ///< Data showned on the graph ?
-        bool bMoved;           ///< True if the data has just been moved from a graph to another. Used to force data visibility after dnd
-        ImVec4 color;          ///< Color of the curve
-        std::string name;      ///< Name of the curve
-        DataUnit unit;         ///< Unit of the variable. Use to determine the axis
-        ImAxis axis;           ///< Current axis used to display data
-        uint32_t dataOffset;   ///< Start display offset of data
-        uint32_t dataPeriodMs; ///< Sampling data period in ms
-
-        /**
-         * @brief Construct a new DataRenderInfos object
-         *
-         * @param showLabels Show annotations on the graph ?
-         */
-        DataRenderInfos(const MBISyncCircularBuffer<DataPoint> *ptrData, bool showLabels = false, uint32_t downSamplingSize = 50000) : data(ptrData),
-                                                                                                                                       bShowAnnotations(showLabels),
-                                                                                                                                       bHidden(false),
-                                                                                                                                       bMoved(false),
-                                                                                                                                       color(255, 255, 255, 255),
-                                                                                                                                       name(""),
-                                                                                                                                       unit(INVALID_UNIT, ""),
-                                                                                                                                       axis(ImAxis_COUNT),
-                                                                                                                                       dataOffset(0),
-                                                                                                                                       dataPeriodMs(1)
-        {
-        }
-
-        /**
-         * @brief Copy construct a new Data Render Infos object
-         *
-         * @param other
-         */
-        DataRenderInfos(const DataRenderInfos *const other) : data(other->data),
-                                                              bShowAnnotations(other->bShowAnnotations),
-                                                              bHidden(false),
-                                                              bMoved(true),
-                                                              color(other->color),
-                                                              name(other->name),
-                                                              unit(other->unit),
-                                                              axis(ImAxis_COUNT),
-                                                              dataOffset(0),
-                                                              dataPeriodMs(other->dataPeriodMs)
-        {
-        }
-
-        /**
-         * Internal data getters
-         */
-        static ImPlotPoint PrtDataGetter(int idx, void *user_data);
-        static ImPlotPoint PrtDsDataGetter(int idx, void *user_data);
-
-        /**
-         * @brief Apply LTTB down sampling algorithm to data and store result sampled data in dsData.
-         * Taken from https://github.com/epezent/implot/pull/389/commits/cf3e4a76bd8fea7dd067e2acd591d2365edb3c0d
-         * slightly modified by me
-         *
-         * @param start Offset of the data to display
-         * @param rawSamplesCount Total size of origin data samples
-         * @param downSampleSize Down sample size
-         * @return int Size of dsData.
-         */
-        int DownSampleLTTB(int start, int rawSamplesCount, int downSampleSize);
-
-    private:
-
-        inline const DataPoint &GetDataAt(int offset, int idx) const
-        {
-            return (*data)[offset + idx];
-        }
-    };
-
-    std::map<uint32_t, DataRenderInfos *> m_varData; ///< Map containing the data to be displayed on the graphs
-
-    bool m_pause;       ///< Pause state for the graphs
     bool m_downSampled; ///< Are displayed data currently down sampled ?
     bool m_dsUpdate;
-    float m_history; ///< x-axis size (time history for data)
 
     bool m_activDownSampling;
     size_t m_downSamplingSize;
@@ -446,10 +500,14 @@ private:
         return ++cnt;
     }
 
-    ImAxis GetYAxisOffset(const UnitId &eUnit) const;
+    void DisplayMarkers(UnitId unit);
 
-    DataRenderInfos &GetDataDescriptor(const VarId &dataId);
-    const DataRenderInfos &GetDataDescriptor(const VarId &dataId) const;
+private:
+    std::map<uint32_t, DataRender *> m_varData; ///< Map containing the data to be displayed on the graphs
 
-    inline void MBIPlotChart::DisplayMarkers(UnitId unit);
+    DataRender &GetDataRenderInfos(const VarId &dataId);
+    const DataRender &GetDataRenderInfos(const VarId &dataId) const;
+
+    virtual const DataDescriptor &GetDataDescriptor(const VarId &dataId) const;
+    virtual DataDescriptor &GetDataDescriptor(const VarId &dataId);
 };

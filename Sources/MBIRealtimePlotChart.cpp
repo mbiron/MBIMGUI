@@ -4,9 +4,9 @@
 #include <list>
 #include "implot.h"
 #include "MBIMGUI.h"
-#include "MBIPlotChart.h"
+#include "MBIRealtimePlotChart.h"
 
-void MBIPlotChart::Display()
+void MBIRealtimePlotChart::Display(double currentTimeS)
 {
     static bool nodata = true;
     static bool logwarning = true;
@@ -24,20 +24,27 @@ void MBIPlotChart::Display()
 
     /* Set x-axis */
     ImPlot::SetupAxis(ImAxis_X1, "Time", ImPlotAxisFlags_NoMenus);
+    ImPlot::SetupAxisLimits(ImAxis_X1, (currentTimeS - m_history), currentTimeS, (m_pause) ? ImGuiCond_Once : ImGuiCond_Always);
+
+    /* Link axis if requested */
+    if (m_pause)
+    {
+        ImPlot::SetupAxisLinks(ImAxis_X1, &m_xAxisRange.Min, &m_xAxisRange.Max);
+    }
 
     /* If data available */
     /* Setup axes */
     for (auto it = m_vargaph.begin(); it != m_vargaph.end(); it++)
     {
-        const DataDescriptor &dataDescriptor = GetDataDescriptor(*it);
+        const DataDescriptor &dataInfos = GetDataDescriptor(*it);
         /* If variable is displayed on the graph */
-        if (dataDescriptor.bHidden == false)
+        if (dataInfos.bHidden == false)
         {
             bNewUnit = true;
             /* Look for an existing variable with the same unit */
             for (int i = 0; i < unitCounter; i++)
             {
-                if (dataDescriptor.unit.first == unitList[i])
+                if (dataInfos.unit.first == unitList[i])
                 {
                     axis = ImAxis_Y1 + i;
                     bNewUnit = false;
@@ -51,8 +58,8 @@ void MBIPlotChart::Display()
                 if (unitCounter < 3)
                 {
                     axis = ImAxis_Y1 + unitCounter;
-                    unitList[unitCounter++] = dataDescriptor.unit.first;
-                    ImPlot::SetupAxis(axis, dataDescriptor.unit.second.c_str());
+                    unitList[unitCounter++] = dataInfos.unit.first;
+                    ImPlot::SetupAxis(axis, dataInfos.unit.second.c_str());
                 }
                 else
                 {
@@ -65,7 +72,7 @@ void MBIPlotChart::Display()
                 }
             }
             /* Set y-axis for data */
-            GetDataRenderInfos(*it).descriptor.axis = axis;
+            GetDataDescriptor(*it).axis = axis;
         }
     }
 
@@ -81,7 +88,7 @@ void MBIPlotChart::Display()
         const VarId type = *it;
         /* Get data descriptor */
         DataRender &dataRenderInfos = GetDataRenderInfos(type);
-        // const DataDescriptor &dataDescriptor = dataRenderInfos.descriptor;
+
         if (dataRenderInfos.data->empty() == false)
         {
             /* If data is shown */
@@ -114,8 +121,8 @@ void MBIPlotChart::Display()
                  *********************************************************/
 
                 /* Get data range available */
-                const float dataBegin = dataRenderInfos.data->front().m_time;
-                const float dataEnd = dataRenderInfos.data->back().m_time;
+                const float dataBegin = dataRenderInfos.data->first().m_time;
+                const float dataEnd = dataRenderInfos.data->last().m_time;
 
                 /* Depending on the case */
                 if (dataBegin > m_xAxisRange.Max || dataEnd < m_xAxisRange.Min)
@@ -196,24 +203,22 @@ void MBIPlotChart::Display()
             }
             dataRenderInfos.dataOffset = dataOffset;
             /* Draw line even if data are hidden because PlotLine draws legend */
-            // if (dataSize > m_downSamplingSize && m_pause == true && m_activDownSampling == true)
-            if (dataSize > m_downSamplingSize && m_activDownSampling == true)
+            if (dataSize > m_downSamplingSize && m_pause == true && m_activDownSampling == true)
             {
                 /* Down sample data only if needed (avoid parsing whole data set each frame) */
                 if (m_dsUpdate == true)
                 {
                     dataRenderInfos.DownSampleLTTB(dataOffset, (int)dataSize, (int)m_downSamplingSize);
                 }
-                //ImPlot::PlotLineG(dataRenderInfos.descriptor.name.c_str(), DsDataGetter, (void *)&dataRenderInfos, (int)m_downSamplingSize);
+                ImPlot::PlotLineG(dataRenderInfos.descriptor.name.c_str(), DsDataGetter, (void *)&dataRenderInfos, (int)m_downSamplingSize);
                 //  TODO : Test stride ?
-                ImPlot::PlotLine(dataRenderInfos.descriptor.name.c_str(), &dataRenderInfos.dsData[0].m_time, dataRenderInfos.dsData[0].m_data, dataRenderInfos.dsData.Size, 0, 0, 2 * sizeof(float));
+                // ImPlot::PlotLine(dataRenderInfos.name.c_str(), &dataRenderInfos.dsData[0].m_time, dataRenderInfos.dsData[0].m_data, dataRenderInfos.dsData.Size, 0, 0, 2 * sizeof(float));
                 m_downSampled = true;
             }
             else
             {
-                ImPlot::PlotLine(dataRenderInfos.descriptor.name.c_str(), &((*dataRenderInfos.data)[0].m_time), &((*dataRenderInfos.data)[0].m_data), dataRenderInfos.dsData.Size, 0, 0, 2 * sizeof(float));
-               
-                //ImPlot::PlotLineG(dataRenderInfos.descriptor.name.c_str(), DataGetter, (void *)&dataRenderInfos, (int)dataSize);
+
+                ImPlot::PlotLineG(dataRenderInfos.descriptor.name.c_str(), DataGetter, (void *)&dataRenderInfos, (int)dataSize);
                 if (dataRenderInfos.descriptor.bHidden == false)
                 {
                     m_downSampled = false;
@@ -299,114 +304,17 @@ void MBIPlotChart::Display()
     }
 }
 
-bool MBIPlotChart::RemoveVariable(const VarId &dataId)
+void MBIRealtimePlotChart::Pause(bool pause)
 {
-    return (m_vargaph.erase(dataId) == 1);
+    m_pause = pause;
 }
 
-void MBIPlotChart::SetVarName(const VarId &dataId, const std::string_view name)
+void MBIRealtimePlotChart::SetHistory(float history)
 {
-    if (IsVariableOnGraph(dataId))
-    {
-        GetDataDescriptor(dataId).name = name;
-    }
+    m_history = history;
 }
 
-void MBIPlotChart::SetVarColor(const VarId &dataId, const ImVec4 &color)
-{
-    if (IsVariableOnGraph(dataId))
-    {
-        GetDataDescriptor(dataId).color = color;
-    }
-}
-
-void MBIPlotChart::SetVarUnit(const VarId &dataId, const DataUnit &unit)
-{
-    if (IsVariableOnGraph(dataId))
-    {
-        GetDataDescriptor(dataId).unit = unit;
-    }
-}
-
-void MBIPlotChart::ToggleVarAnnotation(const VarId &dataId, bool activ)
-{
-    if (IsVariableOnGraph(dataId))
-    {
-        GetDataDescriptor(dataId).bShowAnnotations = activ;
-    }
-}
-
-ImAxis MBIPlotChart::GetYAxisOffset(const UnitId &eUnit) const
-{
-    for (const VarId &data : m_vargaph)
-    {
-        if (GetDataDescriptor(data).unit.first == eUnit)
-        {
-            return GetDataDescriptor(data).axis - ImAxis_Y1;
-        }
-    }
-    return ImAxis_COUNT;
-}
-
-const ImPlotRange &MBIPlotChart::GetYAxisRange(const UnitId &eUnit) const
-{
-    ImAxis axisOffset = GetYAxisOffset(eUnit);
-    if (axisOffset == ImAxis_COUNT)
-    {
-        axisOffset = 0;
-    }
-    return m_yAxesRange[axisOffset];
-}
-
-const ImPlotRange &MBIPlotChart::GetXAxisRange() const
-{
-    return m_xAxisRange;
-}
-
-void MBIPlotChart::SetXAxisRange(const ImPlotRange &range)
-{
-    m_xAxisRange = range;
-}
-
-const std::list<MBIPlotChart::Marker> &MBIPlotChart::GetMarkersList() const
-{
-    return m_markers;
-}
-
-std::list<MBIPlotChart::Marker> &MBIPlotChart::GetMarkersList()
-{
-    return m_markers;
-}
-
-void MBIPlotChart::AddMarker(const Marker &marker)
-{
-    m_markers.push_back(marker);
-}
-
-void MBIPlotChart::SetDownSampling(bool bActiv, size_t size)
-{
-    m_activDownSampling = bActiv;
-    m_downSamplingSize = size;
-}
-
-void MBIPlotChart::AddDataAnnotations(const VarId &dataId, const MBISyncCircularBuffer<DataAnnotation> *const dataAnnotationPtr)
-{
-    GetDataRenderInfos(dataId).annotation = dataAnnotationPtr;
-}
-
-void MBIPlotChart::AddVariable(const VarId &dataId)
-{
-    if (dataId != 0)
-    {
-        m_vargaph.insert(dataId);
-
-        /* Force visibility */
-        GetDataDescriptor(dataId).bHidden = false;
-        GetDataDescriptor(dataId).bMoved = true;
-    }
-}
-
-MBIPlotChart::VarId MBIPlotChart::CreateVariable(const DataContainer *const dataPtr, uint32_t period)
+MBIRealtimePlotChart::VarId MBIRealtimePlotChart::CreateVariable(const DataContainer *const dataPtr, uint32_t period)
 {
     DataRender *dataRender = nullptr;
     const VarId id = MakeUUID();
@@ -424,17 +332,7 @@ MBIPlotChart::VarId MBIPlotChart::CreateVariable(const DataContainer *const data
     return id;
 }
 
-bool MBIPlotChart::IsVariableOnGraph(const VarId &dataId) const
-{
-    return (m_vargaph.find(dataId) != m_vargaph.end());
-}
-
-bool MBIPlotChart::IsVariableValid(const VarId &dataId) const
-{
-    return (dataId != 0);
-}
-
-void MBIPlotChart::SetDataDescriptorHandle(const VarId &dataId, DataDescriptorHandle dataRender)
+void MBIRealtimePlotChart::SetDataDescriptorHandle(const VarId &dataId, DataDescriptorHandle dataRender)
 {
     if (m_varData.find(dataId) != m_varData.end())
     {
@@ -443,7 +341,7 @@ void MBIPlotChart::SetDataDescriptorHandle(const VarId &dataId, DataDescriptorHa
     m_varData[dataId] = new DataRender((const DataRender *const)dataRender);
 }
 
-MBIPlotChart::DataDescriptorHandle MBIPlotChart::GetDataDescriptorHandle(const VarId &dataId) const
+MBIRealtimePlotChart::DataDescriptorHandle MBIRealtimePlotChart::GetDataDescriptorHandle(const VarId &dataId) const
 {
     /* Return data */
     auto it = m_varData.find(dataId);
@@ -458,7 +356,7 @@ MBIPlotChart::DataDescriptorHandle MBIPlotChart::GetDataDescriptorHandle(const V
     }
 }
 
-const DataDescriptor &MBIPlotChart::GetDataDescriptor(const VarId &dataId) const
+const DataDescriptor &MBIRealtimePlotChart::GetDataDescriptor(const VarId &dataId) const
 {
     /* Return data */
     auto it = m_varData.find(dataId);
@@ -473,13 +371,13 @@ const DataDescriptor &MBIPlotChart::GetDataDescriptor(const VarId &dataId) const
     }
 }
 
-DataDescriptor &MBIPlotChart::GetDataDescriptor(const VarId &dataId)
+DataDescriptor &MBIRealtimePlotChart::GetDataDescriptor(const VarId &dataId)
 {
     /* Force calling const impl by casting this as const */
-    return const_cast<DataDescriptor &>(const_cast<const MBIPlotChart *>(this)->GetDataDescriptor(dataId));
+    return const_cast<DataDescriptor &>(const_cast<const MBIRealtimePlotChart *>(this)->GetDataDescriptor(dataId));
 }
 
-const MBIPlotChart::DataRender &MBIPlotChart::GetDataRenderInfos(const VarId &dataId) const
+const MBIRealtimePlotChart::DataRender &MBIRealtimePlotChart::GetDataRenderInfos(const VarId &dataId) const
 {
     /* Return data */
     auto it = m_varData.find(dataId);
@@ -494,21 +392,14 @@ const MBIPlotChart::DataRender &MBIPlotChart::GetDataRenderInfos(const VarId &da
     }
 }
 
-MBIPlotChart::DataRender &MBIPlotChart::GetDataRenderInfos(const VarId &dataId)
+MBIRealtimePlotChart::DataRender &MBIRealtimePlotChart::GetDataRenderInfos(const VarId &dataId)
 {
     /* Force calling const impl by casting this as const */
-    return const_cast<DataRender &>(const_cast<const MBIPlotChart *>(this)->GetDataRenderInfos(dataId));
+    return const_cast<DataRender &>(const_cast<const MBIRealtimePlotChart *>(this)->GetDataRenderInfos(dataId));
 }
 
-bool MBIPlotChart::DataDownSampled() const
-{
-    return m_downSampled;
-}
-
-MBIPlotChart::MBIPlotChart() : m_downSampled(false),
-                               m_dsUpdate(true),
-                               m_activDownSampling(false),
-                               m_xAxisRange{-10.0, 10.0}
+MBIRealtimePlotChart::MBIRealtimePlotChart() : m_pause(true),
+                                               m_history(10.0)
 {
     /* Create default invalid data descriptor */
     DataRender *dataRender = new DataRender(nullptr, false);
@@ -516,38 +407,8 @@ MBIPlotChart::MBIPlotChart() : m_downSampled(false),
     m_varData[0xFFFFFFFF] = dataRender;
 }
 
-MBIPlotChart::~MBIPlotChart()
+MBIRealtimePlotChart::~MBIRealtimePlotChart()
 {
     for (auto servData : m_varData)
         delete servData.second;
-}
-
-inline void MBIPlotChart::DisplayMarkers(UnitId unit)
-{
-    for (Marker &marker : m_markers)
-    {
-        const ImPlotDragToolFlags flags = marker.m_bstatic ? ImPlotDragToolFlags_NoInputs : ImPlotDragToolFlags_None;
-        if (marker.m_bvisible)
-        {
-            if (marker.m_unit == unit)
-            {
-                if (unit == UNIT_TIME_X_AXIS)
-                {
-                    ImPlot::DragLineX(marker.m_id, (double *)&marker.m_value, marker.m_color, marker.m_thickness, flags);
-                    if (strlen(marker.m_label) > 0)
-                    {
-                        ImPlot::Annotation(marker.m_value, 0, marker.m_color, ImVec2(0, 0), !marker.m_bstatic, marker.m_label);
-                    }
-                }
-                else
-                {
-                    ImPlot::DragLineY(marker.m_id, (double *)&marker.m_value, marker.m_color, marker.m_thickness, flags);
-                    if (strlen(marker.m_label) > 0)
-                    {
-                        ImPlot::Annotation(0, marker.m_value, marker.m_color, ImVec2(0, 0), !marker.m_bstatic, marker.m_label);
-                    }
-                }
-            }
-        }
-    }
 }
