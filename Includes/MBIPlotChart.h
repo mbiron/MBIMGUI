@@ -87,10 +87,11 @@ public:
      *
      * @param showLabels Show annotations on the graph ?
      */
-    DataRenderInfos(const Container<DataPoint> *ptrData, bool showLabels = false, uint32_t downSamplingSize = 50000) : data(ptrData),
+    DataRenderInfos(const Container<DataPoint> *const ptrData, bool showLabels = false, uint32_t downSamplingSize = 50000) : data(ptrData),
                                                                                                                        dataOffset(0),
                                                                                                                        dataPeriodMs(1),
-                                                                                                                       descriptor(showLabels)
+                                                                                                                       descriptor(showLabels),
+                                                                                                                       annotation(nullptr)
 
     {
     }
@@ -484,6 +485,7 @@ protected:
 
     bool m_downSampled; ///< Are displayed data currently down sampled ?
     bool m_dsUpdate;
+    bool m_firstVarAdded;
 
     bool m_activDownSampling;
     size_t m_downSamplingSize;

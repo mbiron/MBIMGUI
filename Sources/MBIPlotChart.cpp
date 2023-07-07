@@ -23,15 +23,24 @@ void MBIPlotChart::Display()
     ImPlot::SetupLegend(ImPlotLocation_North, ImPlotLegendFlags_Outside);
 
     /* Set x-axis */
-    ImPlot::SetupAxis(ImAxis_X1, "Time", ImPlotAxisFlags_NoMenus);
+    ImPlot::SetupAxis(ImAxis_X1, "Time");
+    ImPlot::SetupAxisScale(ImAxis_X1, ImPlotScale_Time);
 
     /* If data available */
     /* Setup axes */
     for (auto it = m_vargaph.begin(); it != m_vargaph.end(); it++)
     {
         const DataDescriptor &dataDescriptor = GetDataDescriptor(*it);
+
+        /* Center x-axis on first data added
+        if (m_firstVarAdded)
+        {
+            ImPlot::SetupAxisLimits(ImAxis_X1, GetDataRenderInfos(*it).data->front().m_time, GetDataRenderInfos(*it).data->back().m_time, ImPlotCond_Always);
+            m_firstVarAdded = false;
+        }
+
         /* If variable is displayed on the graph */
-        if (dataDescriptor.bHidden == false)
+        //if (dataDescriptor.bHidden == false) 
         {
             bNewUnit = true;
             /* Look for an existing variable with the same unit */
@@ -70,7 +79,6 @@ void MBIPlotChart::Display()
     }
 
     /* Set x-axis */
-    ImPlot::SetAxis(ImAxis_X1);
     DisplayMarkers(UNIT_TIME_X_AXIS);
 
     /* Draw all variables */
@@ -78,10 +86,9 @@ void MBIPlotChart::Display()
     {
         size_t dataSize = 0;
         int32_t dataOffset = 0;
-        const VarId type = *it;
+        const VarId varId = *it;
         /* Get data descriptor */
-        DataRender &dataRenderInfos = GetDataRenderInfos(type);
-        // const DataDescriptor &dataDescriptor = dataRenderInfos.descriptor;
+        DataRender &dataRenderInfos = GetDataRenderInfos(varId);
         if (dataRenderInfos.data->empty() == false)
         {
             /* If data is shown */
@@ -95,7 +102,7 @@ void MBIPlotChart::Display()
             /* Set y-axis and plot line color */
             ImPlot::SetAxis(dataRenderInfos.descriptor.axis);
             ImPlot::SetNextLineStyle(dataRenderInfos.descriptor.color);
-
+#if OPTI
             if (dataRenderInfos.descriptor.bHidden == false)
             {
                 /**********************************************************
@@ -136,7 +143,7 @@ void MBIPlotChart::Display()
                     /* Draw from start */
                     dataOffset = 0;
                     /* Compute remaining size */
-                    dataSize = ((uint32_t)((m_xAxisRange.Max - dataBegin) * 1000.0)) / dataRenderInfos.dataPeriodMs;
+                    dataSize = ((uint32_t)((m_xAxisRange.Max - dataBegin) * 1000.0)); /// dataRenderInfos.dataPeriodMs;
                     /* Add margin */
                     dataSize++;
                 }
@@ -144,7 +151,7 @@ void MBIPlotChart::Display()
                 {
                     /* CASE 4 : First data point is outer left of the graph and last point is within the graph */
                     /* Compute first point offset */
-                    dataOffset = ((uint32_t)((m_xAxisRange.Min - dataBegin) * 1000.0)) / dataRenderInfos.dataPeriodMs;
+                    dataOffset = ((uint32_t)((m_xAxisRange.Min - dataBegin) * 1000.0)); /// dataRenderInfos.dataPeriodMs;
                     /* Draw till last point */
                     dataSize = dataRenderInfos.data->size() - dataOffset;
                     /* Add margins */
@@ -194,9 +201,11 @@ void MBIPlotChart::Display()
                 }
                 /* ************************************************************* */
             }
+#else
+            dataSize = dataRenderInfos.data->size();
+#endif
             dataRenderInfos.dataOffset = dataOffset;
             /* Draw line even if data are hidden because PlotLine draws legend */
-            // if (dataSize > m_downSamplingSize && m_pause == true && m_activDownSampling == true)
             if (dataSize > m_downSamplingSize && m_activDownSampling == true)
             {
                 /* Down sample data only if needed (avoid parsing whole data set each frame) */
@@ -204,16 +213,13 @@ void MBIPlotChart::Display()
                 {
                     dataRenderInfos.DownSampleLTTB(dataOffset, (int)dataSize, (int)m_downSamplingSize);
                 }
-                //ImPlot::PlotLineG(dataRenderInfos.descriptor.name.c_str(), DsDataGetter, (void *)&dataRenderInfos, (int)m_downSamplingSize);
-                //  TODO : Test stride ?
                 ImPlot::PlotLine(dataRenderInfos.descriptor.name.c_str(), &dataRenderInfos.dsData[0].m_time, dataRenderInfos.dsData[0].m_data, dataRenderInfos.dsData.Size, 0, 0, 2 * sizeof(float));
                 m_downSampled = true;
             }
             else
             {
-                ImPlot::PlotLine(dataRenderInfos.descriptor.name.c_str(), &((*dataRenderInfos.data)[0].m_time), &((*dataRenderInfos.data)[0].m_data), dataRenderInfos.dsData.Size, 0, 0, 2 * sizeof(float));
-               
-                //ImPlot::PlotLineG(dataRenderInfos.descriptor.name.c_str(), DataGetter, (void *)&dataRenderInfos, (int)dataSize);
+                const ImVector<DataPoint> &datapoints = (*dataRenderInfos.data);
+                ImPlot::PlotLine(dataRenderInfos.descriptor.name.c_str(), &datapoints[0].m_time, &datapoints[0].m_data, dataSize, 0, 0, 2 * sizeof(float));
                 if (dataRenderInfos.descriptor.bHidden == false)
                 {
                     m_downSampled = false;
@@ -238,7 +244,7 @@ void MBIPlotChart::Display()
         /* Drag and Drop */
         if (ImPlot::BeginDragDropSourceItem(dataRenderInfos.descriptor.name.c_str()))
         {
-            ImGui::SetDragDropPayload(DND_LABEL_FROM_GRAPH, &type, sizeof(type));
+            ImGui::SetDragDropPayload(DND_LABEL_FROM_GRAPH, &varId, sizeof(varId));
             ImPlot::ItemIcon(ImPlot::GetLastItemColor());
             ImPlot::EndDragDropSource();
         }
@@ -508,6 +514,7 @@ bool MBIPlotChart::DataDownSampled() const
 MBIPlotChart::MBIPlotChart() : m_downSampled(false),
                                m_dsUpdate(true),
                                m_activDownSampling(false),
+                               m_firstVarAdded(true),
                                m_xAxisRange{-10.0, 10.0}
 {
     /* Create default invalid data descriptor */
