@@ -88,10 +88,10 @@ public:
      * @param showLabels Show annotations on the graph ?
      */
     DataRenderInfos(const Container<DataPoint> *const ptrData, bool showLabels = false, uint32_t downSamplingSize = 50000) : data(ptrData),
-                                                                                                                       dataOffset(0),
-                                                                                                                       dataPeriodMs(1),
-                                                                                                                       descriptor(showLabels),
-                                                                                                                       annotation(nullptr)
+                                                                                                                             dataOffset(0),
+                                                                                                                             dataPeriodMs(1),
+                                                                                                                             descriptor(showLabels),
+                                                                                                                             annotation(nullptr)
 
     {
     }
@@ -204,6 +204,7 @@ public:
     using UnitId = DataDescriptor::UnitId;
     using DataUnit = DataDescriptor::DataUnit;
     using DataDescriptorHandle = const void *const;
+    using MBIDndCb = void(*)(void *, const ImGuiPayload *);
 
     static constexpr UnitId UNIT_NONE = ((UnitId)0);                ///< No unit, means no label will be displayed. All variables without unit are on the same axis
     static constexpr UnitId UNIT_USER_MIN = ((UnitId)1);            ///< Start of the user-defined units. Use this as an enum start value
@@ -469,6 +470,20 @@ public:
 
     /***********************************************************
      *
+     *  Drag and Drop
+     *
+     * *********************************************************/
+
+    /**
+     * @brief Register a Drag and Drop callback for the given type
+     *
+     * @param type Label of the type of data to receive (used by SetDragDropPayload)
+     * @param callback Function to be called when data are dropped
+     */
+    void SetDnDCallback(std::string_view type, MBIPlotChart::MBIDndCb callback, void * arg);
+
+    /***********************************************************
+     *
      *  Main
      *
      * *********************************************************/
@@ -478,20 +493,19 @@ public:
      *
      * @param currentTimeS Current time in seconds
      */
-    virtual void Display();
+    virtual void Display(std::string_view label, ImVec2 size);
 
 protected:
     ImAxis GetYAxisOffset(const UnitId &eUnit) const;
 
     bool m_downSampled; ///< Are displayed data currently down sampled ?
-    bool m_dsUpdate;
-    bool m_firstVarAdded;
+    bool m_dsUpdate;    ///< DownSampling must be recalculated
 
-    bool m_activDownSampling;
-    size_t m_downSamplingSize;
+    bool m_activDownSampling;  ///< Is downsampling activated
+    size_t m_downSamplingSize; ///< Downsampling size
 
-    ImPlotRange m_xAxisRange;
-    ImPlotRange m_yAxesRange[3];
+    ImPlotRange m_xAxisRange;    ///< X-axis range
+    ImPlotRange m_yAxesRange[3]; ///< Y-axis range
 
     std::unordered_set<VarId> m_vargaph;
     std::list<Marker> m_markers;
@@ -506,6 +520,11 @@ protected:
 
 private:
     std::map<uint32_t, DataRender *> m_varData; ///< Map containing the data to be displayed on the graphs
+    MBIDndCb m_callback;
+    void *m_callbackArg;
+    std::string m_dndType;
+
+    void MBIPlotChart::ComputeDataWindow(DataRender &dataRenderInfos, size_t &dataSize, int32_t &dataOffset);
 
     DataRender &GetDataRenderInfos(const VarId &dataId);
     const DataRender &GetDataRenderInfos(const VarId &dataId) const;
