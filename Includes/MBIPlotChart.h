@@ -204,7 +204,7 @@ public:
     using UnitId = DataDescriptor::UnitId;
     using DataUnit = DataDescriptor::DataUnit;
     using DataDescriptorHandle = const void *const;
-    using MBIDndCb = void(*)(void *, const ImGuiPayload *);
+    using MBIDndCb = void (*)(void *, const ImGuiPayload *);
 
     static constexpr UnitId UNIT_NONE = ((UnitId)0);                ///< No unit, means no label will be displayed. All variables without unit are on the same axis
     static constexpr UnitId UNIT_USER_MIN = ((UnitId)1);            ///< Start of the user-defined units. Use this as an enum start value
@@ -231,7 +231,6 @@ public:
          * @brief Construct a new Marker object
          *
          * @param id Must be unique ! Two markers can't have the same Id.
-         * @param orientation On which axis the marker must be drawn (vertical x-axis or horizontal y-axis)
          * @param value Value of the marker
          */
         Marker(int id = 0, float value = 0.0f)
@@ -480,7 +479,7 @@ public:
      * @param type Label of the type of data to receive (used by SetDragDropPayload)
      * @param callback Function to be called when data are dropped
      */
-    void SetDnDCallback(std::string_view type, MBIPlotChart::MBIDndCb callback, void * arg);
+    void SetDnDCallback(std::string_view type, MBIPlotChart::MBIDndCb callback, void *arg);
 
     /***********************************************************
      *
@@ -507,8 +506,12 @@ protected:
     ImPlotRange m_xAxisRange;    ///< X-axis range
     ImPlotRange m_yAxesRange[3]; ///< Y-axis range
 
-    std::unordered_set<VarId> m_vargaph;
-    std::list<Marker> m_markers;
+    MBIDndCb m_callback;   ///< Pointer on the function to be called when data are dropped
+    void *m_callbackArg;   ///< Argument to pass to the function
+    std::string m_dndType; ///< Type of the data to accept
+
+    std::unordered_set<VarId> m_vargaph; ///< Id of the variables currently displayed on the graph
+    std::list<Marker> m_markers;         ///< List of the markers to be displayed on the graph
 
     static VarId MakeUUID()
     {
@@ -516,13 +519,15 @@ protected:
         return ++cnt;
     }
 
+    /**
+     * @brief Display the markers for the given axis
+     *
+     * @param unit Axis of the markers
+     */
     void DisplayMarkers(UnitId unit);
 
 private:
     std::map<uint32_t, DataRender *> m_varData; ///< Map containing the data to be displayed on the graphs
-    MBIDndCb m_callback;
-    void *m_callbackArg;
-    std::string m_dndType;
 
     void MBIPlotChart::ComputeDataWindow(DataRender &dataRenderInfos, size_t &dataSize, int32_t &dataOffset);
 

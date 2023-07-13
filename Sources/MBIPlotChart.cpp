@@ -211,13 +211,13 @@ void MBIPlotChart::Display(std::string_view label, ImVec2 size)
                     {
                         dataRenderInfos.DownSampleLTTB(dataOffset, (int)dataSize, (int)m_downSamplingSize);
                     }
-                    ImPlot::PlotLine(dataRenderInfos.descriptor.name.c_str(), &dataRenderInfos.dsData[0].m_time, dataRenderInfos.dsData[0].m_data, dataRenderInfos.dsData.Size, 0, 0, 2 * sizeof(float));
+                    ImPlot::PlotLine(dataRenderInfos.descriptor.name.c_str(), &dataRenderInfos.dsData[0].m_time, dataRenderInfos.dsData[0].m_data, dataRenderInfos.dsData.Size, ImPlotLineFlags_None, 0, 2 * sizeof(float));
                     m_downSampled = true;
                 }
                 else
                 {
-                    const ImVector<DataPoint> &datapoints = (*dataRenderInfos.data);
-                    ImPlot::PlotLine(dataRenderInfos.descriptor.name.c_str(), &datapoints[0].m_time, &datapoints[0].m_data, dataSize, 0, 0, 2 * sizeof(float));
+                    const DataContainer &datapoints = (*dataRenderInfos.data);
+                    ImPlot::PlotLine(dataRenderInfos.descriptor.name.c_str(), &datapoints[0].m_time, &datapoints[0].m_data, dataSize, ImPlotLineFlags_None, 0, 2 * sizeof(float));
                     if (dataRenderInfos.descriptor.bHidden == false)
                     {
                         m_downSampled = false;
@@ -307,7 +307,10 @@ void MBIPlotChart::Display(std::string_view label, ImVec2 size)
         {
             if (const ImGuiPayload *payload = ImGui::AcceptDragDropPayload(m_dndType.c_str()))
             {
-                m_callback(m_callbackArg, payload);
+                if (m_callback != nullptr)
+                {
+                    m_callback(m_callbackArg, payload);
+                }
             }
             ImPlot::EndDragDropTarget();
         }
@@ -531,12 +534,16 @@ void MBIPlotChart::SetDnDCallback(std::string_view type, MBIPlotChart::MBIDndCb 
 MBIPlotChart::MBIPlotChart() : m_downSampled(false),
                                m_dsUpdate(true),
                                m_activDownSampling(false),
+                               m_callback(nullptr),
                                m_xAxisRange{-10.0, 10.0}
 {
     /* Create default invalid data descriptor */
     DataRender *dataRender = new DataRender(nullptr, false);
     dataRender->dataPeriodMs = 0;
     m_varData[0xFFFFFFFF] = dataRender;
+
+    /* Set default Y axis Range */
+    m_yAxesRange[0] = ImPlotRange(0.0, 1.0);
 }
 
 MBIPlotChart::~MBIPlotChart()
