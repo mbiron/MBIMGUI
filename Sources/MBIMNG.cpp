@@ -513,6 +513,7 @@ void MBIMGUI::MBIMNG::Show()
                 {
                     bResetDockspace = ImGui::MenuItem(ICON_FA_ARROW_CIRCLE_LEFT " Reset to default layout");
                     ImGui::Separator();
+                    ImGui::SeparatorText("Windows");
                     // Set windows in menu file
                     for (const auto &member : m_windows)
                     {
@@ -527,7 +528,7 @@ void MBIMGUI::MBIMNG::Show()
                         }
                     }
 #ifdef _DEBUG
-                    ImGui::SeparatorText("Debug"); // TODO : Try TextSeparator()
+                    ImGui::SeparatorText("Debug");
                     ImGui::MenuItem("HMI Debug/Metrics", NULL, &bShowMetrics);
                     ImGui::MenuItem("GUI Style editor", NULL, &bShowImguiStyle);
                     ImGui::MenuItem("Plot Style editor", NULL, &bShowImplotStyle);
