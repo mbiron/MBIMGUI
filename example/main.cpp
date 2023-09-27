@@ -32,9 +32,6 @@ int main(int argc, char **argv)
     // flags |= MBIConfig_displayImGuiDemo;
     // flags |= MBIConfig_displayImPlotDemo;
 
-    /* Uncomment for metrics */
-    // flags |= MBIConfig_displayMetrics;
-
     /* Add menu bar with default options */
     flags |= MBIConfig_displayMenuBar;
 

@@ -7,3 +7,5 @@ cd Imgui_club && git pull && cd..
 cd Imgui_toggle && git pull && cd..
 cd Implot && git pull && cd..
 cd Imspinner && git pull && cd..
+
+pause

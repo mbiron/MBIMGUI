@@ -261,7 +261,7 @@ inline void MBIMGUI::MBIMNG::ShowOptionWindow(bool &openWindow)
 
         if (ImGui::BeginTabItem(ICON_FA_PAINT_BRUSH " Logs & Style"))
         {
-            //ImGui::Text( ICON_FA_FILE_ARCHIVE " Logs configuration");
+            // ImGui::Text( ICON_FA_FILE_ARCHIVE " Logs configuration");
             ImGui::SeparatorText(ICON_FA_FILE_ARCHIVE " Logs configuration");
             if (ImGui::Checkbox(ICON_FA_WINDOW_RESTORE " Popup on error", &popupOnError))
                 m_logger.Configure(popupOnError);
@@ -307,7 +307,7 @@ inline void MBIMGUI::MBIMNG::ShowOptionWindow(bool &openWindow)
             }
 
             ImGui::Spacing();
-            //ImGui::Text(ICON_FA_PALETTE " Style configuration");
+            // ImGui::Text(ICON_FA_PALETTE " Style configuration");
             ImGui::SeparatorText(ICON_FA_PALETTE " Style configuration");
             if (ImGui::Combo("Style", &choosenStyle, "ImGui Default\0ImGui Dark\0ImGui Light\0Visual Dark\0Corporate Grey\0", 5))
                 MBIMGUI::SetStyle((MBIColorStyle)choosenStyle);
@@ -353,7 +353,7 @@ bool MBIMGUI::MBIMNG::Init(float fontsize, const MBIColorStyle eStyle)
     if (io.Fonts->AddFontFromFileTTF(".\\fonts\\Roboto-Medium.ttf", correctedSize) == nullptr)
     {
         /* Try loading from imgui dir */
-        io.Fonts->AddFontFromFileTTF("..\\..\\..\\Imgui\\imgui\\misc\\fonts\\Roboto-Medium.ttf", fontsize * scale);
+        io.Fonts->AddFontFromFileTTF("..\\..\\..\\Imgui\\imgui\\misc\\fonts\\Roboto-Medium.ttf", correctedSize);
     }
 
     /* Merge in icons from Font Awesome */
