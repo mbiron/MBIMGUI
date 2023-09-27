@@ -182,7 +182,7 @@ void MBIMGUI::MBIMNG::SetupDockspace() const
                 ImGuiDockNode *Node = ImGui::DockBuilderGetNode(dock_down_id);
                 Node->LocalFlags |= ImGuiDockNodeFlags_NoTabBar | ImGuiDockNodeFlags_NoWindowMenuButton | ImGuiDockNodeFlags_NoCloseButton |
                                     ImGuiDockNodeFlags_NoResizeX | ImGuiDockNodeFlags_NoResizeY | ImGuiDockNodeFlags_NoDockingOverMe |
-                                    ImGuiDockNodeFlags_NoDockingSplitMe | ImGuiDockNodeFlags_NoDocking | ImGuiDockNodeFlags_NoSplit;
+                                    ImGuiDockNodeFlags_NoDockingSplit | ImGuiDockNodeFlags_NoDocking | ImGuiDockNodeFlags_NoSplit;
             }
             dockId = dock_down_id;
         case DOCK_DOWN:
