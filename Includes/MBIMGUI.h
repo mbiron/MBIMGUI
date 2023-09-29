@@ -261,19 +261,6 @@ namespace ImGui
     bool ComboWithFilter(const char *label, int *current_item, const std::vector<std::string> &items, int popup_max_height_in_items = -1);
 
     /**
-     * @brief A basic toggle button
-     *
-     * Toggle from nerdtronik, slightly modified by me.
-     * https://github.com/ocornut/imgui/issues/1537#issuecomment-780262461
-     *
-     * @param str_id Widget label
-     * @param v Value retreive by the button
-     * @return true if value has been modified in the previous frame
-     * @return false otherwise
-     */
-    bool ToggleButton(const char *str_id, bool *v);
-
-    /**
      * @brief Simple circular spinner
      *
      * From ImSpinner by Dalerank

@@ -26,8 +26,8 @@ void MBIPlotChart::ComputeDataWindow(DataRender &dataRenderInfos, size_t &dataSi
     if (dataRenderInfos.descriptor.bHidden == false)
     {
         /* Get data range available */
-        const float dataBegin = dataRenderInfos.data->front().m_time;
-        const float dataEnd = dataRenderInfos.data->back().m_time;
+        const double dataBegin = dataRenderInfos.data->front().m_time;
+        const double dataEnd = dataRenderInfos.data->back().m_time;
 
         /* Depending on the case */
         if (dataBegin > m_xAxisRange.Max || dataEnd < m_xAxisRange.Min)
@@ -211,13 +211,13 @@ void MBIPlotChart::Display(std::string_view label, ImVec2 size)
                     {
                         dataRenderInfos.DownSampleLTTB(dataOffset, (int)dataSize, (int)m_downSamplingSize);
                     }
-                    ImPlot::PlotLine(dataRenderInfos.descriptor.name.c_str(), &dataRenderInfos.dsData[0].m_time, dataRenderInfos.dsData[0].m_data, dataRenderInfos.dsData.Size, ImPlotLineFlags_None, 0, 2 * sizeof(float));
+                    ImPlot::PlotLine(dataRenderInfos.descriptor.name.c_str(), &dataRenderInfos.dsData[0].m_time, dataRenderInfos.dsData[0].m_data, dataRenderInfos.dsData.Size, ImPlotLineFlags_None, 0, 2 * sizeof(double));
                     m_downSampled = true;
                 }
                 else
                 {
                     const DataContainer &datapoints = (*dataRenderInfos.data);
-                    ImPlot::PlotLine(dataRenderInfos.descriptor.name.c_str(), &datapoints[0].m_time, &datapoints[0].m_data, dataSize, ImPlotLineFlags_None, 0, 2 * sizeof(float));
+                    ImPlot::PlotLine(dataRenderInfos.descriptor.name.c_str(), &datapoints[0].m_time, &datapoints[0].m_data, dataSize, ImPlotLineFlags_None, 0, 2 * sizeof(double));
                     if (dataRenderInfos.descriptor.bHidden == false)
                     {
                         m_downSampled = false;

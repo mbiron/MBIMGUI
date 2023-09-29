@@ -8,8 +8,8 @@
  */
 struct DataPoint
 {
-    float m_time; ///< Time in s
-    float m_data; ///< Data value
+    double m_time; ///< Time in s
+    double m_data; ///< Data value
 
     /**
      * @brief Construct a new Spied Data Point object
@@ -17,7 +17,7 @@ struct DataPoint
      * @param x x-axis data : time
      * @param y y-axis data : value
      */
-    DataPoint::DataPoint(float x = 0, float y = 0) : m_time(x),
+    DataPoint::DataPoint(double x = 0, double y = 0) : m_time(x),
                                                      m_data(y)
     {
     }

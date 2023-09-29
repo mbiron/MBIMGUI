@@ -121,8 +121,8 @@ void MBIRealtimePlotChart::Display(double currentTimeS)
                  *********************************************************/
 
                 /* Get data range available */
-                const float dataBegin = dataRenderInfos.data->first().m_time;
-                const float dataEnd = dataRenderInfos.data->last().m_time;
+                const double dataBegin = dataRenderInfos.data->first().m_time;
+                const double dataEnd = dataRenderInfos.data->last().m_time;
 
                 /* Depending on the case */
                 if (dataBegin > m_xAxisRange.Max || dataEnd < m_xAxisRange.Min)
