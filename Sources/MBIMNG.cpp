@@ -7,6 +7,7 @@
 #include "MBIMGUI_style.h"
 #include "MBILogWindow.h"
 #include "Win32Renderer.h"
+#include "MBIFileDialog.h"
 
 namespace MBIMGUI
 {
@@ -497,7 +498,8 @@ void MBIMGUI::MBIMNG::Show()
                     {
                         if (ImGui::MenuItem(ICON_FA_FOLDER_OPEN " Open"))
                         {
-                            m_openFileDialog.Open();
+                           //m_openFileDialog.Open();
+                            BasicFileOpen();
                         }
                         ImGui::Separator();
                     }

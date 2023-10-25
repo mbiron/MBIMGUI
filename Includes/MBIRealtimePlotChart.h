@@ -104,6 +104,8 @@ private:
     DataRender &GetDataRenderInfos(const VarId &dataId);
     const DataRender &GetDataRenderInfos(const VarId &dataId) const;
 
+    void ComputeDataWindow(DataRender &dataRenderInfos, size_t &dataSize, int32_t &dataOffset);
+
     /**
      * @brief Data getter for graph plotting : converts DataRenderInfos into implot curve.
      * @warning This routine is called every frame, for each points of the curve. So this routine must be as short as possible !

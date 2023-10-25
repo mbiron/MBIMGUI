@@ -19,6 +19,14 @@ set(ICONFONT_DIR ${SUB_MOD_DIR}/IconFontCppHeaders)
 
 set(MBIMGUI_LIB_RELEASE_DIR ${MBIMGUI_LIB_DIR}/Release/)
 set(MBIMGUI_LIB_DEBUG_DIR ${MBIMGUI_LIB_DIR}/Debug/)
+set(MBIMGUI_MANIFEST_DIR ${MBIMGUI_LIB_DIR}/cmake/MBIMGUI/)
+
+set(MBIMGUI_LIB_DEPENDENCIES
+    d3d12.lib # DX12
+    dxgi.lib # DX
+    Comctl32.lib #For filebrowser
+    Propsys.lib
+    Shlwapi.lib)
 
 message("${config_suffix}")
 
@@ -36,5 +44,10 @@ set_target_properties(MBIMGUI PROPERTIES
     IMPORTED_LOCATION_MINSIZEREL ${MBIMGUI_LIBRARY_PATH_RELEASE})
 
 set_target_properties(MBIMGUI PROPERTIES INTERFACE_INCLUDE_DIRECTORIES "${MBIMGUI_DIR};${IMGUI_DIR};${IMPLOT_DIR};${IMGUIBROWSER_DIR};${IMEMEDIT_DIR};${IMSPINNER_DIR};${IMTOGGLE_DIR};${ICONFONT_DIR}")
+
+### Manifest for Comctl32.lib version for file open api
+target_sources(MBIMGUI INTERFACE ${MBIMGUI_MANIFEST_DIR}/components.manifest)
+
+target_link_libraries(MBIMGUI INTERFACE ${MBIMGUI_LIB_DEPENDENCIES})
 
 message("${MBIMGUI_LIBRARY_PATH}")

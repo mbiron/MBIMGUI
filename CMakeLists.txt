@@ -9,7 +9,7 @@ set(MBIMGUI_DIR ../MBIMGUI/)
 # Include Imgui and co
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/cmake")
 
-# Defines IMGUI_DEP_DIRS and IMGUI_DEP_SRCS
+# Defines IMGUI_DEP_DIRS and IMGUI_DEP_SRCS (calls FindImgui.cmake)
 find_package(Imgui REQUIRED)
 
 # ## Global variables
@@ -36,6 +36,7 @@ set(HEADER_FILES ${INC_DIR}MBIMGUI.h)
 # ## Output
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/lib)
 
+#build
 add_library(${PROJECT_NAME} STATIC
     ${SRC_FILES}
     ${HEADER_FILES})
@@ -48,10 +49,6 @@ set_property(TARGET ${PROJECT_NAME} PROPERTY CXX_STANDARD 17)
 target_include_directories(${PROJECT_NAME} PRIVATE ${SRC_DIR} ${SRC_DIR_REND}
     ${INC_DIR}
     ${IMGUI_DEP_DIRS})
-
-# ## Linker
-target_link_libraries(${PROJECT_NAME} PRIVATE d3d12.lib)
-target_link_libraries(${PROJECT_NAME} PRIVATE dxgi.lib)
 
 # Introduce variables:
 # * CMAKE_INSTALL_LIBDIR
@@ -70,6 +67,7 @@ set(config_install_dir "${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME}")
 
 # Configuration
 set(project_config "cmake/MBIMGUIConfig.cmake")
+set(manifest_file "cmake/components.manifest")
 set(config_suffix "$<CONFIG>")
 
 # Export lib
@@ -105,6 +103,11 @@ install(
 # * <prefix>/lib/cmake/MBIMGUI/MBIMGUIConfig.cmake
 install(
     FILES "${project_config}"
+    DESTINATION "${config_install_dir}"
+)
+
+install(
+    FILES "${manifest_file}"
     DESTINATION "${config_install_dir}"
 )
 

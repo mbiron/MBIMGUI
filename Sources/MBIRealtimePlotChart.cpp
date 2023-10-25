@@ -6,6 +6,108 @@
 #include "MBIMGUI.h"
 #include "MBIRealtimePlotChart.h"
 
+/**
+ * @brief Display optimization : compute display data area size.
+ * ----------------------
+ * Because ImPlot process all points, even ones not currently
+ * displayed on the graph (because of zoom, axis offset etc.), we
+ * can experience huge cpu load with large amount of points.
+ *
+ * To avoid this, we compute the exact set of points needed for the
+ * currently displayed graph portion.
+ *
+ * Because of float rounding, and because it is hard to handle every
+ * case specifically, we take a margin on size and offset during calculation
+ * to ensure that a maximum of data are displayed on the graph.
+ *
+ */
+void MBIRealtimePlotChart::ComputeDataWindow(DataRender &dataRenderInfos, size_t &dataSize, int32_t &dataOffset)
+{
+    if (dataRenderInfos.descriptor.bHidden == false)
+    {
+        /* Get data range available */
+        const double dataBegin = dataRenderInfos.data->first().m_time;
+        const double dataEnd = dataRenderInfos.data->last().m_time;
+
+        /* Depending on the case */
+        if (dataBegin > m_xAxisRange.Max || dataEnd < m_xAxisRange.Min)
+        {
+            /* CASE 1 : All data are outside the graph window --> Don't draw anything */
+            dataOffset = 0;
+            dataSize = 0;
+        }
+        else if (dataBegin >= m_xAxisRange.Min && dataEnd <= m_xAxisRange.Max)
+        {
+            /* CASE 2 : All data are within the graph window, draw everything */
+            dataOffset = 0;
+            dataSize = dataRenderInfos.data->size();
+        }
+        else if (dataBegin >= m_xAxisRange.Min)
+        {
+            /* CASE 3: First data point is within the graph, last data point is outer right */
+            /* Draw from start */
+            dataOffset = 0;
+            /* Compute remaining size */
+            dataSize = ((uint32_t)((m_xAxisRange.Max - dataBegin) * 1000.0)) / dataRenderInfos.dataPeriodMs;
+            /* Add margin */
+            dataSize++;
+        }
+        else if (dataEnd <= m_xAxisRange.Max)
+        {
+            /* CASE 4 : First data point is outer left of the graph and last point is within the graph */
+            /* Compute first point offset */
+            dataOffset = ((uint32_t)((m_xAxisRange.Min - dataBegin) * 1000.0)) / dataRenderInfos.dataPeriodMs;
+            /* Draw till last point */
+            dataSize = dataRenderInfos.data->size() - dataOffset;
+            /* Add margins */
+            if (dataRenderInfos.dataPeriodMs > 1)
+            {
+                dataOffset -= 3;
+                dataSize += 3;
+            }
+            else
+            {
+                dataOffset--;
+                dataSize++;
+            }
+        }
+        else
+        {
+            /* CASE 5 : Both points are out, we draw a slice of data */
+            /* Compute first point offset */
+            dataOffset = ((uint32_t)((m_xAxisRange.Min - dataBegin) * 1000.0)) / dataRenderInfos.dataPeriodMs;
+            /* Compute remaining size */
+            dataSize = ((uint32_t)((m_xAxisRange.Max - m_xAxisRange.Min) * 1000.0)) / dataRenderInfos.dataPeriodMs;
+            /* Add margins */
+            if (dataRenderInfos.dataPeriodMs > 1)
+            {
+                dataOffset -= 3;
+            }
+            else
+            {
+                dataOffset--;
+            }
+            dataSize += 3;
+        }
+
+        /* Security checks : to ensure graph window is fully filled with data,
+         we took margins for computation (due to float rounding).
+         Check that we didn't overcome limits. */
+
+        /* Rolled back from 0 ? */
+        if (dataOffset < 0)
+        {
+            dataOffset = 0;
+        }
+        /* Exceed total data size ? */
+        if (dataOffset + dataSize > dataRenderInfos.data->size())
+        {
+            dataSize = dataRenderInfos.data->size() - dataOffset;
+        }
+        /* ************************************************************* */
+    }
+}
+
 void MBIRealtimePlotChart::Display(double currentTimeS)
 {
     static bool nodata = true;
@@ -16,8 +118,6 @@ void MBIRealtimePlotChart::Display(double currentTimeS)
     bool bNewUnit = true;
     bool bAxesMoved = false;
     ImAxis axis = ImAxis_COUNT;
-
-    /* Draw curves */
 
     /* Set legend outside the graph, at the top */
     ImPlot::SetupLegend(ImPlotLocation_North, ImPlotLegendFlags_Outside);
@@ -36,48 +136,44 @@ void MBIRealtimePlotChart::Display(double currentTimeS)
     /* Setup axes */
     for (auto it = m_vargaph.begin(); it != m_vargaph.end(); it++)
     {
-        const DataDescriptor &dataInfos = GetDataDescriptor(*it);
-        /* If variable is displayed on the graph */
-        if (dataInfos.bHidden == false)
-        {
-            bNewUnit = true;
-            /* Look for an existing variable with the same unit */
-            for (int i = 0; i < unitCounter; i++)
-            {
-                if (dataInfos.unit.first == unitList[i])
-                {
-                    axis = ImAxis_Y1 + i;
-                    bNewUnit = false;
-                    break;
-                }
-            }
+        const DataDescriptor &dataDescriptor = GetDataDescriptor(*it);
 
-            if (bNewUnit)
+        bNewUnit = true;
+        /* Look for an existing variable with the same unit */
+        for (int i = 0; i < unitCounter; i++)
+        {
+            if (dataDescriptor.unit.first == unitList[i])
             {
-                /* ImPlot can't manage more than 3 y-axes */
-                if (unitCounter < 3)
+                axis = ImAxis_Y1 + i;
+                bNewUnit = false;
+                break;
+            }
+        }
+        /* If new Unit added, setup a new axe */
+        if (bNewUnit)
+        {
+            /* ImPlot can't manage more than 3 y-axes */
+            if (unitCounter < 3)
+            {
+                axis = ImAxis_Y1 + unitCounter;
+                unitList[unitCounter++] = dataDescriptor.unit.first;
+                ImPlot::SetupAxis(axis, dataDescriptor.unit.second.c_str());
+            }
+            else
+            {
+                axis = ImAxis_Y1;
+                if (logwarning)
                 {
-                    axis = ImAxis_Y1 + unitCounter;
-                    unitList[unitCounter++] = dataInfos.unit.first;
-                    ImPlot::SetupAxis(axis, dataInfos.unit.second.c_str());
-                }
-                else
-                {
-                    axis = ImAxis_Y1;
-                    if (logwarning)
-                    {
-                        MBIMGUI::GetLogger().Log(MBIMGUI::LOG_LEVEL_WARNING, "Maximum three different axes on the same graph supported");
-                        logwarning = false;
-                    }
+                    MBIMGUI::GetLogger().Log(MBIMGUI::LOG_LEVEL_WARNING, "Maximum three different axes on the same graph supported");
+                    logwarning = false;
                 }
             }
-            /* Set y-axis for data */
-            GetDataDescriptor(*it).axis = axis;
         }
+        /* Set y-axis for data */
+        GetDataRenderInfos(*it).descriptor.axis = axis;
     }
 
     /* Set x-axis */
-    ImPlot::SetAxis(ImAxis_X1);
     DisplayMarkers(UNIT_TIME_X_AXIS);
 
     /* Draw all variables */
@@ -85,10 +181,9 @@ void MBIRealtimePlotChart::Display(double currentTimeS)
     {
         size_t dataSize = 0;
         int32_t dataOffset = 0;
-        const VarId type = *it;
+        const VarId varId = *it;
         /* Get data descriptor */
-        DataRender &dataRenderInfos = GetDataRenderInfos(type);
-
+        DataRender &dataRenderInfos = GetDataRenderInfos(varId);
         if (dataRenderInfos.data->empty() == false)
         {
             /* If data is shown */
@@ -103,122 +198,33 @@ void MBIRealtimePlotChart::Display(double currentTimeS)
             ImPlot::SetAxis(dataRenderInfos.descriptor.axis);
             ImPlot::SetNextLineStyle(dataRenderInfos.descriptor.color);
 
-            if (dataRenderInfos.descriptor.bHidden == false)
-            {
-                /**********************************************************
-                 * Display optimization : compute display data area size.
-                 * ----------------------
-                 * Because ImPlot process all points, even ones not currently
-                 * displayed on the graph (because of zoom, axis offset etc.), we
-                 * can experience huge cpu load with large amount of points.
-                 *
-                 * To avoid this, we compute the exact set of points needed for the
-                 * currently displayed graph portion.
-                 *
-                 * Because of float rounding, and because it is hard to handle every
-                 * case specifically, we take a margin on size and offset during calculation
-                 * to ensure that a maximum of data are displayed on the graph.
-                 *********************************************************/
+#if 1
+            /* Try to optimize large amount of data */
+            ComputeDataWindow(dataRenderInfos, dataSize, dataOffset);
+#else
+            /* Draw full data range */
+            dataSize = dataRenderInfos.data->size();
+            dataOffset = 0;
+#endif
 
-                /* Get data range available */
-                const double dataBegin = dataRenderInfos.data->first().m_time;
-                const double dataEnd = dataRenderInfos.data->last().m_time;
-
-                /* Depending on the case */
-                if (dataBegin > m_xAxisRange.Max || dataEnd < m_xAxisRange.Min)
-                {
-                    /* CASE 1 : All data are outside the graph window --> Don't draw anything */
-                    dataOffset = 0;
-                    dataSize = 0;
-                }
-                else if (dataBegin >= m_xAxisRange.Min && dataEnd <= m_xAxisRange.Max)
-                {
-                    /* CASE 2 : All data are within the graph window, draw everything */
-                    dataOffset = 0;
-                    dataSize = dataRenderInfos.data->size();
-                }
-                else if (dataBegin >= m_xAxisRange.Min)
-                {
-                    /* CASE 3: First data point is within the graph, last data point is outer right */
-                    /* Draw from start */
-                    dataOffset = 0;
-                    /* Compute remaining size */
-                    dataSize = ((uint32_t)((m_xAxisRange.Max - dataBegin) * 1000.0)) / dataRenderInfos.dataPeriodMs;
-                    /* Add margin */
-                    dataSize++;
-                }
-                else if (dataEnd <= m_xAxisRange.Max)
-                {
-                    /* CASE 4 : First data point is outer left of the graph and last point is within the graph */
-                    /* Compute first point offset */
-                    dataOffset = ((uint32_t)((m_xAxisRange.Min - dataBegin) * 1000.0)) / dataRenderInfos.dataPeriodMs;
-                    /* Draw till last point */
-                    dataSize = dataRenderInfos.data->size() - dataOffset;
-                    /* Add margins */
-                    if (dataRenderInfos.dataPeriodMs > 1)
-                    {
-                        dataOffset -= 3;
-                        dataSize += 3;
-                    }
-                    else
-                    {
-                        dataOffset--;
-                        dataSize++;
-                    }
-                }
-                else
-                {
-                    /* CASE 5 : Both points are out, we draw a slice of data */
-                    /* Compute first point offset */
-                    dataOffset = ((uint32_t)((m_xAxisRange.Min - dataBegin) * 1000.0)) / dataRenderInfos.dataPeriodMs;
-                    /* Compute remaining size */
-                    dataSize = ((uint32_t)((m_xAxisRange.Max - m_xAxisRange.Min) * 1000.0)) / dataRenderInfos.dataPeriodMs;
-                    /* Add margins */
-                    if (dataRenderInfos.dataPeriodMs > 1)
-                    {
-                        dataOffset -= 3;
-                    }
-                    else
-                    {
-                        dataOffset--;
-                    }
-                    dataSize += 3;
-                }
-
-                /* Security checks : to ensure graph window is fully filled with data,
-                 we took margins for computation (due to float rounding).
-                 Check that we didn't overcome limits. */
-
-                /* Rolled back from 0 ? */
-                if (dataOffset < 0)
-                {
-                    dataOffset = 0;
-                }
-                /* Exceed total data size ? */
-                if (dataOffset + dataSize > dataRenderInfos.data->size())
-                {
-                    dataSize = dataRenderInfos.data->size() - dataOffset;
-                }
-                /* ************************************************************* */
-            }
             dataRenderInfos.dataOffset = dataOffset;
             /* Draw line even if data are hidden because PlotLine draws legend */
-            if (dataSize > m_downSamplingSize && m_pause == true && m_activDownSampling == true)
+            if (dataSize > m_downSamplingSize && m_activDownSampling == true)
             {
                 /* Down sample data only if needed (avoid parsing whole data set each frame) */
                 if (m_dsUpdate == true)
                 {
                     dataRenderInfos.DownSampleLTTB(dataOffset, (int)dataSize, (int)m_downSamplingSize);
                 }
-                ImPlot::PlotLineG(dataRenderInfos.descriptor.name.c_str(), DsDataGetter, (void *)&dataRenderInfos, (int)m_downSamplingSize);
+                // ImPlot::PlotLineG(dataRenderInfos.descriptor.name.c_str(), DsDataGetter, (void *)&dataRenderInfos, (int)m_downSamplingSize);
                 //  TODO : Test stride ?
-                // ImPlot::PlotLine(dataRenderInfos.name.c_str(), &dataRenderInfos.dsData[0].m_time, dataRenderInfos.dsData[0].m_data, dataRenderInfos.dsData.Size, 0, 0, 2 * sizeof(float));
+                ImPlot::PlotLine(dataRenderInfos.descriptor.name.c_str(), &dataRenderInfos.dsData[0].m_time, &dataRenderInfos.dsData[0].m_data, dataRenderInfos.dsData.Size, ImPlotLineFlags_None, 0, 2 * sizeof(double));
                 m_downSampled = true;
             }
             else
             {
-
-                ImPlot::PlotLineG(dataRenderInfos.descriptor.name.c_str(), DataGetter, (void *)&dataRenderInfos, (int)dataSize);
+                const DataContainer &datapoints = (*dataRenderInfos.data);
+                ImPlot::PlotLine(dataRenderInfos.descriptor.name.c_str(), &datapoints[0].m_time, &datapoints[0].m_data, dataSize, ImPlotLineFlags_None, 0, 2 * sizeof(double));
                 if (dataRenderInfos.descriptor.bHidden == false)
                 {
                     m_downSampled = false;
@@ -243,7 +249,7 @@ void MBIRealtimePlotChart::Display(double currentTimeS)
         /* Drag and Drop */
         if (ImPlot::BeginDragDropSourceItem(dataRenderInfos.descriptor.name.c_str()))
         {
-            ImGui::SetDragDropPayload(DND_LABEL_FROM_GRAPH, &type, sizeof(type));
+            ImGui::SetDragDropPayload(DND_LABEL_FROM_GRAPH, &varId, sizeof(varId));
             ImPlot::ItemIcon(ImPlot::GetLastItemColor());
             ImPlot::EndDragDropSource();
         }
@@ -301,6 +307,19 @@ void MBIRealtimePlotChart::Display(double currentTimeS)
     else
     {
         m_xAxisRange = plotLimits.X;
+    }
+
+    /* Make plot and legend a drag and drop target */
+    if (ImPlot::BeginDragDropTargetPlot() || ImPlot::BeginDragDropTargetLegend())
+    {
+        if (const ImGuiPayload *payload = ImGui::AcceptDragDropPayload(m_dndType.c_str()))
+        {
+            if (m_callback != nullptr)
+            {
+                m_callback(m_callbackArg, payload);
+            }
+        }
+        ImPlot::EndDragDropTarget();
     }
 }
 

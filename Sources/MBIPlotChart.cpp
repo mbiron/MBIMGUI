@@ -406,6 +406,7 @@ void MBIPlotChart::SetDownSampling(bool bActiv, size_t size)
 {
     m_activDownSampling = bActiv;
     m_downSamplingSize = size;
+    m_dsUpdate = true;
 }
 
 void MBIPlotChart::AddDataAnnotations(const VarId &dataId, const MBISyncCircularBuffer<DataAnnotation> *const dataAnnotationPtr)
