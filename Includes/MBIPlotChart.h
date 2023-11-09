@@ -210,7 +210,7 @@ public:
     static constexpr UnitId UNIT_USER_MIN = ((UnitId)1);            ///< Start of the user-defined units. Use this as an enum start value
     static constexpr UnitId UNIT_USER_MAX = ((UnitId)99);           ///< End of the user-defined units. Use this as an enum start value
     static constexpr UnitId UNIT_TIME_X_AXIS = ((UnitId)100);       ///< Useful for vertical markers
-    static constexpr char *DND_LABEL_FROM_GRAPH = "ParamFromGraph"; ///< Useful for vertical markers
+    static constexpr char *DND_LABEL_FROM_GRAPH = "ParamFromGraph"; ///< For graph to graph DND
 
     /**
      * @brief Class defining a marker to be drawn on graph
@@ -332,7 +332,7 @@ public:
      * @param dataId Identifier of the variable
      * @param dataRender Data Descriptor Handle for the variable
      */
-    void SetDataDescriptorHandle(const VarId &dataId, DataDescriptorHandle dataRender);
+    virtual void SetDataDescriptorHandle(const VarId &dataId, DataDescriptorHandle dataRender);
 
     /**
      * @brief Get the Data Descriptor Handle object for the given variable. This method is useful when moving a variable to another plot.
@@ -340,7 +340,7 @@ public:
      * @param dataId Identifier of the variable
      * @return DataDescriptorHandle Data Descriptor Handle for the variable
      */
-    DataDescriptorHandle GetDataDescriptorHandle(const VarId &dataId) const;
+    virtual DataDescriptorHandle GetDataDescriptorHandle(const VarId &dataId) const;
 
     /**
      * @brief Set the variable displayed name
@@ -405,7 +405,7 @@ public:
      * @param dataId Identifier of the variable
      * @param dataAnnotationPtr Annotations to add
      */
-    void AddDataAnnotations(const VarId &dataId, const MBISyncCircularBuffer<DataAnnotation> *const dataAnnotationPtr);
+    virtual void AddDataAnnotations(const VarId &dataId, const MBISyncCircularBuffer<DataAnnotation> *const dataAnnotationPtr);
 
     /**
      * @brief Enable of disable the annotations on the plot for the given variable

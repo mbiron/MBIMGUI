@@ -21,7 +21,7 @@
  * to ensure that a maximum of data are displayed on the graph.
  *
  */
-void MBIRealtimePlotChart::ComputeDataWindow(DataRender &dataRenderInfos, size_t &dataSize, int32_t &dataOffset)
+inline void MBIRealtimePlotChart::ComputeDataWindow(DataRender &dataRenderInfos, size_t &dataSize, int32_t &dataOffset)
 {
     if (dataRenderInfos.descriptor.bHidden == false)
     {
@@ -224,7 +224,7 @@ void MBIRealtimePlotChart::Display(double currentTimeS)
             else
             {
                 const DataContainer &datapoints = (*dataRenderInfos.data);
-                ImPlot::PlotLine(dataRenderInfos.descriptor.name.c_str(), &datapoints[0].m_time, &datapoints[0].m_data, dataSize, ImPlotLineFlags_None, 0, 2 * sizeof(double));
+                ImPlot::PlotLine(dataRenderInfos.descriptor.name.c_str(), &datapoints[dataOffset].m_time, &datapoints[dataOffset].m_data, dataSize, ImPlotLineFlags_None, 0, 2 * sizeof(double));
                 if (dataRenderInfos.descriptor.bHidden == false)
                 {
                     m_downSampled = false;
@@ -234,6 +234,7 @@ void MBIRealtimePlotChart::Display(double currentTimeS)
             /* Draw Annotation */
             if (dataRenderInfos.descriptor.bShowAnnotations && dataRenderInfos.annotation != nullptr)
             {
+                // TODO : Pourquoi les annotations marchent pu ???
                 auto it = dataRenderInfos.annotation->cbegin();
                 while (it != dataRenderInfos.annotation->cend() && it->m_x < m_xAxisRange.Max)
                 {
@@ -331,6 +332,11 @@ void MBIRealtimePlotChart::Pause(bool pause)
 void MBIRealtimePlotChart::SetHistory(float history)
 {
     m_history = history;
+}
+
+void MBIRealtimePlotChart::AddDataAnnotations(const VarId &dataId, const MBISyncCircularBuffer<DataAnnotation> *const dataAnnotationPtr)
+{
+    GetDataRenderInfos(dataId).annotation = dataAnnotationPtr;
 }
 
 MBIRealtimePlotChart::VarId MBIRealtimePlotChart::CreateVariable(const DataContainer *const dataPtr, uint32_t period)
