@@ -18,7 +18,7 @@ struct DataPoint
      * @param y y-axis data : value
      */
     DataPoint::DataPoint(double x = 0, double y = 0) : m_time(x),
-                                                     m_data(y)
+                                                       m_data(y)
     {
     }
 };
@@ -29,10 +29,11 @@ struct DataPoint
  */
 struct DataAnnotation
 {
-    float m_x; ///< Time in s
-    float m_y; ///< Data value
+    double m_x;         ///< Time in s
+    double m_y;         ///< Data value
+    uintptr_t m_annotInfos; ///< User specific data
 
-    DataAnnotation(float x = 0, float y = 0) : m_x(x), m_y(y) {}
+    DataAnnotation(double x = 0, double y = 0, uintptr_t infos = 0) : m_x(x), m_y(y), m_annotInfos(infos) {}
 
     virtual const char *getLabel() const { return ""; };
 };
