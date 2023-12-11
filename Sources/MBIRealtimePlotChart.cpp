@@ -216,15 +216,16 @@ void MBIRealtimePlotChart::Display(double currentTimeS)
                 {
                     dataRenderInfos.DownSampleLTTB(dataOffset, (int)dataSize, (int)m_downSamplingSize);
                 }
-                // ImPlot::PlotLineG(dataRenderInfos.descriptor.name.c_str(), DsDataGetter, (void *)&dataRenderInfos, (int)m_downSamplingSize);
-                //  TODO : Test stride ?
                 ImPlot::PlotLine(dataRenderInfos.descriptor.name.c_str(), &dataRenderInfos.dsData[0].m_time, &dataRenderInfos.dsData[0].m_data, dataRenderInfos.dsData.Size, ImPlotLineFlags_None, 0, 2 * sizeof(double));
                 m_downSampled = true;
             }
             else
             {
                 const DataContainer &datapoints = (*dataRenderInfos.data);
-                ImPlot::PlotLine(dataRenderInfos.descriptor.name.c_str(), &datapoints[dataOffset].m_time, &datapoints[dataOffset].m_data, dataSize, ImPlotLineFlags_None, 0, 2 * sizeof(double));
+                // WARNING: PlotLine using stride requires contiguous data storage type. This is not the case of the MBICircularBuffer, so we have to use DataGetter
+                //ImPlot::PlotLine(dataRenderInfos.descriptor.name.c_str(), &datapoints[dataOffset].m_time, &datapoints[dataOffset].m_data, dataSize, ImPlotLineFlags_None, 0, 2 * sizeof(double));
+                ImPlot::PlotLineG(dataRenderInfos.descriptor.name.c_str(), DataGetter, (void *)&dataRenderInfos, (int)dataSize);
+
                 if (dataRenderInfos.descriptor.bHidden == false)
                 {
                     m_downSampled = false;
@@ -234,7 +235,6 @@ void MBIRealtimePlotChart::Display(double currentTimeS)
             /* Draw Annotation */
             if (dataRenderInfos.descriptor.bShowAnnotations && dataRenderInfos.annotation != nullptr)
             {
-                // TODO : Pourquoi les annotations marchent pu ???
                 auto it = dataRenderInfos.annotation->cbegin();
                 while (it != dataRenderInfos.annotation->cend() && it->m_x < m_xAxisRange.Max)
                 {

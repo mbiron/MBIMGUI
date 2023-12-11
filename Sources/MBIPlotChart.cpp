@@ -567,7 +567,9 @@ inline void MBIPlotChart::DisplayMarkers(UnitId unit)
                     ImPlot::DragLineX(marker.m_id, (double *)&marker.m_value, marker.m_color, marker.m_thickness, flags);
                     if (strlen(marker.m_label) > 0)
                     {
-                        ImPlot::Annotation(marker.m_value, 0, marker.m_color, ImVec2(0, 0), !marker.m_bstatic, marker.m_label);
+                        auto range = GetYAxisRange(UNIT_USER_MIN);
+                        // TODO : Set current highest point of the current y axis
+                        ImPlot::Annotation(marker.m_value, range.Max, marker.m_color, ImVec2(0, 0), !marker.m_bstatic, marker.m_label);
                     }
                 }
                 else
@@ -576,6 +578,7 @@ inline void MBIPlotChart::DisplayMarkers(UnitId unit)
                     if (strlen(marker.m_label) > 0)
                     {
                         ImPlot::Annotation(0, marker.m_value, marker.m_color, ImVec2(0, 0), !marker.m_bstatic, marker.m_label);
+                        // TODO try tooltip
                     }
                 }
             }

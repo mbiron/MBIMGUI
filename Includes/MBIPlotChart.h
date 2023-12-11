@@ -2,6 +2,7 @@
 
 #include <unordered_set>
 #include <map>
+#include "implot.h"
 
 /**
  * @brief Struct describing a data occurence. It's basically a value with the corresponding date.
@@ -29,8 +30,8 @@ struct DataPoint
  */
 struct DataAnnotation
 {
-    double m_x;         ///< Time in s
-    double m_y;         ///< Data value
+    double m_x;             ///< Time in s
+    double m_y;             ///< Data value
     uintptr_t m_annotInfos; ///< User specific data
 
     DataAnnotation(double x = 0, double y = 0, uintptr_t infos = 0) : m_x(x), m_y(y), m_annotInfos(infos) {}
@@ -88,11 +89,11 @@ public:
      *
      * @param showLabels Show annotations on the graph ?
      */
-    DataRenderInfos(const Container<DataPoint> *const ptrData, bool showLabels = false, uint32_t downSamplingSize = 50000) : data(ptrData),
-                                                                                                                             dataOffset(0),
-                                                                                                                             dataPeriodMs(1),
-                                                                                                                             descriptor(showLabels),
-                                                                                                                             annotation(nullptr)
+    DataRenderInfos(const Container<DataPoint> *const ptrData, bool showLabels = false) : data(ptrData),
+                                                                                          dataOffset(0),
+                                                                                          dataPeriodMs(1),
+                                                                                          descriptor(showLabels),
+                                                                                          annotation(nullptr)
 
     {
     }
@@ -105,7 +106,8 @@ public:
     DataRenderInfos(const DataRenderInfos *const other) : data(other->data),
                                                           descriptor(other->descriptor),
                                                           dataOffset(0),
-                                                          dataPeriodMs(other->dataPeriodMs)
+                                                          dataPeriodMs(other->dataPeriodMs),
+                                                          annotation(other->annotation)
     {
     }
 

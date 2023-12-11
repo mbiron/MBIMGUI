@@ -119,4 +119,19 @@ private:
     const DataRender &GetDataRenderInfos(const VarId &dataId) const;
 
     void ComputeDataWindow(DataRender &dataRenderInfos, size_t &dataSize, int32_t &dataOffset);
+
+    /**
+     * @brief Data getter for graph plotting : converts DataRenderInfos into implot curve.
+     * @warning This routine is called every frame, for each points of the curve. So this routine must be as short as possible !
+     *
+     * @param idx Index of current point
+     * @param user_data Pointer on data infos
+     * @return ImPlotPoint Point to plot
+     */
+    static ImPlotPoint DataGetter(int idx, void *user_data)
+    {
+        const MBIRealtimePlotChart::DataRender *const comdata = static_cast<MBIRealtimePlotChart::DataRender *>(user_data);
+        const DataPoint &point = (*(comdata->data))[idx + comdata->dataOffset];
+        return ImPlotPoint(point.m_time, point.m_data);       
+    }
 };
