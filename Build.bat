@@ -16,5 +16,13 @@ echo ************************
 
 cmake --build %__BUILD_DIR__% --config %__CONFIG__% --target install -j 14
 
+set __CONFIG__=Release
+
+echo ************************
+echo * Build in %__CONFIG__%...
+echo ************************
+
+cmake --build %__BUILD_DIR__% --config %__CONFIG__% --target install -j 14
+
 echo Done !
 pause

@@ -1,11 +1,15 @@
 # MBIMGUI
 
 Small overlay above the amazing [DearImGUI](https://github.com/ocornut/imgui/).
-This library package imgui and few useful widgets/extensions.
+This library packages imgui and few useful widgets/extensions.
 
 This lib offers a simple API to create a desktop app based on %ImGui (main API in MBIMGUI.h).
-The main idea for now is to extend an MBIWindow and implement the Display() method by calling %ImGui primitives.
+To create a basic GUI application simply extend an MBIMGUI::MBIWindow class and implement the Display() method, calling %ImGui fnuctions directly.
 The MBIMGUI lib handles all the rendering (DX12 only for now) and presetting of the %ImGui framework.
+
+The lib provides useful services for basic applications, like a logger mechanism (MBIMGUI::MBILogger), a persistent option API (MBIMGUI::MBIOption), a filebrowser.
+Two classes implements [ImPlot](https://github.com/epezent/implot/) providing generics plots objects ready to use (MBIPlotChart and MBIRealtimePlotChart).
+
 
 # Example
 
