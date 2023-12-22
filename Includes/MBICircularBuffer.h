@@ -40,7 +40,7 @@ public:
          * @param ptr Pointer on the iterator ellement
          * @param buff Circular buffer object containing the pointer.
          */
-        MBICircularIterator(pointer ptr, MBICircularBuffer &buff) : m_ptr(ptr), m_circbuff(buff), m_counter(0) {}
+        explicit MBICircularIterator(pointer ptr, MBICircularBuffer &buff) : m_ptr(ptr), m_circbuff(buff), m_counter(0) {}
         MBICircularIterator() = delete;
 
         /**
@@ -53,13 +53,13 @@ public:
          *
          * @return reference on the current item
          */
-        reference operator*() const { return *m_ptr; }
+        reference operator*() const noexcept { return *m_ptr; }
         /**
          * @brief Retreive item
          *
          * @return pointer on the current item
          */
-        pointer operator->() { return m_ptr; }
+        pointer operator->() noexcept { return m_ptr; }
 
         /**
          * @brief Assignment operator
@@ -123,7 +123,7 @@ public:
          * @return true
          * @return false
          */
-        friend bool operator==(const MBICircularIterator &a, const MBICircularIterator &b)
+        friend bool operator==(const MBICircularIterator &a, const MBICircularIterator &b) noexcept
         {
             return a.m_ptr == b.m_ptr;
         };
@@ -135,7 +135,7 @@ public:
          * @return true
          * @return false
          */
-        friend bool operator!=(const MBICircularIterator &a, const MBICircularIterator &b)
+        friend bool operator!=(const MBICircularIterator &a, const MBICircularIterator &b) noexcept
         {
             return a.m_ptr != b.m_ptr;
         };
@@ -167,7 +167,7 @@ public:
          * @param ptr Pointer on the iterator ellement
          * @param buff Circular buffer object containing the pointer.
          */
-        MBIConstCircularIterator(pointer ptr, const MBICircularBuffer &buff) : m_ptr(ptr), m_circbuff(buff), m_counter(0) {}
+        explicit MBIConstCircularIterator(pointer ptr, const MBICircularBuffer &buff) : m_ptr(ptr), m_circbuff(buff), m_counter(0) {}
         MBIConstCircularIterator() = delete;
 
         /**
@@ -180,13 +180,13 @@ public:
          *
          * @return reference on the current item
          */
-        reference operator*() const { return *m_ptr; }
+        reference operator*() const noexcept { return *m_ptr; }
         /**
          * @brief Retreive item
          *
          * @return pointer on the current item
          */
-        pointer operator->() { return m_ptr; }
+        pointer operator->() noexcept { return m_ptr; }
 
         /**
          * @brief Assignment operator
@@ -250,7 +250,7 @@ public:
          * @return true
          * @return false
          */
-        friend bool operator==(const MBIConstCircularIterator &a, const MBIConstCircularIterator &b)
+        friend bool operator==(const MBIConstCircularIterator &a, const MBIConstCircularIterator &b) noexcept
         {
             return a.m_ptr == b.m_ptr;
         };
@@ -262,7 +262,7 @@ public:
          * @return true
          * @return false
          */
-        friend bool operator!=(const MBIConstCircularIterator &a, const MBIConstCircularIterator &b)
+        friend bool operator!=(const MBIConstCircularIterator &a, const MBIConstCircularIterator &b) noexcept
         {
             return a.m_ptr != b.m_ptr;
         };
@@ -270,9 +270,9 @@ public:
 
 private:
     std::unique_ptr<T[]> m_buff;
-    int m_capacity;
-    int m_begin;
-    int m_end;
+    size_t m_capacity;
+    size_t m_begin;
+    size_t m_end;
     bool m_full;
 
     /**
@@ -280,7 +280,7 @@ private:
      *
      * @param count Reference of the counter to move forward.
      */
-    void inline increasecount(int &count)
+    void inline increasecount(size_t &count) noexcept
     {
         count = (count + 1) % m_capacity;
     }
@@ -290,7 +290,7 @@ private:
      *
      * @return int size of the buffer
      */
-    size_t inline size_unlocked() const
+    size_t inline size_unlocked() const noexcept
     {
         if (m_full && m_end == m_begin)
         {
@@ -308,7 +308,7 @@ public:
      *
      * @param capacity capacity of the buffer to be constructed.
      */
-    MBICircularBuffer(int capacity = 100) : m_capacity(capacity),
+    explicit MBICircularBuffer(size_t capacity = 100) noexcept : m_capacity(capacity),
                                             m_buff(std::unique_ptr<T[]>(new T[capacity + 1])),
                                             m_begin(0),
                                             m_end(0),
@@ -335,7 +335,7 @@ public:
      *
      * @return int number of objects in the buffer
      */
-    virtual size_t size() const
+    virtual size_t size() const noexcept
     {
         return size_unlocked();
     }
@@ -344,7 +344,7 @@ public:
      *
      * @param data Object to add
      */
-    virtual void push(T data)
+    virtual void push(T data) noexcept
     {
         m_buff[m_end] = data;
 
@@ -360,7 +360,7 @@ public:
      * @brief Empty and reset the buffer
      *
      */
-    void reset()
+    void reset() noexcept
     {
         m_begin = 0;
         m_end = 0;
@@ -371,12 +371,12 @@ public:
      *
      * @return T Oldest object inserted into the buffer
      */
-    virtual T pop()
+    virtual T pop() noexcept
     {
         if (empty())
             return T();
 
-        int count = m_begin;
+        size_t count = m_begin;
         increasecount(m_begin);
         m_full = false;
         return m_buff[count];
@@ -387,9 +387,9 @@ public:
      *
      * @param n Number of object to remove
      */
-    void remove(int n)
+    void remove(size_t n) noexcept
     {
-        int test = m_begin;
+        size_t test = m_begin;
         if (size_unlocked() >= n)
         {
             if ((m_begin + n) <= m_end)
@@ -409,7 +409,7 @@ public:
      *
      * @return T Last object inserted into the buffer
      */
-    virtual const T last() const
+    virtual const T last() const noexcept
     {
         if (empty())
             return T();
@@ -421,7 +421,7 @@ public:
      *
      * @return T Last object inserted into the buffer
      */
-    T last()
+    T last() noexcept
     {
         if (empty())
             return T();
@@ -433,7 +433,7 @@ public:
      *
      * @return T Oldest object inserted into the buffer
      */
-    virtual const T first() const
+    virtual const T first() const noexcept
     {
         if (empty())
             return T();
@@ -445,7 +445,7 @@ public:
      *
      * @return T Oldest object inserted into the buffer
      */
-    T first()
+    T first() noexcept
     {
         if (empty())
             return T();
@@ -458,7 +458,7 @@ public:
      * @return true If the buffer is full
      * @return false If the buffer is not full
      */
-    bool full() const
+    bool full() const noexcept
     {
         return m_full;
     }
@@ -468,7 +468,7 @@ public:
      * @return true If the buffer is empty
      * @return false If the buffer is not empty
      */
-    bool empty() const
+    bool empty() const noexcept
     {
         return (!m_full && m_begin == m_end);
     }
@@ -547,7 +547,7 @@ public:
             }
         }
 
-        int index = (m_begin + idx) % m_capacity;
+        size_t index = (m_begin + idx) % m_capacity;
         return m_buff[index];
     }
 

@@ -26,7 +26,7 @@ public:
      * @brief Construct a new MBIPlotChart object
      *
      */
-    MBIRealtimePlotChart();
+    explicit MBIRealtimePlotChart();
 
     /**
      * @brief Destroy the MBIPlotChart object
@@ -91,7 +91,7 @@ public:
      * @param currentTimeS Current time in seconds
      */
     void Display(double currentTimeS);
-    
+
     /***********************************************************
      *
      *  Annotations
@@ -132,6 +132,6 @@ private:
     {
         const MBIRealtimePlotChart::DataRender *const comdata = static_cast<MBIRealtimePlotChart::DataRender *>(user_data);
         const DataPoint &point = (*(comdata->data))[idx + comdata->dataOffset];
-        return ImPlotPoint(point.m_time, point.m_data);       
+        return ImPlotPoint(point.m_time, point.m_data);
     }
 };

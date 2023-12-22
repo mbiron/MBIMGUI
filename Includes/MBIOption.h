@@ -108,7 +108,7 @@ namespace MBIMGUI
          *
          * @param key Option key, must be unique.
          */
-        MBIOption(std::string_view key)
+        explicit MBIOption(std::string_view key)
         {
             opt.first = key;
         }
@@ -118,7 +118,7 @@ namespace MBIMGUI
          * @param key Option key, must be unique.
          * @param value Option value.
          */
-        MBIOption(std::string_view key, T value) : opt(key, value) {}
+        explicit MBIOption(std::string_view key, T value) : opt(key, value) {}
 
         /**
          * @brief Get the key of the option

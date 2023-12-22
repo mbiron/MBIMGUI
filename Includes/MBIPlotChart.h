@@ -18,8 +18,8 @@ struct DataPoint
      * @param x x-axis data : time
      * @param y y-axis data : value
      */
-    DataPoint::DataPoint(double x = 0, double y = 0) : m_time(x),
-                                                       m_data(y)
+    explicit DataPoint::DataPoint(double x = 0, double y = 0) : m_time(x),
+                                                                m_data(y)
     {
     }
 };
@@ -34,7 +34,7 @@ struct DataAnnotation
     double m_y;             ///< Data value
     uintptr_t m_annotInfos; ///< User specific data
 
-    DataAnnotation(double x = 0, double y = 0, uintptr_t infos = 0) : m_x(x), m_y(y), m_annotInfos(infos) {}
+    explicit DataAnnotation(double x = 0, double y = 0, uintptr_t infos = 0) : m_x(x), m_y(y), m_annotInfos(infos) {}
 
     virtual const char *getLabel() const { return ""; };
 };
@@ -57,13 +57,13 @@ struct DataDescriptor
     DataUnit unit;         ///< Unit of the variable. Use to determine the axis
     ImAxis axis;           ///< Current axis used to display data
 
-    DataDescriptor(bool showLabels = false) : bShowAnnotations(showLabels),
-                                              bHidden(false),
-                                              bMoved(false),
-                                              color(255, 255, 255, 255),
-                                              name(""),
-                                              unit(INVALID_UNIT, ""),
-                                              axis(ImAxis_COUNT)
+    explicit DataDescriptor(bool showLabels = false) : bShowAnnotations(showLabels),
+                                                       bHidden(false),
+                                                       bMoved(false),
+                                                       color(255, 255, 255, 255),
+                                                       name(""),
+                                                       unit(INVALID_UNIT, ""),
+                                                       axis(ImAxis_COUNT)
     {
     }
 };
@@ -89,11 +89,11 @@ public:
      *
      * @param showLabels Show annotations on the graph ?
      */
-    DataRenderInfos(const Container<DataPoint> *const ptrData, bool showLabels = false) : data(ptrData),
-                                                                                          dataOffset(0),
-                                                                                          dataPeriodMs(1),
-                                                                                          descriptor(showLabels),
-                                                                                          annotation(nullptr)
+    explicit DataRenderInfos(const Container<DataPoint> *const ptrData, bool showLabels = false) : data(ptrData),
+                                                                                                   dataOffset(0),
+                                                                                                   dataPeriodMs(1),
+                                                                                                   descriptor(showLabels),
+                                                                                                   annotation(nullptr)
 
     {
     }
@@ -103,11 +103,11 @@ public:
      *
      * @param other
      */
-    DataRenderInfos(const DataRenderInfos *const other) : data(other->data),
-                                                          descriptor(other->descriptor),
-                                                          dataOffset(0),
-                                                          dataPeriodMs(other->dataPeriodMs),
-                                                          annotation(other->annotation)
+    explicit DataRenderInfos(const DataRenderInfos *const other) noexcept : data(other->data),
+                                                                            descriptor(other->descriptor),
+                                                                            dataOffset(0),
+                                                                            dataPeriodMs(other->dataPeriodMs),
+                                                                            annotation(other->annotation)
     {
     }
 
@@ -201,10 +201,9 @@ private:
 class MBIPlotChart
 {
 public:
-    using VarId = uint32_t;
-    using DataContainer = ImVector<DataPoint>;
-    using DataRender = DataRenderInfos<ImVector>;
-    using UnitId = DataDescriptor::UnitId;
+    using VarId = uint32_t;                    ///< Variable unique identifier. Used as a handle for displayed variables.
+    using DataContainer = ImVector<DataPoint>; ///< Displayed variable data points.
+    using UnitId = DataDescriptor::UnitId;     ///< Variable unit unique identifier. Unit defines the y-axis on which the variable shall be drawn. Multiples variables sharing the same unit are drawn on the same axis.
     using DataUnit = DataDescriptor::DataUnit;
     using DataDescriptorHandle = const void *const;
     using MBIDndCb = void (*)(void *, const ImGuiPayload *);
@@ -236,7 +235,7 @@ public:
          * @param id Must be unique ! Two markers can't have the same Id.
          * @param value Value of the marker
          */
-        Marker(int id = 0, float value = 0.0f)
+        explicit Marker(int id = 0, float value = 0.0f)
             : m_id(id),
               m_value(value),
               m_bvisible(true),
@@ -272,7 +271,7 @@ public:
      * @brief Construct a new MBIPlotChart object
      *
      */
-    MBIPlotChart();
+    explicit MBIPlotChart();
 
     /**
      * @brief Destroy the MBIPlotChart object
@@ -497,6 +496,8 @@ public:
      */
     virtual void Display(std::string_view label, ImVec2 size);
 
+    void Reset();
+
 protected:
     ImAxis GetYAxisOffset(const UnitId &eUnit) const;
 
@@ -530,6 +531,8 @@ protected:
     void DisplayMarkers(UnitId unit);
 
 private:
+    using DataRender = DataRenderInfos<ImVector>;
+
     std::map<uint32_t, DataRender *> m_varData; ///< Map containing the data to be displayed on the graphs
 
     void MBIPlotChart::ComputeDataWindow(DataRender &dataRenderInfos, size_t &dataSize, int32_t &dataOffset);

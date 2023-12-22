@@ -95,7 +95,7 @@ namespace MBIMGUI
          * @brief Construct a new MBILogger object
          * @warning You souhld never call this, the logger of the app is created internally by the framework. You can reterive it using @ref MBIMGUI::GetLogger()
          */
-        MBILogger();
+        explicit MBILogger();
 
         /**
          * @brief Destroy the MBILogger object

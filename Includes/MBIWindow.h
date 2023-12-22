@@ -27,7 +27,7 @@ namespace MBIMGUI
          */
         enum _MBIWindowConfigFlags
         {
-            MBIWindowConfig_hideableInMenu = 1 << 1, ///< Display the window in the view window, making it hideable/showable from there
+            MBIWindowConfig_hideableInMenu = 1 << 1, ///< Display the window in the view menu, making it hideable/showable from there
         };
 
         typedef int MBIWindowConfigFlags; ///< Configuration flags for the window, must be passed when constructing the MBIWindow object
@@ -47,7 +47,7 @@ namespace MBIMGUI
          */
         MBILogger &m_logger;
         /**
-         * @brief Use this to override default ImGui window behaviour. These flags will be added to default ones configured by MBIMGUI
+         * @brief Use this inside your ctor to override default ImGui window behaviour. These flags will be added to default ones configured by MBIMGUI
          *
          */
         ImGuiWindowFlags m_imguiFlags;
@@ -61,33 +61,33 @@ namespace MBIMGUI
          * @param width Windows wifth, useful only if the window is not docked by default
          * @param flags Configuration flags, see MBIWindow::_MBIWindowConfigFlags
          */
-        MBIWindow(std::string_view name, int height = 0, int width = 0, MBIWindowConfigFlags flags = 0);
+        explicit MBIWindow(std::string_view name, int height = 0, int width = 0, MBIWindowConfigFlags flags = 0);
         /**
-         * @brief Get the Window Size object
+         * @brief Get the window current size 
          *
          * @return ImVec2
          */
-        virtual ImVec2 GetWindowSize() const;
+        virtual ImVec2 GetWindowSize() const noexcept;
 
         /**
-         * @brief Get the Window Pos object
+         * @brief Get the window current position. This position is the ImGui position, it can't be used directly for OS relative coordinates.
          *
          * @return ImVec2
          */
-        virtual ImVec2 GetWindowPos() const;
+        virtual ImVec2 GetWindowPos() const noexcept;
         /**
          * @brief Get the the window name
          *
          * @return std::string
          */
-        const std::string &GetName() const;
+        const std::string &GetName() const noexcept;
 
         /**
          * @brief Get the ImGui Flags
          *
          * @return ImGuiWindowFlags
          */
-        ImGuiWindowFlags GetFlags() const;
+        ImGuiWindowFlags GetFlags() const noexcept;
 
         /**
          * @brief Internal method, called at each frame and call Display method
@@ -96,7 +96,7 @@ namespace MBIMGUI
         void UpdateAndDisplay();
 
         /**
-         * @brief Main method, called at each frame to display your window
+         * @brief Main method, called at each frame to display your window. Must be implemented by derivative classes.
          *
          */
         virtual void Display() = 0;
@@ -106,21 +106,21 @@ namespace MBIMGUI
          * @return true : the window is visible
          * @return false : the window is hidden
          */
-        bool IsVisible() const;
+        bool IsVisible() const noexcept;
         /**
          * @brief Set the visible state of the window
          *
          * @param bVisible : true : the window is visible
          *                   false : the window is hidden
          */
-        void SetVisible(bool bVisible);
+        void SetVisible(bool bVisible) noexcept;
         /**
          * @brief Test if the window can be hidden/shown from the view menu
          *
          * @return true : the window is in the menu
          * @return false : the window is not in the menu
          */
-        bool IsInMenu() const;
+        bool IsInMenu() const noexcept;
     };
 
 }

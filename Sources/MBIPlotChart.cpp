@@ -532,6 +532,11 @@ void MBIPlotChart::SetDnDCallback(std::string_view type, MBIPlotChart::MBIDndCb 
     m_dndType = type.data();
 }
 
+void MBIPlotChart::Reset()
+{
+    m_markers.clear();
+}
+
 MBIPlotChart::MBIPlotChart() : m_downSampled(false),
                                m_dsUpdate(true),
                                m_activDownSampling(false),
@@ -568,8 +573,8 @@ inline void MBIPlotChart::DisplayMarkers(UnitId unit)
                     if (strlen(marker.m_label) > 0)
                     {
                         auto range = GetYAxisRange(UNIT_USER_MIN);
-                        // TODO : Set current highest point of the current y axis
-                        ImPlot::Annotation(marker.m_value, range.Max, marker.m_color, ImVec2(0, 0), !marker.m_bstatic, marker.m_label);
+                        // TODO : Set current highest point of the current y axis or try px_offset ?
+                        ImPlot::Annotation(marker.m_value, range.Max * 0.95, marker.m_color, ImVec2(0, 0), !marker.m_bstatic, marker.m_label);
                     }
                 }
                 else

@@ -138,7 +138,7 @@ namespace MBIMGUI
          * @param height Height of the main frame (each window can be docked in this main frame)
          * @param flags Framework config flags, see MBIMGUI::_MBIConfigFlags
          */
-        MBIMNG(std::string_view name, int width, int height, const MBIConfigFlags flags = 0);
+        explicit MBIMNG(std::string_view name, int width, int height, const MBIConfigFlags flags = 0);
         /**
          * @brief Destroy the MBIMGUI object
          *

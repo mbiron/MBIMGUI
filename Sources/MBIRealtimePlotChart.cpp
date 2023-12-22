@@ -209,7 +209,7 @@ void MBIRealtimePlotChart::Display(double currentTimeS)
 
             dataRenderInfos.dataOffset = dataOffset;
             /* Draw line even if data are hidden because PlotLine draws legend */
-            if (dataSize > m_downSamplingSize && m_activDownSampling == true)
+            if (dataSize > m_downSamplingSize && m_activDownSampling == true && m_pause == false)
             {
                 /* Down sample data only if needed (avoid parsing whole data set each frame) */
                 if (m_dsUpdate == true)

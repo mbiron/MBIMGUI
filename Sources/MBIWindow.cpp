@@ -9,37 +9,37 @@ MBIMGUI::MBIWindow::MBIWindow(std::string_view name, int height, int width, MBIW
 {
 }
 
-ImVec2 MBIMGUI::MBIWindow::GetWindowSize() const
+ImVec2 MBIMGUI::MBIWindow::GetWindowSize() const noexcept
 {
     return m_size;
 }
 
-ImVec2 MBIMGUI::MBIWindow::GetWindowPos() const
+ImVec2 MBIMGUI::MBIWindow::GetWindowPos() const noexcept
 {
     return m_pos;
 }
 
-const std::string &MBIMGUI::MBIWindow::GetName() const
+const std::string &MBIMGUI::MBIWindow::GetName() const noexcept
 {
     return m_name;
 }
 
-ImGuiWindowFlags MBIMGUI::MBIWindow::GetFlags() const
+ImGuiWindowFlags MBIMGUI::MBIWindow::GetFlags() const noexcept
 {
     return m_imguiFlags;
 }
 
-bool MBIMGUI::MBIWindow::IsInMenu() const
+bool MBIMGUI::MBIWindow::IsInMenu() const noexcept
 {
     return (m_flags & MBIWindowConfig_hideableInMenu);
 }
 
-bool MBIMGUI::MBIWindow::IsVisible() const
+bool MBIMGUI::MBIWindow::IsVisible() const noexcept
 {
     return m_bVisible;
 }
 
-void MBIMGUI::MBIWindow::SetVisible(bool bVisible)
+void MBIMGUI::MBIWindow::SetVisible(bool bVisible) noexcept
 {
     m_bVisible = bVisible;
 }

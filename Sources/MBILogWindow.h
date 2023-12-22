@@ -28,7 +28,7 @@ namespace MBIMGUI
          * @param name Name of the window, will be displayed at the top
          * @param eMode Mode of the window, see @ref LOGWINDOW_MODE
          */
-        MBILogWindow(std::string_view name, LOGWINDOW_MODE eMode) : MBIWindow(name, 0, 0, MBIWindowConfig_hideableInMenu), m_mode(eMode)
+        explicit MBILogWindow(std::string_view name, LOGWINDOW_MODE eMode) : MBIWindow(name, 0, 0, MBIWindowConfig_hideableInMenu), m_mode(eMode)
         {
             if (m_mode == MODE_BAR)
             {

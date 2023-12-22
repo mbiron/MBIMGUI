@@ -22,7 +22,7 @@ public:
      *
      * @param capacity Size of the buffer
      */
-    MBISyncCircularBuffer(int capacity = 60) : MBICircularBuffer(capacity) {}
+    explicit MBISyncCircularBuffer(size_t capacity = 60) : MBICircularBuffer(capacity) {}
     ~MBISyncCircularBuffer(){};
 
     /**
@@ -30,7 +30,7 @@ public:
      *
      * @param data Object to add
      */
-    void push(T data) override
+    void push(T data) noexcept override
     {
         WriteLock w_lock(m_mut);
         MBICircularBuffer::push(data);
@@ -41,7 +41,7 @@ public:
      *
      * @return T Oldest object inserted into the buffer
      */
-    T pop() override
+    T pop() noexcept override
     {
         WriteLock w_lock(m_mut);
         return MBICircularBuffer::pop();
@@ -76,7 +76,7 @@ public:
      *
      * @return int
      */
-    size_t size() const override
+    size_t size() const noexcept override
     {
         ReadLock r_lock(m_mut);
         return MBICircularBuffer::size();
@@ -87,7 +87,7 @@ public:
      *
      * @return T
      */
-    const T first() const override
+    const T first() const noexcept override
     {
         ReadLock r_lock(m_mut);
         return MBICircularBuffer::first();
@@ -98,7 +98,7 @@ public:
      *
      * @return T
      */
-    const T last() const override
+    const T last() const noexcept override
     {
         ReadLock r_lock(m_mut);
         return MBICircularBuffer::last();
