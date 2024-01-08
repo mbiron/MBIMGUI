@@ -8,13 +8,13 @@
 #endif // IMGUI_DEFINE_MATH_OPERATORS
 
 #include "imgui.h"
-#include "imfilebrowser.h"
 #include "implot.h"
 
 #include "MBIOption.h"
 #include "MBIWindow.h"
 #include "MBILogger.h"
 #include "MBIPlotChart.h"
+#include "MBIFileDialog.h"
 
 #include "IconsFontAwesome5.h"
 
@@ -23,6 +23,8 @@ class Renderer;
 #define MBIMGUI_VERSION "1.0"
 
 typedef int MBIConfigFlags; ///< See MBIMGUI::_MBIConfigFlags
+
+constexpr char *DEFAULT_OPT_FILE = "./etc/pref.conf"; ///< Default option file
 
 /**
  * @brief Main namespace of the framework. Contains global functions
@@ -102,9 +104,8 @@ namespace MBIMGUI
         MBIWindow *m_aboutWindow;                            ///< About window of the app
 
         std::vector<MBIWindow *> m_optionsTabs; ///< Option windows of the app. Will be shown as tab inside the option window in File-->Options
-        ImGui::FileBrowser m_logFileDialog;     ///< File browser displayed when setting logfile in option menu
-
-        ImGui::FileBrowser m_openFileDialog; ///< File browser displayed when setting logfile in option menu
+        MBIFileDialog m_logFileDialog;///< File browser displayed when setting logfile in option menu
+        MBIFileDialog m_openFileDialog; ///< File browser displayed when oppening file in File menu
         MBIOpenFileHandler m_openFileHandler;
         bool m_dndActiv;
 
@@ -235,7 +236,7 @@ namespace MBIMGUI
      *
      * @return MBILogger& Reference to the logger of the application.
      */
-    MBILogger &GetLogger();
+    MBILogger &GetLogger() noexcept;
 
 }; /* namespace MBIMGUI */
 

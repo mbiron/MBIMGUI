@@ -29,6 +29,7 @@ set(SRC_FILES ${IMGUI_DEP_SRCS}
     ${SRC_DIR}MBIRealtimePlotChart.cpp
     ${SRC_DIR_WIDGET}imgui_combowithfilter.cpp
     ${SRC_DIR_WIDGET}imspinner.cpp
+    ${SRC_DIR_WIDGET}MBIFileDialog.cpp
     ${RENDERERS_SRC})
 
 set(HEADER_FILES ${INC_DIR}MBIMGUI.h)
@@ -42,7 +43,7 @@ add_library(${PROJECT_NAME} STATIC
     ${HEADER_FILES})
 
 # # Options
-# Enable C++ 17 (IMFILEBROWSER compatibility)
+# Enable C++ 17
 set_property(TARGET ${PROJECT_NAME} PROPERTY CXX_STANDARD 17)
 
 # ## Preproc

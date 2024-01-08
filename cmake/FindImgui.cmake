@@ -6,7 +6,6 @@
 set(SUB_MOD_DIR ${MBIMGUI_DIR}/imgui)
 
 set(IMGUI_DIR ${SUB_MOD_DIR}/Imgui/)
-set(IMGUIBROWSER_DIR ${SUB_MOD_DIR}/imgui-filebrowser/)
 set(IMPLOT_DIR ${SUB_MOD_DIR}/implot/)
 set(IMEMEDIT_DIR ${SUB_MOD_DIR}/imgui_club/imgui_memory_editor)
 set(IMSPINNER_DIR ${SUB_MOD_DIR}/imspinner/)
@@ -34,16 +33,13 @@ set(IMPLOT_SRC ${IMPLOT_DIR}/implot.cpp
     ${IMPLOT_DIR}/implot_demo.cpp
 )
 
-# ### IMFILEBROWSER
-set(IMFILEBROWSER_DIR ${SUB_MOD_DIR}/imgui-filebrowser)
-
-# ### Memory Editor
+# ## Memory Editor
 set(IMEMEDIT_DIR ${SUB_MOD_DIR}/imgui_club/imgui_memory_editor)
 
 # ## Imspinner
 set(IMSPINNER_DIR ${SUB_MOD_DIR}/imspinner)
 
-# ### Imgui_toggle
+# ## Imgui_toggle
 set(IMTOGGLE_DIR ${SUB_MOD_DIR}/imgui_toggle)
 set(IMTOGGLE_SRC ${IMTOGGLE_DIR}/imgui_toggle.cpp
     ${IMTOGGLE_DIR}/imgui_toggle_palette.cpp
@@ -53,7 +49,6 @@ set(IMTOGGLE_SRC ${IMTOGGLE_DIR}/imgui_toggle.cpp
 set(IMGUI_DEP_DIRS ${IMGUI_DIR}
     ${IMGUI_BACKENDS_DIR}
     ${IMPLOT_DIR}
-    ${IMFILEBROWSER_DIR}
     ${IMEMEDIT_DIR}
     ${IMSPINNER_DIR}
     ${IMTOGGLE_DIR}

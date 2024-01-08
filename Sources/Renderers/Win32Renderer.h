@@ -31,7 +31,7 @@ public:
      * @param width Width of the window of pixels
      * @param height Height of the window of pixels
      */
-    Win32Renderer(std::string_view name, int width, int height);
+    explicit Win32Renderer(std::string_view name, int width, int height);
     ~Win32Renderer();
     bool Init();
     void NewFrame();
@@ -44,14 +44,14 @@ public:
      *
      * @return HWND Handle of the WINAPI windows handle
      */
-    HWND getWindowHandle();
+    HWND getWindowHandle() const noexcept;
 
     void EnableDragAndDrop();
     void DisableDragAndDrop();
 
-    void setDragAndDropFileName(const std::string &filename);
-    bool isFileDropped() const;
-    void getDragAndDropFileName(std::string &filename);
+    void setDragAndDropFileName(const std::string &filename) noexcept; 
+    bool isFileDropped() const noexcept;
+    void getDragAndDropFileName(std::string &filename) noexcept;
 
     /**
      * @brief Internal handler to manage windows events

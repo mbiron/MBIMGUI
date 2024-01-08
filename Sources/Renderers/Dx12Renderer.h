@@ -64,7 +64,7 @@ public:
      *
      * @param hwnd Handle on the WINAPI Windows object
      */
-    Dx12Renderer(HWND hwnd);
+    explicit Dx12Renderer(HWND hwnd);
     ~Dx12Renderer();
     bool Init();
     void NewFrame();

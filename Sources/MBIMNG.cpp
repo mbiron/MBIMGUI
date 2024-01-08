@@ -7,16 +7,20 @@
 #include "MBIMGUI_style.h"
 #include "MBILogWindow.h"
 #include "Win32Renderer.h"
-#include "MBIFileDialog.h"
 
 namespace MBIMGUI
 {
-    static std::map<std::string, std::string> g_optionMap;
+    static std::map<std::string, std::string> g_optionMap; ///< Global static map for RAM option image
 
+    /* Use anonymous namespace to hide static functions from users */
     namespace
     {
-        static std::string g_optionFile = "./etc/pref.conf";
+        static std::string g_optionFile = DEFAULT_OPT_FILE; ///< Option file path
 
+        /**
+         * @brief Read all options from file and store it into g_optionMap
+         *
+         */
         void ReadAllOptions()
         {
             std::ifstream ifile;
@@ -38,6 +42,10 @@ namespace MBIMGUI
             }
         }
 
+        /**
+         * @brief Store all options into file for persistency
+         *
+         */
         void WriteAllOptions()
         {
             std::ofstream ofile;
@@ -86,7 +94,7 @@ inline const std::wstring s2ws(const std::string &str)
  */
 MBIMGUI::MBIMNG::MBIMNG(std::string_view name, int width, int height, MBIConfigFlags flags) : m_name(name),
                                                                                               m_confFlags(flags),
-                                                                                              m_logFileDialog(ImGuiFileBrowserFlags_EnterNewFilename),
+                                                                                              m_logFileDialog(MBI_E_FILE_SAVE_DLG),
                                                                                               m_openFileDialog(),
                                                                                               m_openFileHandler(nullptr),
                                                                                               m_dndActiv(false),
@@ -151,9 +159,7 @@ void MBIMGUI::MBIMNG::SetupDockspace() const
 
     // Make the dock node's size and position to match the viewport
     ImGui::DockBuilderSetNodeSize(dockspaceId, viewport->Size);
-    // ImGui::DockBuilderSetNodeSize(dockspaceId,viewport->WorkSize);
     ImGui::DockBuilderSetNodePos(dockspaceId, viewport->Pos);
-    // ImGui::DockBuilderSetNodePos(dockspaceId,viewport->WorkPos);
 
     ImGuiID dock_down_id = 0;
     ImGuiID dock_up_id = ImGui::DockBuilderSplitNode(dockspaceId, ImGuiDir_Up, 0.05f, nullptr, &dockspaceId);
@@ -230,7 +236,7 @@ inline void MBIMGUI::MBIMNG::ShowAboutWindow(bool *openWindow) const
     if ((*openWindow) == true)
     {
         ImGui::Text("This application has been made using MBIMGUI V" MBIMGUI_VERSION);
-        ImGui::Text("Build on %s %s", __DATE__, __TIME__);
+        ImGui::Text("Build - %s %s", __DATE__, __TIME__);
         ImGui::Text("MBIMGUI is a simple overlay above ImGui and ImPlot frameworks.");
 
         if (ImGui::Button(ICON_FA_QUESTION_CIRCLE " Show ImGui Infos"))
@@ -262,7 +268,6 @@ inline void MBIMGUI::MBIMNG::ShowOptionWindow(bool &openWindow)
 
         if (ImGui::BeginTabItem(ICON_FA_PAINT_BRUSH " Logs & Style"))
         {
-            // ImGui::Text( ICON_FA_FILE_ARCHIVE " Logs configuration");
             ImGui::SeparatorText(ICON_FA_FILE_ARCHIVE " Logs configuration");
             if (ImGui::Checkbox(ICON_FA_WINDOW_RESTORE " Popup on error", &popupOnError))
                 m_logger.Configure(popupOnError);
@@ -291,9 +296,9 @@ inline void MBIMGUI::MBIMNG::ShowOptionWindow(bool &openWindow)
 
             /* Open file dialog when user clicks this button */
             if (ImGui::Button("Choose log file"))
+            {
                 m_logFileDialog.Open();
-
-            m_logFileDialog.Display();
+            }
             if (m_logFileDialog.HasSelected())
             {
                 std::string fileSelected = m_logFileDialog.GetSelected().string();
@@ -308,7 +313,6 @@ inline void MBIMGUI::MBIMNG::ShowOptionWindow(bool &openWindow)
             }
 
             ImGui::Spacing();
-            // ImGui::Text(ICON_FA_PALETTE " Style configuration");
             ImGui::SeparatorText(ICON_FA_PALETTE " Style configuration");
             if (ImGui::Combo("Style", &choosenStyle, "ImGui Default\0ImGui Dark\0ImGui Light\0Visual Dark\0Corporate Grey\0", 5))
                 MBIMGUI::SetStyle((MBIColorStyle)choosenStyle);
@@ -368,7 +372,7 @@ bool MBIMGUI::MBIMNG::Init(float fontsize, const MBIColorStyle eStyle)
     /* Style configuration */
     MBIMGUI::SetStyle(eStyle);
 
-    /* Make auto fit leave a 5% space to the fit extents of X and Y */
+    /* Make plot auto fit leave a 5% space to the fit extents of X and Y */
     ImPlot::GetStyle().FitPadding = ImVec2(0.05f, 0.05f);
 
     // DPI stuff : doesn't work ?
@@ -494,12 +498,12 @@ void MBIMGUI::MBIMNG::Show()
             {
                 if (ImGui::BeginMenu("File"))
                 {
+                    /* If file open menu has been requested through EnableOpenMenu */
                     if (m_openFileHandler)
                     {
                         if (ImGui::MenuItem(ICON_FA_FOLDER_OPEN " Open"))
                         {
-                           //m_openFileDialog.Open();
-                            BasicFileOpen();
+                            m_openFileDialog.Open();
                         }
                         ImGui::Separator();
                     }
@@ -584,7 +588,6 @@ void MBIMGUI::MBIMNG::Show()
                 ImGui::End();
             }
 
-            m_openFileDialog.Display();
             if (m_openFileDialog.HasSelected())
             {
                 std::string fileSelected = m_openFileDialog.GetSelected().string();

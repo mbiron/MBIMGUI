@@ -86,7 +86,7 @@ Win32Renderer::Win32Renderer(std::string_view name, int width, int height) : m_w
     }
 }
 
-HWND Win32Renderer::getWindowHandle()
+HWND Win32Renderer::getWindowHandle() const noexcept
 {
     return m_hwnd;
 }
@@ -139,18 +139,18 @@ void Win32Renderer::DisableDragAndDrop()
     DragAcceptFiles(m_hwnd, FALSE);
 }
 
-void Win32Renderer::setDragAndDropFileName(const std::string &filename)
+void Win32Renderer::setDragAndDropFileName(const std::string &filename) noexcept
 {
     m_DnDfileName = filename;
     m_dndReceived = true;
 }
 
-bool Win32Renderer::isFileDropped() const
+bool Win32Renderer::isFileDropped() const noexcept
 {
     return m_dndReceived;
 }
 
-void Win32Renderer::getDragAndDropFileName(std::string &filename)
+void Win32Renderer::getDragAndDropFileName(std::string &filename) noexcept
 {
     if (m_dndReceived)
     {

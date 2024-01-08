@@ -1,7 +1,6 @@
 #pragma once
 // Include everything needed for clients
 #include "imgui.h"
-#include "imfilebrowser.h"
 #include "implot.h"
 #include "imgui_toggle.h"
 

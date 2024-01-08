@@ -48,25 +48,25 @@ namespace MBIMGUI
              *
              * @return MBILogLevel level of the log
              */
-            MBILogLevel GetLevel() const;
+            MBILogLevel GetLevel() const noexcept;
             /**
              * @brief Get the Log level as a string
              *
              * @return const std::string level of the log
              */
-            const std::string GetLevelString() const;
+            const std::string GetLevelString() const noexcept;
             /**
              * @brief Get the Message Log object as a string
              *
              * @return const std::string& message of the log
              */
-            const std::string &GetMessageLog() const;
+            const std::string &GetMessageLog() const noexcept;
             /**
              * @brief Get the date when the log has been raised.
              *
              * @return const std::string& time as a string
              */
-            const std::string &GetTime() const;
+            const std::string &GetTime() const noexcept;
 
         private:
             MBILogLevel m_level;   ///< Level of the log

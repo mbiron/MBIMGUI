@@ -19,12 +19,12 @@ MBIMGUI::MBILogger::MBILog::MBILog(MBILogLevel level, std::string_view  msg) : m
     }
 };
 
-MBIMGUI::MBILogLevel MBIMGUI::MBILogger::MBILog::GetLevel() const
+MBIMGUI::MBILogLevel MBIMGUI::MBILogger::MBILog::GetLevel() const noexcept
 {
     return m_level;
 }
 
-const std::string MBIMGUI::MBILogger::MBILog::GetLevelString() const
+const std::string MBIMGUI::MBILogger::MBILog::GetLevelString() const noexcept
 {
     switch (m_level)
     {
@@ -40,11 +40,11 @@ const std::string MBIMGUI::MBILogger::MBILog::GetLevelString() const
     }
 }
 
-const std::string &MBIMGUI::MBILogger::MBILog::GetMessageLog() const
+const std::string &MBIMGUI::MBILogger::MBILog::GetMessageLog() const noexcept
 {
     return m_message;
 }
-const std::string &MBIMGUI::MBILogger::MBILog::GetTime() const
+const std::string &MBIMGUI::MBILogger::MBILog::GetTime() const noexcept
 {
     return m_time;
 }
