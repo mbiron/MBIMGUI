@@ -129,8 +129,6 @@ namespace MBIMGUI
 
         std::thread m_DialogThread; ///< Handle of the DialogThread
         IFileDialog *m_pfd;         ///< File dialog object
-        IFileDialogEvents *m_pfde;  ///< File dialog event handler object
-        DWORD m_dwCookie;           ///< Cookie for handler reference
 
         COMDLG_FILTERSPEC m_SaveTypes[NB_MAX_FILTERS]; ///< Filterspec object for dialog filters
     };

@@ -9,61 +9,7 @@ using namespace MBIMGUI;
 constexpr wchar_t *DESC_NONE = L"";
 constexpr wchar_t *DESC_ALL = L"All";
 
-class CDialogEventHandler : public IFileDialogEvents,
-                            public IFileDialogControlEvents
-{
-public:
-    // IUnknown methods
-    IFACEMETHODIMP QueryInterface(REFIID riid, void **ppv)
-    {
-        static const QITAB qit[] = {
-            QITABENT(CDialogEventHandler, IFileDialogEvents),
-            QITABENT(CDialogEventHandler, IFileDialogControlEvents),
-            {0},
-#pragma warning(suppress : 4838)
-        };
-        return QISearch(this, qit, riid, ppv);
-    }
-
-    IFACEMETHODIMP_(ULONG)
-    AddRef()
-    {
-        return InterlockedIncrement(&_cRef);
-    }
-
-    IFACEMETHODIMP_(ULONG)
-    Release()
-    {
-        long cRef = InterlockedDecrement(&_cRef);
-        if (!cRef)
-            delete this;
-        return cRef;
-    }
-
-    // IFileDialogEvents methods
-    IFACEMETHODIMP OnFileOk(IFileDialog *) { return S_OK; };
-    IFACEMETHODIMP OnFolderChange(IFileDialog *) { return S_OK; };
-    IFACEMETHODIMP OnFolderChanging(IFileDialog *, IShellItem *) { return S_OK; };
-    IFACEMETHODIMP OnHelp(IFileDialog *) { return S_OK; };
-    IFACEMETHODIMP OnSelectionChange(IFileDialog *) { return S_OK; };
-    IFACEMETHODIMP OnShareViolation(IFileDialog *, IShellItem *, FDE_SHAREVIOLATION_RESPONSE *) { return S_OK; };
-    IFACEMETHODIMP OnTypeChange(IFileDialog *pfd) { return S_OK; };
-    IFACEMETHODIMP OnOverwrite(IFileDialog *, IShellItem *, FDE_OVERWRITE_RESPONSE *) { return S_OK; };
-
-    // IFileDialogControlEvents methods
-    IFACEMETHODIMP OnItemSelected(IFileDialogCustomize *pfdc, DWORD dwIDCtl, DWORD dwIDItem) { return S_OK; };
-    IFACEMETHODIMP OnButtonClicked(IFileDialogCustomize *, DWORD) { return S_OK; };
-    IFACEMETHODIMP OnCheckButtonToggled(IFileDialogCustomize *, DWORD, BOOL) { return S_OK; };
-    IFACEMETHODIMP OnControlActivating(IFileDialogCustomize *, DWORD) { return S_OK; };
-
-    CDialogEventHandler() : _cRef(1){};
-
-private:
-    ~CDialogEventHandler(){};
-    long _cRef;
-};
-
-MBIFileDialog::MBIFileDialog(EFileDialog eFileDialog) : m_bOpen(false), m_bStopThread(false), m_bSelected(false), m_pfd(NULL), m_pfde(NULL)
+MBIFileDialog::MBIFileDialog(EFileDialog eFileDialog) : m_bOpen(false), m_bStopThread(false), m_bSelected(false), m_pfd(NULL)
 {
     DWORD dwFlags = 0;
     HRESULT hr = 0;
@@ -78,26 +24,16 @@ MBIFileDialog::MBIFileDialog(EFileDialog eFileDialog) : m_bOpen(false), m_bStopT
     }
     if (SUCCEEDED(hr))
     {
-        /* Create an event handling object, and hook it up to the dialog. */
-        hr = CDialogEventHandler_CreateInstance(IID_PPV_ARGS(&m_pfde));
+        /* Before setting, always get the options first in order not to override existing options. */
+        hr = m_pfd->GetOptions(&dwFlags);
         if (SUCCEEDED(hr))
         {
-            /* Hook up the event handler. */
-            hr = m_pfd->Advise(m_pfde, &m_dwCookie);
+            /* Restrict view to file system items. */
+            hr = m_pfd->SetOptions(dwFlags | FOS_FORCEFILESYSTEM);
             if (SUCCEEDED(hr))
             {
-                /* Before setting, always get the options first in order not to override existing options. */
-                hr = m_pfd->GetOptions(&dwFlags);
-                if (SUCCEEDED(hr))
-                {
-                    /* Restrict view to file system items. */
-                    hr = m_pfd->SetOptions(dwFlags | FOS_FORCEFILESYSTEM);
-                    if (SUCCEEDED(hr))
-                    {
-                        /* Start display thread */
-                        m_DialogThread = std::thread(&MBIFileDialog::DialogThread, this);
-                    }
-                }
+                /* Start display thread */
+                m_DialogThread = std::thread(&MBIFileDialog::DialogThread, this);
             }
         }
     }
@@ -111,20 +47,17 @@ MBIFileDialog::~MBIFileDialog()
     m_bStopThread = true;
     m_DialogThread.join();
 
-    // Unhook the event handler.
-    m_pfd->Unadvise(m_dwCookie);
-    m_pfde->Release();
     m_pfd->Release();
 }
 
 void MBIFileDialog::SetTypeFilters(const std::vector<std::string> &filters)
 {
-    size_t len = (filters.size() > (NB_MAX_FILTERS - 1)) ? (NB_MAX_FILTERS - 1) : filters.size();
+    uint32_t len = (filters.size() > (NB_MAX_FILTERS - 1)) ? (NB_MAX_FILTERS - 1) : ((uint32_t)filters.size());
     std::wstring allstring = L"";
 
     m_FilterExtensions.clear();
     m_FilterExtensions.reserve(NB_MAX_FILTERS);
-    for (int i = 0; i < len; i++)
+    for (uint32_t i = 0; i < len; i++)
     {
         /* Add wildcard at the beginning for file filter on filesystem */
         std::wstring wstr = L"*";
@@ -148,7 +81,7 @@ void MBIFileDialog::SetTypeFilters(const std::vector<std::string> &filters)
     }
 
     // Set the file types to display only. Notice that, this is a 1-based array.
-    HRESULT hr = m_pfd->SetFileTypes((UINT)m_FilterExtensions.size(), m_SaveTypes);
+    HRESULT hr = m_pfd->SetFileTypes(len, m_SaveTypes);
     if (SUCCEEDED(hr))
     {
         // Set the selected file type index to first given filter.
@@ -197,19 +130,6 @@ void MBIFileDialog::ClearSelected() noexcept
     m_FileName.clear();
     m_bOpen = false;
     m_bSelected = false;
-}
-
-HRESULT MBIFileDialog::CDialogEventHandler_CreateInstance(REFIID riid, void **ppv)
-{
-    *ppv = NULL;
-    CDialogEventHandler *pDialogEventHandler = new (std::nothrow) CDialogEventHandler();
-    HRESULT hr = pDialogEventHandler ? S_OK : E_OUTOFMEMORY;
-    if (SUCCEEDED(hr))
-    {
-        hr = pDialogEventHandler->QueryInterface(riid, ppv);
-        pDialogEventHandler->Release();
-    }
-    return hr;
 }
 
 void MBIFileDialog::DialogThread()
