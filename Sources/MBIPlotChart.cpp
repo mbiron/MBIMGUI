@@ -232,7 +232,7 @@ void MBIPlotChart::Display(std::string_view label, ImVec2 size)
                     {
                         if (it->m_x >= m_xAxisRange.Min)
                         {
-                            ImPlot::Annotation(it->m_x, it->m_y, ImVec4(255, 255, 255, 255), ImVec2(5, -5), false, it->getLabel());
+                            ImPlot::Annotation(it->m_x, it->m_y, ImVec4(255, 255, 255, 255), ImVec2(5, -5), false, it->GetLabel());
                         }
                         it++;
                     }
@@ -377,22 +377,22 @@ const ImPlotRange &MBIPlotChart::GetYAxisRange(const UnitId &eUnit) const
     return m_yAxesRange[axisOffset];
 }
 
-const ImPlotRange &MBIPlotChart::GetXAxisRange() const
+const ImPlotRange &MBIPlotChart::GetXAxisRange() const noexcept
 {
     return m_xAxisRange;
 }
 
-void MBIPlotChart::SetXAxisRange(const ImPlotRange &range)
+void MBIPlotChart::SetXAxisRange(const ImPlotRange &range) noexcept
 {
     m_xAxisRange = range;
 }
 
-const std::list<MBIPlotChart::Marker> &MBIPlotChart::GetMarkersList() const
+const std::list<MBIPlotChart::Marker> &MBIPlotChart::GetMarkersList() const noexcept
 {
     return m_markers;
 }
 
-std::list<MBIPlotChart::Marker> &MBIPlotChart::GetMarkersList()
+std::list<MBIPlotChart::Marker> &MBIPlotChart::GetMarkersList() noexcept
 {
     return m_markers;
 }
@@ -402,7 +402,7 @@ void MBIPlotChart::AddMarker(const Marker &marker)
     m_markers.push_back(marker);
 }
 
-void MBIPlotChart::SetDownSampling(bool bActiv, size_t size)
+void MBIPlotChart::SetDownSampling(bool bActiv, size_t size) noexcept
 {
     m_activDownSampling = bActiv;
     m_downSamplingSize = size;
@@ -449,7 +449,7 @@ bool MBIPlotChart::IsVariableOnGraph(const VarId &dataId) const
     return (m_vargaph.find(dataId) != m_vargaph.end());
 }
 
-bool MBIPlotChart::IsVariableValid(const VarId &dataId) const
+bool MBIPlotChart::IsVariableValid(const VarId &dataId) const noexcept
 {
     return (dataId != 0);
 }
@@ -520,19 +520,19 @@ MBIPlotChart::DataRender &MBIPlotChart::GetDataRenderInfos(const VarId &dataId)
     return const_cast<DataRender &>(const_cast<const MBIPlotChart *>(this)->GetDataRenderInfos(dataId));
 }
 
-bool MBIPlotChart::DataDownSampled() const
+bool MBIPlotChart::DataDownSampled() const noexcept
 {
     return m_downSampled;
 }
 
-void MBIPlotChart::SetDnDCallback(std::string_view type, MBIPlotChart::MBIDndCb callback, void *arg)
+void MBIPlotChart::SetDnDCallback(std::string_view type, MBIPlotChart::MBIDndCb callback, void *arg) noexcept
 {
     m_callback = callback;
     m_callbackArg = arg;
     m_dndType = type.data();
 }
 
-void MBIPlotChart::Reset()
+void MBIPlotChart::Reset() noexcept
 {
     m_markers.clear();
 }

@@ -116,7 +116,7 @@ void MBIFileDialog::SetPwd(const std::filesystem::path &pwd)
     HRESULT hr = SHCreateItemFromParsingName(pwd.c_str(), NULL, IID_PPV_ARGS(&pCurFolder));
     if (SUCCEEDED(hr))
     {
-        hr = m_pfd->SetDefaultFolder(pCurFolder);
+        hr = m_pfd->SetFolder(pCurFolder);
         pCurFolder->Release();
     }
     if (FAILED(hr))

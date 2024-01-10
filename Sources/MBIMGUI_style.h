@@ -1,3 +1,5 @@
+#include "imgui.h"
+
 
 /**
  * @brief Custom corporate grey (Style from [malamanteau](https://github.com/ocornut/imgui/issues/707#issuecomment-468798935) )
@@ -185,7 +187,7 @@ namespace MBIMGUI
      *
      * @param eStyle Style to be used
      */
-    inline void SetStyle(const MBIColorStyle eStyle)
+    inline void SetStyle(const MBIColorStyle eStyle) noexcept
     {
         g_currentStyle = eStyle;
         // Setup Dear ImGui style
@@ -226,7 +228,7 @@ namespace MBIMGUI
      *
      * @return MBIColorStyle current displayed style
      */
-    inline MBIColorStyle GetStyle()
+    inline MBIColorStyle GetStyle() noexcept
     {
         return g_currentStyle;
     }

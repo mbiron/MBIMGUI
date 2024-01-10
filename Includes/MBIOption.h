@@ -108,7 +108,7 @@ namespace MBIMGUI
          *
          * @param key Option key, must be unique.
          */
-        explicit MBIOption(std::string_view key)
+        explicit MBIOption(std::string_view key) noexcept
         {
             opt.first = key;
         }
@@ -118,14 +118,14 @@ namespace MBIMGUI
          * @param key Option key, must be unique.
          * @param value Option value.
          */
-        explicit MBIOption(std::string_view key, T value) : opt(key, value) {}
+        explicit MBIOption(std::string_view key, T value) noexcept : opt(key, value) {}
 
         /**
          * @brief Get the key of the option
          *
          * @return std::string_view Option key
          */
-        std::string_view getKey() const
+        std::string_view getKey() const noexcept
         {
             return opt.first;
         }
@@ -134,7 +134,7 @@ namespace MBIMGUI
          *
          * @param value New value of the option
          */
-        void setValue(T value)
+        void setValue(T value) noexcept
         {
             opt.second = value;
         }
@@ -143,7 +143,7 @@ namespace MBIMGUI
          *
          * @return T Current value of the option
          */
-        T getValue() const
+        T getValue() const noexcept
         {
             return opt.second;
         }

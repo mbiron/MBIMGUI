@@ -240,7 +240,7 @@ void MBIRealtimePlotChart::Display(double currentTimeS)
                 {
                     if (it->m_x >= m_xAxisRange.Min)
                     {
-                        ImPlot::Annotation(it->m_x, it->m_y, ImVec4(255, 255, 255, 255), ImVec2(5, -5), false, it->getLabel());
+                        ImPlot::Annotation(it->m_x, it->m_y, ImVec4(255, 255, 255, 255), ImVec2(5, -5), false, it->GetLabel());
                     }
                     it++;
                 }
@@ -324,12 +324,12 @@ void MBIRealtimePlotChart::Display(double currentTimeS)
     }
 }
 
-void MBIRealtimePlotChart::Pause(bool pause)
+void MBIRealtimePlotChart::Pause(bool pause) noexcept
 {
     m_pause = pause;
 }
 
-void MBIRealtimePlotChart::SetHistory(float history)
+void MBIRealtimePlotChart::SetHistory(float history) noexcept
 {
     m_history = history;
 }

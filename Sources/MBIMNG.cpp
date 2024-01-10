@@ -272,8 +272,7 @@ inline void MBIMGUI::MBIMNG::ShowOptionWindow(bool &openWindow)
             if (ImGui::Checkbox(ICON_FA_WINDOW_RESTORE " Popup on error", &popupOnError))
                 m_logger.Configure(popupOnError);
 
-            if (ImGui::IsItemHovered())
-                ImGui::SetTooltip("When activated, any occuring error will be displayed in a popup in addition to the log window");
+            ImGui::SetItemTooltip("When activated, any occuring error will be displayed in a popup in addition to the log window");
 
             ImGui::SameLine();
             if (ImGui::Checkbox(ICON_FA_DATABASE " Log to file", &logToFile))
@@ -291,8 +290,7 @@ inline void MBIMGUI::MBIMNG::ShowOptionWindow(bool &openWindow)
                     }
                 }
             }
-            if (ImGui::IsItemHovered())
-                ImGui::SetTooltip(std::string("When activated, all logs are written to : " + m_logger.GetLogFullFileName()).c_str());
+            ImGui::SetItemTooltip(std::string("When activated, all logs are written to : " + m_logger.GetLogFullFileName()).c_str());
 
             /* Open file dialog when user clicks this button */
             if (ImGui::Button("Choose log file"))

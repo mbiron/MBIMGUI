@@ -18,8 +18,8 @@ struct DataPoint
      * @param x x-axis data : time
      * @param y y-axis data : value
      */
-    explicit DataPoint::DataPoint(double x = 0, double y = 0) : m_time(x),
-                                                                m_data(y)
+    explicit DataPoint::DataPoint(double x = 0, double y = 0) noexcept : m_time(x),
+                                                                         m_data(y)
     {
     }
 };
@@ -36,7 +36,7 @@ struct DataAnnotation
 
     explicit DataAnnotation(double x = 0, double y = 0, uintptr_t infos = 0) : m_x(x), m_y(y), m_annotInfos(infos) {}
 
-    virtual const char *getLabel() const { return ""; };
+    virtual const char *GetLabel() const noexcept { return ""; };
 };
 
 /**
@@ -326,7 +326,7 @@ public:
      * @return true The variable id is valid
      * @return false The variable id is not valid
      */
-    bool IsVariableValid(const VarId &dataId) const;
+    bool IsVariableValid(const VarId &dataId) const noexcept;
 
     /**
      * @brief Set the Data Descriptor Handle for the given variable. This method is useful when moving a variable from another plot.
@@ -379,14 +379,14 @@ public:
      *
      * @return const std::list<Marker>& List of the markers of the graph
      */
-    const std::list<Marker> &GetMarkersList() const;
+    const std::list<Marker> &GetMarkersList() const noexcept;
 
     /**
      * @brief Get the markers list. List can be modified by the caller.
      *
      * @return std::list<Marker>& List of the markers of the graph
      */
-    std::list<Marker> &GetMarkersList();
+    std::list<Marker> &GetMarkersList() noexcept;
 
     /**
      * @brief Add the given marker on the plot
@@ -437,14 +437,14 @@ public:
      *
      * @return const ImPlotRange& Range of the axis
      */
-    const ImPlotRange &GetXAxisRange() const;
+    const ImPlotRange &GetXAxisRange() const noexcept;
 
     /**
      * @brief Set the X axis range (time)
      *
      * @param range Range of the axis
      */
-    void SetXAxisRange(const ImPlotRange &range);
+    void SetXAxisRange(const ImPlotRange &range) noexcept;
 
     /***********************************************************
      *
@@ -459,7 +459,7 @@ public:
      *               False : Downsampling is disable.
      * @param size Size of the downsampling window (number of samples)
      */
-    void SetDownSampling(bool bActiv, size_t size);
+    void SetDownSampling(bool bActiv, size_t size) noexcept;
 
     /**
      * @brief Are data currently downsampled on the graph. Downsampling is activated if number of points to be displayed is greater than down sampling window.
@@ -467,7 +467,7 @@ public:
      * @return true Data are downsampled
      * @return false Data are not downsampled
      */
-    bool DataDownSampled() const;
+    bool DataDownSampled() const noexcept;
 
     /***********************************************************
      *
@@ -481,7 +481,7 @@ public:
      * @param type Label of the type of data to receive (used by SetDragDropPayload)
      * @param callback Function to be called when data are dropped
      */
-    void SetDnDCallback(std::string_view type, MBIPlotChart::MBIDndCb callback, void *arg);
+    void SetDnDCallback(std::string_view type, MBIPlotChart::MBIDndCb callback, void *arg) noexcept;
 
     /***********************************************************
      *
@@ -496,7 +496,11 @@ public:
      */
     virtual void Display(std::string_view label, ImVec2 size);
 
-    void Reset();
+    /**
+     * @brief Reset plot removing marker.
+     *
+     */
+    void Reset() noexcept;
 
 protected:
     ImAxis GetYAxisOffset(const UnitId &eUnit) const;

@@ -76,14 +76,14 @@ public:
      * @param pause True : The plot is paused.
      *              False : The plot is running
      */
-    void Pause(bool pause);
+    void Pause(bool pause) noexcept;
 
     /**
      * @brief Set the history depth
      *
      * @param history History depth in seconds
      */
-    void SetHistory(float history);
+    void SetHistory(float history) noexcept;
 
     /**
      * @brief Main function displaying the plot.

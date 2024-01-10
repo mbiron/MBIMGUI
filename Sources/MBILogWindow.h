@@ -28,7 +28,7 @@ namespace MBIMGUI
          * @param name Name of the window, will be displayed at the top
          * @param eMode Mode of the window, see @ref LOGWINDOW_MODE
          */
-        explicit MBILogWindow(std::string_view name, LOGWINDOW_MODE eMode) : MBIWindow(name, 0, 0, MBIWindowConfig_hideableInMenu), m_mode(eMode)
+        explicit MBILogWindow(std::string_view name, LOGWINDOW_MODE eMode) noexcept : MBIWindow(name, 0, 0, MBIWindowConfig_hideableInMenu), m_mode(eMode)
         {
             if (m_mode == MODE_BAR)
             {
@@ -137,7 +137,7 @@ namespace MBIMGUI
          * @param eLevel Level of the log
          * @return const ImVec4 Color corresponding to the log level
          */
-        const ImVec4 inline GetLevelColor(MBILogLevel eLevel) const
+        const ImVec4 inline GetLevelColor(MBILogLevel eLevel) const noexcept
         {
             switch (eLevel)
             {
