@@ -232,7 +232,7 @@ void MBIPlotChart::Display(std::string_view label, ImVec2 size)
                     {
                         if (it->m_x >= m_xAxisRange.Min)
                         {
-                            ImPlot::Annotation(it->m_x, it->m_y, ImVec4(255, 255, 255, 255), ImVec2(5, -5), false, it->GetLabel());
+                            ImPlot::Annotation(it->m_x, it->m_y, it->GetColor(), ImVec2(5, -5), false, it->GetLabel());
                         }
                         it++;
                     }

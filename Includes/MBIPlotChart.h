@@ -25,7 +25,8 @@ struct DataPoint
 };
 
 /**
- * @brief Struct describing an annotation displayed on a graph.
+ * @brief Struct describing an annotation displayed on a graph. You shall derived this class and implement
+ * DataAnnotation::GetLabel to create your own specific annotation on the graph.
  *
  */
 struct DataAnnotation
@@ -34,9 +35,28 @@ struct DataAnnotation
     double m_y;             ///< Data value
     uintptr_t m_annotInfos; ///< User specific data
 
+    /**
+     * @brief Construct a new Data Annotation object
+     *
+     * @param x X-Axis annotation position
+     * @param y Y-Axis annotation position
+     * @param infos User specific info. You can set and use this to store specifc annotation data.
+     */
     explicit DataAnnotation(double x = 0, double y = 0, uintptr_t infos = 0) : m_x(x), m_y(y), m_annotInfos(infos) {}
 
+    /**
+     * @brief This method is called on each annotation displayed on the graph. Override it to defined your own annotation on graph.
+     *
+     * @return const char* Annotation
+     */
     virtual const char *GetLabel() const noexcept { return ""; };
+    /**
+     * @brief This method is called on each annotation displayed on the graph. Override it to defined your own annotation on graph.
+     * Otherwise, the default color is white.
+     * 
+     * @return const ImVec4 Color of the annotation
+     */
+    virtual const ImVec4 GetColor() const noexcept { return ImVec4(1.0f, 1.0f, 1.0f, 1.0f); };
 };
 
 /**

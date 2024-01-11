@@ -223,7 +223,6 @@ void MBIRealtimePlotChart::Display(double currentTimeS)
             {
                 const DataContainer &datapoints = (*dataRenderInfos.data);
                 // WARNING: PlotLine using stride requires contiguous data storage type. This is not the case of the MBICircularBuffer, so we have to use DataGetter
-                //ImPlot::PlotLine(dataRenderInfos.descriptor.name.c_str(), &datapoints[dataOffset].m_time, &datapoints[dataOffset].m_data, dataSize, ImPlotLineFlags_None, 0, 2 * sizeof(double));
                 ImPlot::PlotLineG(dataRenderInfos.descriptor.name.c_str(), DataGetter, (void *)&dataRenderInfos, (int)dataSize);
 
                 if (dataRenderInfos.descriptor.bHidden == false)
@@ -240,7 +239,7 @@ void MBIRealtimePlotChart::Display(double currentTimeS)
                 {
                     if (it->m_x >= m_xAxisRange.Min)
                     {
-                        ImPlot::Annotation(it->m_x, it->m_y, ImVec4(255, 255, 255, 255), ImVec2(5, -5), false, it->GetLabel());
+                        ImPlot::Annotation(it->m_x, it->m_y, it->GetColor(), ImVec2(5, -5), false, it->GetLabel());
                     }
                     it++;
                 }
