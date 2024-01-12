@@ -230,7 +230,7 @@ inline void MBIMGUI::MBIMNG::ShowAboutWindow(bool *openWindow) const
     }
     else
     {
-        ImGui::Begin(ICON_FA_INFO_CIRCLE " About MBIMGUI", openWindow, ImGuiWindowFlags_AlwaysAutoResize);
+        ImGui::Begin(ICON_FA_CIRCLE_INFO " About MBIMGUI", openWindow, ImGuiWindowFlags_AlwaysAutoResize);
     }
 
     if ((*openWindow) == true)
@@ -239,7 +239,7 @@ inline void MBIMGUI::MBIMNG::ShowAboutWindow(bool *openWindow) const
         ImGui::Text("Build - %s %s", __DATE__, __TIME__);
         ImGui::Text("MBIMGUI is a simple overlay above ImGui and ImPlot frameworks.");
 
-        if (ImGui::Button(ICON_FA_QUESTION_CIRCLE " Show ImGui Infos"))
+        if (ImGui::Button(ICON_FA_CIRCLE_QUESTION " Show ImGui Infos"))
             bShowAboutImGui = true;
 
         if (bShowAboutImGui)
@@ -266,9 +266,9 @@ inline void MBIMGUI::MBIMNG::ShowOptionWindow(bool &openWindow)
             }
         }
 
-        if (ImGui::BeginTabItem(ICON_FA_PAINT_BRUSH " Logs & Style"))
+        if (ImGui::BeginTabItem(ICON_FA_PAINTBRUSH " Logs & Style"))
         {
-            ImGui::SeparatorText(ICON_FA_FILE_ARCHIVE " Logs configuration");
+            ImGui::SeparatorText(ICON_FA_FILE_ZIPPER " Logs configuration");
             if (ImGui::Checkbox(ICON_FA_WINDOW_RESTORE " Popup on error", &popupOnError))
                 m_logger.Configure(popupOnError);
 
@@ -515,7 +515,7 @@ void MBIMGUI::MBIMNG::Show()
                 }
                 if (ImGui::BeginMenu("View"))
                 {
-                    bResetDockspace = ImGui::MenuItem(ICON_FA_ARROW_CIRCLE_LEFT " Reset to default layout");
+                    bResetDockspace = ImGui::MenuItem(ICON_FA_ROTATE_LEFT " Reset to default layout");
                     ImGui::Separator();
                     ImGui::SeparatorText("Windows");
                     // Set windows in menu file
@@ -541,7 +541,7 @@ void MBIMGUI::MBIMNG::Show()
                 }
                 if (ImGui::BeginMenu("Help"))
                 {
-                    ImGui::MenuItem(ICON_FA_QUESTION_CIRCLE " About", NULL, &bShowAbout);
+                    ImGui::MenuItem(ICON_FA_CIRCLE_QUESTION " About", NULL, &bShowAbout);
                     ImGui::MenuItem(ICON_FA_CHART_LINE " Graph user guide", NULL, &bShowGraphHelp);
                     ImGui::EndMenu();
                 }
