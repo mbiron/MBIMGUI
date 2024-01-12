@@ -32,19 +32,19 @@ void MBIPlotChart::ComputeDataWindow(DataRender &dataRenderInfos, size_t &dataSi
         /* Depending on the case */
         if (dataBegin > m_xAxisRange.Max || dataEnd < m_xAxisRange.Min)
         {
-            /* CASE 1 : All data are outside the graph window --> Don't draw anything */
+            /* CASE 1 ([]start;end): All data are outside the graph window --> Don't draw anything */
             dataOffset = 0;
             dataSize = 0;
         }
         else if (dataBegin >= m_xAxisRange.Min && dataEnd <= m_xAxisRange.Max)
         {
-            /* CASE 2 : All data are within the graph window, draw everything */
+            /* CASE 2 ([start;end]): All data are within the graph window, draw everything */
             dataOffset = 0;
             dataSize = dataRenderInfos.data->size();
         }
         else if (dataBegin >= m_xAxisRange.Min)
         {
-            /* CASE 3: First data point is within the graph, last data point is outer right */
+            /* CASE 3 ([start;]end): First data point is within the graph, last data point is outer right */
             /* Draw from start */
             dataOffset = 0;
             /* Compute remaining size */
@@ -54,7 +54,7 @@ void MBIPlotChart::ComputeDataWindow(DataRender &dataRenderInfos, size_t &dataSi
         }
         else if (dataEnd <= m_xAxisRange.Max)
         {
-            /* CASE 4 : First data point is outer left of the graph and last point is within the graph */
+            /* CASE 4 (start[;end]): First data point is outer left of the graph and last point is within the graph */
             /* Compute first point offset */
             dataOffset = ((uint32_t)((m_xAxisRange.Min - dataBegin) * 1000.0)) / dataRenderInfos.dataPeriodMs;
             /* Draw till last point */
@@ -73,7 +73,7 @@ void MBIPlotChart::ComputeDataWindow(DataRender &dataRenderInfos, size_t &dataSi
         }
         else
         {
-            /* CASE 5 : Both points are out, we draw a slice of data */
+            /* CASE 5 (start[;]end): Both points are out, we draw a slice of data */
             /* Compute first point offset */
             dataOffset = ((uint32_t)((m_xAxisRange.Min - dataBegin) * 1000.0)) / dataRenderInfos.dataPeriodMs;
             /* Compute remaining size */
@@ -104,7 +104,6 @@ void MBIPlotChart::ComputeDataWindow(DataRender &dataRenderInfos, size_t &dataSi
         {
             dataSize = dataRenderInfos.data->size() - dataOffset;
         }
-        /* ************************************************************* */
     }
 }
 
@@ -127,7 +126,7 @@ void MBIPlotChart::Display(std::string_view label, ImVec2 size)
 
         /* Set x-axis */
         ImPlot::SetupAxis(ImAxis_X1, "Time");
-        ImPlot::SetupAxisScale(ImAxis_X1, ImPlotScale_Time);
+        ImPlot::SetupAxisScale(ImAxis_X1, m_xAxisScale);
 
         /* If data available */
         /* Setup axes */
@@ -183,8 +182,6 @@ void MBIPlotChart::Display(std::string_view label, ImVec2 size)
             DataRender &dataRenderInfos = GetDataRenderInfos(varId);
             if (dataRenderInfos.data->empty() == false)
             {
-                /* If data is shown */
-
                 /* If data has just been moved, force visibility */
                 if (dataRenderInfos.descriptor.bMoved)
                 {
@@ -194,15 +191,19 @@ void MBIPlotChart::Display(std::string_view label, ImVec2 size)
                 /* Set y-axis and plot line color */
                 ImPlot::SetAxis(dataRenderInfos.descriptor.axis);
                 ImPlot::SetNextLineStyle(dataRenderInfos.descriptor.color);
-#if OPTI
-                /* Try to optimize large amount of data */
-                ComputeDataWindow(dataRenderInfos, dataSize, dataOffset);
-#else
-                /* Draw full data range */
-                dataSize = dataRenderInfos.data->size();
-                dataOffset = 0;
-#endif
-                dataRenderInfos.dataOffset = dataOffset;
+
+                /* With periodic data, we can try window optimisation */
+                if (dataRenderInfos.dataPeriodMs != 0)
+                {
+                    /* Try to optimize large amount of data */
+                    ComputeDataWindow(dataRenderInfos, dataSize, dataOffset);
+                }
+                else
+                {
+                    /* Draw full data range */
+                    dataSize = dataRenderInfos.data->size();
+                    dataOffset = 0;
+                }
                 /* Draw line even if data are hidden because PlotLine draws legend */
                 if (dataSize > m_downSamplingSize && m_activDownSampling == true)
                 {
@@ -216,8 +217,9 @@ void MBIPlotChart::Display(std::string_view label, ImVec2 size)
                 }
                 else
                 {
+                    /* No downsampling, simply window optimisation  */
                     const DataContainer &datapoints = (*dataRenderInfos.data);
-                    ImPlot::PlotLine(dataRenderInfos.descriptor.name.c_str(), &datapoints[0].m_time, &datapoints[0].m_data, dataSize, ImPlotLineFlags_None, 0, 2 * sizeof(double));
+                    ImPlot::PlotLine(dataRenderInfos.descriptor.name.c_str(), &datapoints[dataOffset].m_time, &datapoints[dataOffset].m_data, dataSize, ImPlotLineFlags_None, 0, 2 * sizeof(double));
                     if (dataRenderInfos.descriptor.bHidden == false)
                     {
                         m_downSampled = false;
@@ -270,10 +272,11 @@ void MBIPlotChart::Display(std::string_view label, ImVec2 size)
             }
             else
             {
+                /* Simply update axes ranges */
                 m_xAxisRange = plotLimits.X;
                 m_yAxesRange[axisOffset] = plotLimits.Y;
             }
-
+            /* Display markers for this unit axis */
             DisplayMarkers(dataRenderInfos.descriptor.unit.first);
         }
 
@@ -537,11 +540,12 @@ void MBIPlotChart::Reset() noexcept
     m_markers.clear();
 }
 
-MBIPlotChart::MBIPlotChart() : m_downSampled(false),
-                               m_dsUpdate(true),
-                               m_activDownSampling(false),
-                               m_callback(nullptr),
-                               m_xAxisRange{-10.0, 10.0}
+MBIPlotChart::MBIPlotChart(ImPlotScale xAxisScale) : m_downSampled(false),
+                                                     m_dsUpdate(true),
+                                                     m_activDownSampling(false),
+                                                     m_callback(nullptr),
+                                                     m_xAxisRange{-10.0, 10.0},
+                                                     m_xAxisScale(xAxisScale)
 {
     /* Create default invalid data descriptor */
     DataRender *dataRender = new DataRender(nullptr, false);
@@ -583,7 +587,6 @@ inline void MBIPlotChart::DisplayMarkers(UnitId unit)
                     if (strlen(marker.m_label) > 0)
                     {
                         ImPlot::Annotation(0, marker.m_value, marker.m_color, ImVec2(0, 0), !marker.m_bstatic, marker.m_label);
-                        // TODO try tooltip
                     }
                 }
             }

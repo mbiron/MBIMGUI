@@ -64,18 +64,9 @@ namespace MBIMGUI
         g_optionMap[key.data()] = val;
     }
 
-    const std::string &MBIOPTMGR::ReadOption(std::string_view key)
+    const std::string &MBIOPTMGR::ReadOption(std::string_view key) 
     {
-        // TODO : Find a better error management...
-        static const std::string emptyStr = "";
-        if (g_optionMap.find(key.data()) == g_optionMap.end())
-        {
-            return emptyStr;
-        }
-        else
-        {
-            return g_optionMap.at(key.data());
-        }
+        return g_optionMap.at(key.data());
     }
 }
 

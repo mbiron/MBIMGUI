@@ -30,7 +30,7 @@ public:
      *
      * @param data Object to add
      */
-    void push(T data) noexcept override
+    void push(const T &data) noexcept override
     {
         WriteLock w_lock(m_mut);
         MBICircularBuffer::push(data);
@@ -87,7 +87,7 @@ public:
      *
      * @return T
      */
-    const T first() const noexcept override
+    const T &first() const override
     {
         ReadLock r_lock(m_mut);
         return MBICircularBuffer::first();
@@ -98,7 +98,7 @@ public:
      *
      * @return T
      */
-    const T last() const noexcept override
+    const T &last() const override
     {
         ReadLock r_lock(m_mut);
         return MBICircularBuffer::last();

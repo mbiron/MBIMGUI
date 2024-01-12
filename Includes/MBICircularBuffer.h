@@ -193,7 +193,7 @@ public:
          *
          * @param other
          * @return MBICircularIterator&
-         */        
+         */
         MBIConstCircularIterator &operator=(const MBIConstCircularIterator &other)
         {
             if (this != &other && this->m_circbuff.m_buff == other.m_circbuff.m_buff) // not a self-assignment
@@ -309,10 +309,10 @@ public:
      * @param capacity capacity of the buffer to be constructed.
      */
     explicit MBICircularBuffer(size_t capacity = 100) noexcept : m_capacity(capacity),
-                                            m_buff(std::unique_ptr<T[]>(new T[capacity + 1])),
-                                            m_begin(0),
-                                            m_end(0),
-                                            m_full(false)
+                                                                 m_buff(std::unique_ptr<T[]>(new T[capacity + 1])),
+                                                                 m_begin(0),
+                                                                 m_end(0),
+                                                                 m_full(false)
     {
     }
 
@@ -344,7 +344,7 @@ public:
      *
      * @param data Object to add
      */
-    virtual void push(T data) noexcept
+    virtual void push(const T &data) noexcept
     {
         m_buff[m_end] = data;
 
@@ -409,10 +409,10 @@ public:
      *
      * @return T Last object inserted into the buffer
      */
-    virtual const T last() const noexcept
+    virtual const T &last() const
     {
         if (empty())
-            return T();
+            throw std::out_of_range("Buffer is empty");
         return m_buff[m_end - 1];
     }
 
@@ -421,10 +421,10 @@ public:
      *
      * @return T Last object inserted into the buffer
      */
-    T last() noexcept
+    T &last()
     {
         if (empty())
-            return T();
+            throw std::out_of_range("Buffer is empty");
         return m_buff[m_end - 1];
     }
 
@@ -433,10 +433,10 @@ public:
      *
      * @return T Oldest object inserted into the buffer
      */
-    virtual const T first() const noexcept
+    virtual const T &first() const
     {
         if (empty())
-            return T();
+            throw std::out_of_range("Buffer is empty");
         return m_buff[m_begin];
     }
 
@@ -445,10 +445,10 @@ public:
      *
      * @return T Oldest object inserted into the buffer
      */
-    T first() noexcept
+    T &first()
     {
         if (empty())
-            return T();
+            throw std::out_of_range("Buffer is empty");
         return m_buff[m_begin];
     }
 

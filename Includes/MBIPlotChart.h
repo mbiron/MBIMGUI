@@ -53,7 +53,7 @@ struct DataAnnotation
     /**
      * @brief This method is called on each annotation displayed on the graph. Override it to defined your own annotation on graph.
      * Otherwise, the default color is white.
-     * 
+     *
      * @return const ImVec4 Color of the annotation
      */
     virtual const ImVec4 GetColor() const noexcept { return ImVec4(1.0f, 1.0f, 1.0f, 1.0f); };
@@ -291,7 +291,7 @@ public:
      * @brief Construct a new MBIPlotChart object
      *
      */
-    explicit MBIPlotChart();
+    explicit MBIPlotChart(ImPlotScale xAxisScale = ImPlotScale_Linear);
 
     /**
      * @brief Destroy the MBIPlotChart object
@@ -512,7 +512,8 @@ public:
     /**
      * @brief Main function displaying the plot.
      *
-     * @param currentTimeS Current time in seconds
+     * @param label Title of the plot, must be unique.
+     * @param size Size of the plot area.
      */
     virtual void Display(std::string_view label, ImVec2 size);
 
@@ -531,6 +532,7 @@ protected:
     bool m_activDownSampling;  ///< Is downsampling activated
     size_t m_downSamplingSize; ///< Downsampling size
 
+    ImPlotScale m_xAxisScale;    ///< Type of X-axis
     ImPlotRange m_xAxisRange;    ///< X-axis range
     ImPlotRange m_yAxesRange[3]; ///< Y-axis range
 
