@@ -104,8 +104,8 @@ namespace MBIMGUI
         MBIWindow *m_aboutWindow;                            ///< About window of the app
 
         std::vector<MBIWindow *> m_optionsTabs; ///< Option windows of the app. Will be shown as tab inside the option window in File-->Options
-        MBIFileDialog m_logFileDialog;///< File browser displayed when setting logfile in option menu
-        MBIFileDialog m_openFileDialog; ///< File browser displayed when oppening file in File menu
+        MBIFileDialog m_logFileDialog;          ///< File browser displayed when setting logfile in option menu
+        MBIFileDialog m_openFileDialog;         ///< File browser displayed when oppening file in File menu
         MBIOpenFileHandler m_openFileHandler;
         bool m_dndActiv;
 
@@ -217,7 +217,15 @@ namespace MBIMGUI
     template <typename T>
     bool LoadOption(MBIMGUI::MBIOption<T> &opt)
     {
-        std::string_view str = MBIOPTMGR::ReadOption(opt.getKey());
+        std::string_view str;
+        try
+        {
+            str = MBIOPTMGR::ReadOption(opt.getKey());
+        }
+        catch (std::out_of_range)
+        {
+            /* No option, return false */
+        }
         if (str.empty())
         {
             return false;

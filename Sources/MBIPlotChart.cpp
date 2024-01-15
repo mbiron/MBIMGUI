@@ -574,7 +574,7 @@ inline void MBIPlotChart::DisplayMarkers(UnitId unit)
                 if (unit == UNIT_TIME_X_AXIS)
                 {
                     ImPlot::DragLineX(marker.m_id, (double *)&marker.m_value, marker.m_color, marker.m_thickness, flags);
-                    if (strlen(marker.m_label) > 0)
+                    if (marker.m_label[0] != '\0')
                     {
                         auto range = GetYAxisRange(UNIT_USER_MIN);
                         // TODO : Set current highest point of the current y axis or try px_offset ?
@@ -584,7 +584,7 @@ inline void MBIPlotChart::DisplayMarkers(UnitId unit)
                 else
                 {
                     ImPlot::DragLineY(marker.m_id, (double *)&marker.m_value, marker.m_color, marker.m_thickness, flags);
-                    if (strlen(marker.m_label) > 0)
+                     if (marker.m_label[0] != '\0')
                     {
                         ImPlot::Annotation(0, marker.m_value, marker.m_color, ImVec2(0, 0), !marker.m_bstatic, marker.m_label);
                     }

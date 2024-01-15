@@ -233,6 +233,7 @@ public:
     static constexpr UnitId UNIT_USER_MAX = ((UnitId)99);           ///< End of the user-defined units. Use this as an enum start value
     static constexpr UnitId UNIT_TIME_X_AXIS = ((UnitId)100);       ///< Useful for vertical markers
     static constexpr char *DND_LABEL_FROM_GRAPH = "ParamFromGraph"; ///< For graph to graph DND
+    static constexpr uint32_t MARKER_LABEL_SIZE = 40;               ///< Marker label maximum length
 
     /**
      * @brief Class defining a marker to be drawn on graph
@@ -240,14 +241,14 @@ public:
      */
     struct Marker
     {
-        int m_id;          ///< Unique marker Id
-        bool m_bvisible;   ///< Is the marker visible
-        bool m_bstatic;    ///< Is the marker moveable by user
-        double m_value;    ///< Value of the marker
-        ImVec4 m_color;    ///< Color of the marker
-        float m_thickness; ///< Thickness of the marker
-        char m_label[100]; ///< Label of the marker
-        UnitId m_unit;     ///< Marker axis
+        int m_id;                        ///< Unique marker Id
+        bool m_bvisible;                 ///< Is the marker visible
+        bool m_bstatic;                  ///< Is the marker moveable by user
+        double m_value;                  ///< Value of the marker
+        ImVec4 m_color;                  ///< Color of the marker
+        float m_thickness;               ///< Thickness of the marker
+        char m_label[MARKER_LABEL_SIZE]; ///< Label of the marker
+        UnitId m_unit;                   ///< Marker axis
 
         /**
          * @brief Construct a new Marker object
@@ -255,7 +256,7 @@ public:
          * @param id Must be unique ! Two markers can't have the same Id.
          * @param value Value of the marker
          */
-        explicit Marker(int id = 0, float value = 0.0f)
+        explicit Marker(int id = 0, double value = 0.0) noexcept
             : m_id(id),
               m_value(value),
               m_bvisible(true),
@@ -265,6 +266,17 @@ public:
               m_label(""),
               m_unit(UNIT_NONE)
         {
+        }
+
+        void SetLabel(const char *szLabel)
+        {
+            if (szLabel)
+                strncpy_s(m_label, szLabel, MARKER_LABEL_SIZE);
+        }
+
+        void SetLabel(std::string_view szLabel)
+        {
+            strncpy_s(m_label, szLabel.data(), MARKER_LABEL_SIZE);
         }
 
         /**

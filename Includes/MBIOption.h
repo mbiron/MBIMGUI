@@ -83,6 +83,7 @@ namespace MBIMGUI
          *
          * @param key Key of the option
          * @return const std::string& Value of the option as a string
+         * @throw std::out_of_range if option doesn't exist
          */
         const std::string &ReadOption(std::string_view key);
     };
