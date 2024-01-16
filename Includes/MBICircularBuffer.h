@@ -360,7 +360,7 @@ public:
      * @brief Empty and reset the buffer
      *
      */
-    void reset() noexcept
+    virtual void reset() noexcept
     {
         m_begin = 0;
         m_end = 0;

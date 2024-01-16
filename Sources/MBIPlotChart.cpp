@@ -30,7 +30,13 @@ void MBIPlotChart::ComputeDataWindow(DataRender &dataRenderInfos, size_t &dataSi
         const double dataEnd = dataRenderInfos.data->back().m_time;
 
         /* Depending on the case */
-        if (dataBegin > m_xAxisRange.Max || dataEnd < m_xAxisRange.Min)
+        if (dataBegin > dataEnd)
+        {
+            /* CASE 0 (end;start): Invalid case : rollover. Should never occurs : draw everything */
+            dataOffset = 0;
+            dataSize = dataRenderInfos.data->size();
+        }
+        else if (dataBegin > m_xAxisRange.Max || dataEnd < m_xAxisRange.Min)
         {
             /* CASE 1 ([]start;end): All data are outside the graph window --> Don't draw anything */
             dataOffset = 0;
@@ -537,6 +543,8 @@ void MBIPlotChart::SetDnDCallback(std::string_view type, MBIPlotChart::MBIDndCb 
 
 void MBIPlotChart::Reset() noexcept
 {
+    for (auto it : m_varData)
+        it.second->Clear();
     m_markers.clear();
 }
 
@@ -584,7 +592,7 @@ inline void MBIPlotChart::DisplayMarkers(UnitId unit)
                 else
                 {
                     ImPlot::DragLineY(marker.m_id, (double *)&marker.m_value, marker.m_color, marker.m_thickness, flags);
-                     if (marker.m_label[0] != '\0')
+                    if (marker.m_label[0] != '\0')
                     {
                         ImPlot::Annotation(0, marker.m_value, marker.m_color, ImVec2(0, 0), !marker.m_bstatic, marker.m_label);
                     }

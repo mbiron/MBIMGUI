@@ -30,21 +30,27 @@ inline void MBIRealtimePlotChart::ComputeDataWindow(DataRender &dataRenderInfos,
         const double dataEnd = dataRenderInfos.data->last().m_time;
 
         /* Depending on the case */
-        if (dataBegin > m_xAxisRange.Max || dataEnd < m_xAxisRange.Min)
+        if (dataBegin > dataEnd)
         {
-            /* CASE 1 : All data are outside the graph window --> Don't draw anything */
+            /* CASE 0 (end;start): Invalid case : rollover. Should never occurs : draw everything */
+            dataOffset = 0;
+            dataSize = dataRenderInfos.data->size();
+        }
+        else if (dataBegin > m_xAxisRange.Max || dataEnd < m_xAxisRange.Min)
+        {
+            /* CASE 1 ([]start;end): All data are outside the graph window --> Don't draw anything */
             dataOffset = 0;
             dataSize = 0;
         }
         else if (dataBegin >= m_xAxisRange.Min && dataEnd <= m_xAxisRange.Max)
         {
-            /* CASE 2 : All data are within the graph window, draw everything */
+            /* CASE 2 ([start;end]): All data are within the graph window, draw everything */
             dataOffset = 0;
             dataSize = dataRenderInfos.data->size();
         }
         else if (dataBegin >= m_xAxisRange.Min)
         {
-            /* CASE 3: First data point is within the graph, last data point is outer right */
+            /* CASE 3 ([start;]end): First data point is within the graph, last data point is outer right */
             /* Draw from start */
             dataOffset = 0;
             /* Compute remaining size */
@@ -54,7 +60,7 @@ inline void MBIRealtimePlotChart::ComputeDataWindow(DataRender &dataRenderInfos,
         }
         else if (dataEnd <= m_xAxisRange.Max)
         {
-            /* CASE 4 : First data point is outer left of the graph and last point is within the graph */
+            /* CASE 4 (start[;end]): First data point is outer left of the graph and last point is within the graph */
             /* Compute first point offset */
             dataOffset = ((uint32_t)((m_xAxisRange.Min - dataBegin) * 1000.0)) / dataRenderInfos.dataPeriodMs;
             /* Draw till last point */
@@ -73,7 +79,7 @@ inline void MBIRealtimePlotChart::ComputeDataWindow(DataRender &dataRenderInfos,
         }
         else
         {
-            /* CASE 5 : Both points are out, we draw a slice of data */
+            /* CASE 5 (start[;]end): Both points are out, we draw a slice of data */
             /* Compute first point offset */
             dataOffset = ((uint32_t)((m_xAxisRange.Min - dataBegin) * 1000.0)) / dataRenderInfos.dataPeriodMs;
             /* Compute remaining size */

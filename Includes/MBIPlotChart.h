@@ -131,6 +131,13 @@ public:
     {
     }
 
+    void Clear() noexcept
+    {
+        dsData.clear();
+        dataOffset = 0;
+        dataPeriodMs = 0;
+    }
+
     /**
      * @brief Apply LTTB down sampling algorithm to data and store result sampled data in dsData.
      * Taken from https://github.com/epezent/implot/pull/389/commits/cf3e4a76bd8fea7dd067e2acd591d2365edb3c0d

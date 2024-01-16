@@ -35,6 +35,15 @@ public:
         WriteLock w_lock(m_mut);
         MBICircularBuffer::push(data);
     }
+    /**
+     * @brief Empty and reset the buffer
+     *
+     */
+    void reset() noexcept override
+    {
+        WriteLock w_lock(m_mut);
+        MBICircularBuffer::reset();
+    }
 
     /**
      * @brief Retreive and remove the oldest object inserted into the buffer
