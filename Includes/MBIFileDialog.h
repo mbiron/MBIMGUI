@@ -3,6 +3,7 @@
 #include <shlobj.h>
 #include <vector>
 #include <thread>
+#include <condition_variable>
 #include <string>
 #include <filesystem>
 
@@ -51,10 +52,7 @@ namespace MBIMGUI
          * @brief Open the file dialog
          *
          */
-        inline void Open() noexcept
-        {
-            m_bOpen = true;
-        }
+        void Open() noexcept;
         /**
          * @brief Indicate if user has selected a file (file selection and "Open" or "Save" dialog button has been clicked)
          *
@@ -127,6 +125,8 @@ namespace MBIMGUI
         std::filesystem::path m_FileName;             ///< Path to the file choose by user
         std::vector<std::wstring> m_FilterExtensions; ///< List of file filters in wstring format
 
+        std::mutex m_mutex;           ///< Mutex for condition variable
+        std::condition_variable m_cv; ///< Condition variable for thread sync
         std::thread m_DialogThread; ///< Handle of the DialogThread
         IFileDialog *m_pfd;         ///< File dialog object
 

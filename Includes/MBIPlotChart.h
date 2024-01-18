@@ -350,13 +350,22 @@ public:
     bool RemoveVariable(const VarId &dataId);
 
     /**
-     * @brief Detects if the given variable is on the plot
+     * @brief Detects if the given variable is actually on the plot
      *
      * @param dataId  Identifier of the variable
      * @return true If the variable is on the plot
      * @return false If the variable is not on the plot
      */
     bool IsVariableOnGraph(const VarId &dataId) const;
+
+    /**
+     * @brief Detects if the given variable has been hidden by user (by clicking on legend for instance)
+     *
+     * @param dataId  Identifier of the variable
+     * @return true If the variable is visible on the plot
+     * @return false If the variable is not visible on the plot
+     */
+    bool IsVariableVisible(const VarId &dataId) const;
 
     /**
      * @brief Verify if the given variable identifier is valid and can be used for this plot.

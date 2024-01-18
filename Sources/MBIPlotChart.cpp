@@ -458,6 +458,11 @@ bool MBIPlotChart::IsVariableOnGraph(const VarId &dataId) const
     return (m_vargaph.find(dataId) != m_vargaph.end());
 }
 
+bool MBIPlotChart::IsVariableVisible(const VarId &dataId) const
+{
+    return !(GetDataDescriptor(dataId).bHidden);
+}
+
 bool MBIPlotChart::IsVariableValid(const VarId &dataId) const noexcept
 {
     return (dataId != 0);
@@ -483,7 +488,8 @@ MBIPlotChart::DataDescriptorHandle MBIPlotChart::GetDataDescriptorHandle(const V
     else
     {
         /* Return invalid data */
-        return (m_varData.find(0xFFFFFFFF)->second);
+        //return (m_varData.find(0xFFFFFFFF)->second);
+        throw std::out_of_range("Invalid VarId");
     }
 }
 
@@ -498,7 +504,8 @@ const DataDescriptor &MBIPlotChart::GetDataDescriptor(const VarId &dataId) const
     else
     {
         /* Return invalid data */
-        return m_varData.find(0xFFFFFFFF)->second->descriptor;
+        //return m_varData.find(0xFFFFFFFF)->second->descriptor;
+        throw std::out_of_range("Invalid VarId");
     }
 }
 
@@ -519,7 +526,8 @@ const MBIPlotChart::DataRender &MBIPlotChart::GetDataRenderInfos(const VarId &da
     else
     {
         /* Return invalid data */
-        return *(m_varData.find(0xFFFFFFFF)->second);
+        //return *(m_varData.find(0xFFFFFFFF)->second);
+        throw std::out_of_range("Invalid VarId");
     }
 }
 
@@ -555,11 +563,6 @@ MBIPlotChart::MBIPlotChart(ImPlotScale xAxisScale) : m_downSampled(false),
                                                      m_xAxisRange{-10.0, 10.0},
                                                      m_xAxisScale(xAxisScale)
 {
-    /* Create default invalid data descriptor */
-    DataRender *dataRender = new DataRender(nullptr, false);
-    dataRender->dataPeriodMs = 0;
-    m_varData[0xFFFFFFFF] = dataRender;
-
     /* Set default Y axis Range */
     m_yAxesRange[0] = ImPlotRange(0.0, 1.0);
 }

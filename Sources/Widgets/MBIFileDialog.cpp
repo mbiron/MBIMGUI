@@ -45,8 +45,8 @@ MBIFileDialog::MBIFileDialog(EFileDialog eFileDialog) : m_bOpen(false), m_bStopT
 MBIFileDialog::~MBIFileDialog()
 {
     m_bStopThread = true;
+    m_cv.notify_all();
     m_DialogThread.join();
-
     m_pfd->Release();
 }
 
@@ -132,11 +132,20 @@ void MBIFileDialog::ClearSelected() noexcept
     m_bSelected = false;
 }
 
+void MBIFileDialog::Open() noexcept
+{
+    m_bOpen = true;
+    m_cv.notify_all();
+}
+
 void MBIFileDialog::DialogThread()
 {
     CoInitializeEx(NULL, COINIT_APARTMENTTHREADED);
     while (m_bStopThread == false)
     {
+        std::unique_lock<std::mutex> lock(m_mutex);
+        /* Wait for status update */
+        m_cv.wait(lock);
         if (m_bOpen)
         {
             // Show the dialog
