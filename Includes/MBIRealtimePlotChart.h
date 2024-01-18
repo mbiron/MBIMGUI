@@ -131,6 +131,7 @@ private:
     static ImPlotPoint DataGetter(int idx, void *user_data)
     {
         const MBIRealtimePlotChart::DataRender *const comdata = static_cast<MBIRealtimePlotChart::DataRender *>(user_data);
+        /* Get point depending on current display offset and data range present on plot */
         const DataPoint &point = (*(comdata->data))[idx + comdata->dataOffset];
         return ImPlotPoint(point.m_time, point.m_data);
     }

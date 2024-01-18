@@ -107,7 +107,8 @@ public:
     /**
      * @brief Construct a new DataRenderInfos object
      *
-     * @param showLabels Show annotations on the graph ?
+     * @param ptrData Pointer to the data to render.
+     * @param showLabels Show annotations on the graph.
      */
     explicit DataRenderInfos(const Container<DataPoint> *const ptrData, bool showLabels = false) : data(ptrData),
                                                                                                    dataOffset(0),
@@ -119,9 +120,9 @@ public:
     }
 
     /**
-     * @brief Copy construct a new Data Render Infos object
+     * @brief Copy construct a new DataRenderInfos object
      *
-     * @param other
+     * @param other Other instance to copy
      */
     explicit DataRenderInfos(const DataRenderInfos *const other) noexcept : data(other->data),
                                                                             descriptor(other->descriptor),
@@ -131,11 +132,14 @@ public:
     {
     }
 
+    /**
+     * @brief Reset the data rendering infos.
+     *
+     */
     void Clear() noexcept
     {
         dsData.clear();
         dataOffset = 0;
-        dataPeriodMs = 0;
     }
 
     /**
@@ -528,6 +532,7 @@ public:
      *
      * @param type Label of the type of data to receive (used by SetDragDropPayload)
      * @param callback Function to be called when data are dropped
+     * @param arg Optional argument to the callback function. Set to NULL if not used.
      */
     void SetDnDCallback(std::string_view type, MBIPlotChart::MBIDndCb callback, void *arg) noexcept;
 

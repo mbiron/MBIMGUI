@@ -72,7 +72,7 @@ namespace MBIMGUI
 
         /**
          * @brief Store an option in RAM.
-         * @warning Option will not be saved unti @ref WriteAllOptions has been called
+         * @warning Option will not be saved until MBIMGUI::WriteAllOptions has been called
          *
          * @param key Key of the option
          * @param val Value of the option

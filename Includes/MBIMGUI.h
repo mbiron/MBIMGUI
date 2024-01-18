@@ -178,10 +178,11 @@ namespace MBIMGUI
         void AddOptionTab(MBIWindow *window);
 
         /**
-         * @brief Add a File->Open menu.
+         * @brief Add a File->Open menu to allow users to load file. Each time a file matching the filters is selected, the openFileHandler is called.
          *
          * @param filters Allowed file filter in the form {".bin"}
          * @param openFileHandler Function called when file is selected
+         * @param enableDragAndDrop If true, a file matching the filters can also be drag and drop directly in the application UI.
          */
         void EnableOpenMenu(const std::vector<std::string> &filters, MBIOpenFileHandler openFileHandler, bool enableDragAndDrop = false);
 
