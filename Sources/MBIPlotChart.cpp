@@ -335,8 +335,12 @@ bool MBIPlotChart::RemoveVariable(const VarId &dataId)
 void MBIPlotChart::SetVarName(const VarId &dataId, const std::string_view name)
 {
     if (IsVariableOnGraph(dataId))
-    {
-        GetDataDescriptor(dataId).name = name;
+    {        
+        DataDescriptor & desc = GetDataDescriptor(dataId);
+        desc.name = name;
+        /* Force variable visibility as hide/visible status is based on variable name (see ImPlot::IsLegendEntryHovered) 
+        and ImPlot makes visibility to true by default. */
+        desc.bHidden = false;
     }
 }
 
