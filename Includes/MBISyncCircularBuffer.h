@@ -74,7 +74,7 @@ public:
      * @param idx Offset of the element
      * @return const T&
      */
-    const T &operator[](size_t idx) const
+    const T &operator[](size_t idx) const override
     {
         ReadLock r_lock(m_mut);
         return MBICircularBuffer::operator[](idx);
@@ -113,12 +113,36 @@ public:
         return MBICircularBuffer::last();
     }
 
+    /**
+     * @brief Reterive a const iterator in circular mode on the oldest object in the buffer.
+     * This iterator can be used to walkthrough the buffer without stopping, keeping read new data.
+     *
+     * @warning When using circular mode, there is no end() to stop the operation. Be careful when using it in a loop condition.
+     * 
+     * @return MBIConstCircularIterator
+     */
+    MBICircularBuffer::MBIConstCircularIterator cbegincirc() const override
+    {
+        ReadLock r_lock(m_mut);
+        return MBICircularBuffer::cbegincirc();
+    }
+
+    /**
+     * @brief Reterive a const iterator on the oldest object in the buffer
+     *
+     * @return MBIConstCircularIterator
+     */
     MBICircularBuffer::MBIConstCircularIterator cbegin() const override
     {
         ReadLock r_lock(m_mut);
         return MBICircularBuffer::cbegin();
     }
 
+    /**
+     * @brief Reterive a const iterator on the end the buffer
+     *
+     * @return MBIConstCircularIterator
+     */
     MBICircularBuffer::MBIConstCircularIterator cend() const override
     {
         ReadLock r_lock(m_mut);

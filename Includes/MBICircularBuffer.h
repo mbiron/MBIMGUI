@@ -27,9 +27,10 @@ public:
         using reference = T &;
 
     private:
-        pointer m_ptr; ///<
+        pointer m_ptr;
         int m_counter;
         MBICircularBuffer &m_circbuff;
+        bool m_bCircular;
 
     public:
         /**
@@ -39,8 +40,15 @@ public:
          *
          * @param ptr Pointer on the iterator ellement
          * @param buff Circular buffer object containing the pointer.
+         * @param bCircular Make the iterator circular. If true, the iterator will keep walking through the buffer indefinitely.
+         * @warning When using circular mode, there is no end() to stop the operation. Don't use it as a loop condition.
          */
-        explicit MBICircularIterator(pointer ptr, MBICircularBuffer &buff) : m_ptr(ptr), m_circbuff(buff), m_counter(0) {}
+        explicit MBICircularIterator(pointer ptr, MBICircularBuffer &buff, bool bCircular = false) : m_ptr(ptr),
+                                                                                                     m_circbuff(buff),
+                                                                                                     m_counter(0),
+                                                                                                     m_bCircular(bCircular)
+        {
+        }
         MBICircularIterator() = delete;
 
         /**
@@ -73,6 +81,7 @@ public:
             {
                 this->m_ptr = other.m_ptr;
                 this->m_counter = other.m_counter;
+                this->m_bCircular = other.m_bCircular;
             }
             return *this;
         }
@@ -84,9 +93,10 @@ public:
          */
         MBICircularIterator &operator++()
         {
-            if (m_circbuff.full() && m_counter == m_circbuff.m_capacity - 1)
+            /* In circular mode, we never reach the end. In normal mode, as begin == end, we rely on a counter to detect the last element */
+            if (m_bCircular == false && m_circbuff.full() && m_counter == m_circbuff.m_capacity - 1)
             {
-                // If buffer is full, as begin == end, we rely on a counter to detect the last element
+                // The last element is stored at the last place of the buffer
                 m_ptr = &(m_circbuff.m_buff[m_circbuff.m_capacity]);
             }
             else if (m_ptr == &(m_circbuff.m_buff[m_circbuff.m_capacity - 1]))
@@ -99,7 +109,11 @@ public:
                 // Move in the buffer
                 m_ptr++;
             }
-            m_counter++;
+
+            if (m_bCircular == false)
+            {
+                m_counter++;
+            }
             return *this;
         }
 
@@ -157,6 +171,7 @@ public:
         pointer m_ptr;
         int m_counter;
         const MBICircularBuffer &m_circbuff;
+        bool m_bCircular;
 
     public:
         /**
@@ -166,8 +181,15 @@ public:
          *
          * @param ptr Pointer on the iterator ellement
          * @param buff Circular buffer object containing the pointer.
+         * @param bCircular Make the iterator circular. If true, the iterator will keep walking through the buffer indefinitely.
+         * @warning When using circular mode, there is no end() to stop the operation. Don't use it as a loop condition.
          */
-        explicit MBIConstCircularIterator(pointer ptr, const MBICircularBuffer &buff) : m_ptr(ptr), m_circbuff(buff), m_counter(0) {}
+        explicit MBIConstCircularIterator(pointer ptr, const MBICircularBuffer &buff, bool bCircular = false) : m_ptr(ptr),
+                                                                                                                m_circbuff(buff),
+                                                                                                                m_counter(0),
+                                                                                                                m_bCircular(bCircular)
+        {
+        }
         MBIConstCircularIterator() = delete;
 
         /**
@@ -200,6 +222,7 @@ public:
             {
                 this->m_ptr = other.m_ptr;
                 this->m_counter = other.m_counter;
+                this->m_bCircular = other.m_bCircular;
             }
             return *this;
         }
@@ -211,7 +234,8 @@ public:
          */
         MBIConstCircularIterator &operator++()
         {
-            if (m_circbuff.full() && m_counter == m_circbuff.m_capacity - 1)
+            /* In circular mode, we never reach the end. In normal mode, as begin == end, we rely on a counter to detect the last element */
+            if (m_bCircular == false && m_circbuff.full() && m_counter == m_circbuff.m_capacity - 1)
             {
                 // If buffer is full, as begin == end, we rely on a counter to detect the last element
                 m_ptr = &(m_circbuff.m_buff[m_circbuff.m_capacity]);
@@ -226,7 +250,10 @@ public:
                 // Move in the buffer
                 m_ptr++;
             }
-            m_counter++;
+            if (m_bCircular == false)
+            {
+                m_counter++;
+            }
             return *this;
         }
 
@@ -501,6 +528,19 @@ public:
     }
 
     /**
+     * @brief Reterive a const iterator in circular mode on the oldest object in the buffer.
+     * This iterator can be used to walkthrough the buffer without stopping, keeping read new data.
+     *
+     * @warning When using circular mode, there is no end() to stop the operation. Be careful when using it in a loop condition.
+     *
+     * @return MBIConstCircularIterator
+     */
+    virtual MBIConstCircularIterator cbegincirc() const
+    {
+        return MBIConstCircularIterator(&(m_buff[m_begin]), *this, true);
+    }
+
+    /**
      * @brief Reterive a const iterator on the oldest object in the buffer
      *
      * @return MBIConstCircularIterator
@@ -533,21 +573,11 @@ public:
      * @param idx Offset of the element
      * @return const T&
      */
-    const T &operator[](size_t idx) const
+    virtual const T &operator[](size_t idx) const
     {
-        if (idx > size_unlocked())
-        {
-            if (m_full)
-            {
-                return m_buff[m_capacity];
-            }
-            else
-            {
-                return m_buff[m_end];
-            }
-        }
+        const size_t size = size_unlocked();
 
-        size_t index = (m_begin + idx) % m_capacity;
+        size_t index = (m_begin + (idx % size)) % size;
         return m_buff[index];
     }
 
@@ -559,10 +589,8 @@ public:
      */
     virtual T &operator[](size_t idx)
     {
-        if (idx > size_unlocked())
-            return *end();
-
-        size_t index = (m_begin + idx) % m_capacity;
+        const size_t size = size_unlocked();
+        size_t index = (m_begin + (idx % size)) % size;
         return m_buff[index];
     }
 };
