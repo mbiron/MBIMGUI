@@ -329,12 +329,12 @@ bool MBIMGUI::MBIMNG::Init(float fontsize, const MBIColorStyle eStyle)
     ImGui::CreateContext();
     ImPlot::CreateContext();
     ImGuiIO &io = ImGui::GetIO();
-    const float scale = 1.0f; // To handle DPI but I'm not able to make it works for now
+    const float scale = 1.0f; // DPI_AWARENESS : To handle DPI but I'm not able to make it works for now
     const float correctedSize = fontsize * scale;
 
     io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;   // Enable Docking
     io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable; // Enable Multi-Viewport / Platform Windows
-                                                        // io.ConfigFlags |= ImGuiConfigFlags_DpiEnableScaleFonts // TO TEST !
+                                                        // DPI_AWARENESS : io.ConfigFlags |= ImGuiConfigFlags_DpiEnableScaleFonts
     io.ConfigWindowsMoveFromTitleBarOnly = true;
 
     /* Set ini file */
@@ -364,7 +364,7 @@ bool MBIMGUI::MBIMNG::Init(float fontsize, const MBIColorStyle eStyle)
     /* Make plot auto fit leave a 5% space to the fit extents of X and Y */
     ImPlot::GetStyle().FitPadding = ImVec2(0.05f, 0.05f);
 
-    // DPI stuff : doesn't work ?
+    // DPI_AWARENESS : doesn't work ?
     // style.ScaleAllSizes(scale);
 
     return m_pRenderer->Init();

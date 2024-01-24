@@ -291,4 +291,14 @@ namespace ImGui
      */
     void DoubleCircularSpinner(const char *label, const ImColor &color1 = 0xffffffff, const ImColor &color2 = 0xff0000ff);
 
+    /**
+     * @brief Double circular spinner (two circles)
+     *
+     * From ImSpinner by Dalerank
+     * 
+     * @param label Widget label
+     * @param color Widget color
+     */
+    void HeartSpinner(const char *label, const ImColor &color = 0xff0000ff);
+
 };

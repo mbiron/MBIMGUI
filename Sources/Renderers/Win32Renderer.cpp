@@ -110,21 +110,21 @@ bool Win32Renderer::Init()
 {
     bool res = false;
 
-    // For now I'm not able to handle DPI awarness properly
+    // DPI_AWARENESS : For now I'm not able to handle DPI awareness properly
     // ImGui_ImplWin32_EnableDpiAwareness();
     res = m_pRenderer->Init();
     if (res)
     {
         res = ImGui_ImplWin32_Init(m_hwnd);
     }
-    /*
+    /* DPI_AWARENESS
         float dpi = ImGui_ImplWin32_GetDpiScaleForHwnd(m_hwnd);
         std::cout << dpi << std::endl;
         POINT temp = {0, 0};
         HMONITOR primaryHandle = MonitorFromPoint(temp, MONITOR_DEFAULTTOPRIMARY);
         dpi = ImGui_ImplWin32_GetDpiScaleForMonitor(primaryHandle);
         std::cout << dpi << std::endl;
-    */
+    DPI_AWARENESS */
     return res;
 }
 

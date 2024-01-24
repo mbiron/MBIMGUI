@@ -122,6 +122,7 @@ void MBIPlotChart::Display(std::string_view label, ImVec2 size)
     int unitCounter = 0;
     bool bNewUnit = true;
     bool bAxesMoved = false;
+    bool bDownSampled = false;
     ImAxis axis = ImAxis_COUNT;
 
     /* Draw curves */
@@ -219,17 +220,13 @@ void MBIPlotChart::Display(std::string_view label, ImVec2 size)
                         dataRenderInfos.DownSampleLTTB(dataOffset, (int)dataSize, (int)m_downSamplingSize);
                     }
                     ImPlot::PlotLine(dataRenderInfos.descriptor.name.c_str(), &dataRenderInfos.dsData[0].m_time, dataRenderInfos.dsData[0].m_data, dataRenderInfos.dsData.Size, ImPlotLineFlags_None, 0, 2 * sizeof(double));
-                    m_downSampled = true;
+                    bDownSampled = true;
                 }
                 else
                 {
                     /* No downsampling, simply window optimisation  */
                     const DataContainer &datapoints = (*dataRenderInfos.data);
                     ImPlot::PlotLine(dataRenderInfos.descriptor.name.c_str(), &datapoints[dataOffset].m_time, &datapoints[dataOffset].m_data, dataSize, ImPlotLineFlags_None, 0, 2 * sizeof(double));
-                    if (dataRenderInfos.descriptor.bHidden == false)
-                    {
-                        m_downSampled = false;
-                    }
                 }
 
                 /* Draw Annotation */
@@ -286,6 +283,9 @@ void MBIPlotChart::Display(std::string_view label, ImVec2 size)
             DisplayMarkers(dataRenderInfos.descriptor.unit.first);
         }
 
+        /* Update downsampling status */
+        m_downSampled = bDownSampled;
+
         /* If no var, still display markers for no unit */
         if (m_vargaph.empty())
         {
@@ -335,10 +335,10 @@ bool MBIPlotChart::RemoveVariable(const VarId &dataId)
 void MBIPlotChart::SetVarName(const VarId &dataId, const std::string_view name)
 {
     if (IsVariableOnGraph(dataId))
-    {        
-        DataDescriptor & desc = GetDataDescriptor(dataId);
+    {
+        DataDescriptor &desc = GetDataDescriptor(dataId);
         desc.name = name;
-        /* Force variable visibility as hide/visible status is based on variable name (see ImPlot::IsLegendEntryHovered) 
+        /* Force variable visibility as hide/visible status is based on variable name (see ImPlot::IsLegendEntryHovered)
         and ImPlot makes visibility to true by default. */
         desc.bHidden = false;
     }
@@ -492,7 +492,7 @@ MBIPlotChart::DataDescriptorHandle MBIPlotChart::GetDataDescriptorHandle(const V
     else
     {
         /* Return invalid data */
-        //return (m_varData.find(0xFFFFFFFF)->second);
+        // return (m_varData.find(0xFFFFFFFF)->second);
         throw std::out_of_range("Invalid VarId");
     }
 }
@@ -508,7 +508,7 @@ const DataDescriptor &MBIPlotChart::GetDataDescriptor(const VarId &dataId) const
     else
     {
         /* Return invalid data */
-        //return m_varData.find(0xFFFFFFFF)->second->descriptor;
+        // return m_varData.find(0xFFFFFFFF)->second->descriptor;
         throw std::out_of_range("Invalid VarId");
     }
 }
@@ -530,7 +530,7 @@ const MBIPlotChart::DataRender &MBIPlotChart::GetDataRenderInfos(const VarId &da
     else
     {
         /* Return invalid data */
-        //return *(m_varData.find(0xFFFFFFFF)->second);
+        // return *(m_varData.find(0xFFFFFFFF)->second);
         throw std::out_of_range("Invalid VarId");
     }
 }
