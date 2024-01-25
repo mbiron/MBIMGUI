@@ -232,8 +232,8 @@ void MBIPlotChart::Display(std::string_view label, ImVec2 size)
                 /* Draw Annotation */
                 if (dataRenderInfos.descriptor.bShowAnnotations && dataRenderInfos.annotation != nullptr)
                 {
-                    auto it = dataRenderInfos.annotation->cbegin();
-                    while (it != dataRenderInfos.annotation->cend() && it->m_x < m_xAxisRange.Max)
+                    auto it = dataRenderInfos.annotation->begin();
+                    while (it != dataRenderInfos.annotation->end() && it->m_x < m_xAxisRange.Max)
                     {
                         if (it->m_x >= m_xAxisRange.Min)
                         {
@@ -422,7 +422,7 @@ void MBIPlotChart::SetDownSampling(bool bActiv, size_t size) noexcept
     m_dsUpdate = true;
 }
 
-void MBIPlotChart::AddDataAnnotations(const VarId &dataId, const MBISyncCircularBuffer<DataAnnotation> *const dataAnnotationPtr)
+void MBIPlotChart::AddDataAnnotations(const VarId &dataId, const AnnotContainer *const dataAnnotationPtr)
 {
     GetDataRenderInfos(dataId).annotation = dataAnnotationPtr;
 }

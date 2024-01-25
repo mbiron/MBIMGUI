@@ -98,7 +98,7 @@ struct DataRenderInfos
 public:
     const Container<DataPoint> *const data;                  ///< Curve data points
     ImVector<DataPoint> dsData;                              ///< Down sampled curve data
-    const MBISyncCircularBuffer<DataAnnotation> *annotation; ///< Data annotation, if exists
+    const Container<DataAnnotation> *annotation; ///< Data annotation, if exists
 
     uint32_t dataOffset;       ///< Start display offset of data
     uint32_t dataPeriodMs;     ///< Sampling data period in ms
@@ -234,6 +234,7 @@ class MBIPlotChart
 public:
     using VarId = uint32_t;                    ///< Variable unique identifier. Used as a handle for displayed variables.
     using DataContainer = ImVector<DataPoint>; ///< Displayed variable data points.
+    using AnnotContainer = ImVector<DataAnnotation>;
     using UnitId = DataDescriptor::UnitId;     ///< Variable unit unique identifier. Unit defines the y-axis on which the variable shall be drawn. Multiples variables sharing the same unit are drawn on the same axis.
     using DataUnit = DataDescriptor::DataUnit;
     using DataDescriptorHandle = const void *const;
@@ -459,7 +460,7 @@ public:
      * @param dataId Identifier of the variable
      * @param dataAnnotationPtr Annotations to add
      */
-    virtual void AddDataAnnotations(const VarId &dataId, const MBISyncCircularBuffer<DataAnnotation> *const dataAnnotationPtr);
+    virtual void AddDataAnnotations(const VarId &dataId, const AnnotContainer *const dataAnnotationPtr);
 
     /**
      * @brief Enable of disable the annotations on the plot for the given variable

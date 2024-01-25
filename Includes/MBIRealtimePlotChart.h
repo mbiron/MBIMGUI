@@ -14,6 +14,7 @@ class MBIRealtimePlotChart : public MBIPlotChart
 {
 public:
     using DataContainer = MBISyncCircularBuffer<DataPoint>;
+    using AnnotContainer = MBISyncCircularBuffer<DataAnnotation>;
     using DataRender = DataRenderInfos<MBISyncCircularBuffer>;
 
     /***********************************************************
@@ -104,7 +105,7 @@ public:
      * @param dataId Identifier of the variable
      * @param dataAnnotationPtr Annotations to add
      */
-    void AddDataAnnotations(const VarId &dataId, const MBISyncCircularBuffer<DataAnnotation> *const dataAnnotationPtr) override;
+    void AddDataAnnotations(const VarId &dataId, const AnnotContainer *const dataAnnotationPtr);
 
 private:
     std::map<uint32_t, DataRender *> m_varData; ///< Map containing the data to be displayed on the graphs
