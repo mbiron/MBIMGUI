@@ -96,8 +96,8 @@ template <template <typename> class Container>
 struct DataRenderInfos
 {
 public:
-    const Container<DataPoint> *const data;                  ///< Curve data points
-    ImVector<DataPoint> dsData;                              ///< Down sampled curve data
+    const Container<DataPoint> *const data;      ///< Curve data points
+    ImVector<DataPoint> dsData;                  ///< Down sampled curve data
     const Container<DataAnnotation> *annotation; ///< Data annotation, if exists
 
     uint32_t dataOffset;       ///< Start display offset of data
@@ -235,7 +235,7 @@ public:
     using VarId = uint32_t;                    ///< Variable unique identifier. Used as a handle for displayed variables.
     using DataContainer = ImVector<DataPoint>; ///< Displayed variable data points.
     using AnnotContainer = ImVector<DataAnnotation>;
-    using UnitId = DataDescriptor::UnitId;     ///< Variable unit unique identifier. Unit defines the y-axis on which the variable shall be drawn. Multiples variables sharing the same unit are drawn on the same axis.
+    using UnitId = DataDescriptor::UnitId; ///< Variable unit unique identifier. Unit defines the y-axis on which the variable shall be drawn. Multiples variables sharing the same unit are drawn on the same axis.
     using DataUnit = DataDescriptor::DataUnit;
     using DataDescriptorHandle = const void *const;
     using MBIDndCb = void (*)(void *, const ImGuiPayload *);

@@ -159,6 +159,13 @@ void Win32Renderer::getDragAndDropFileName(std::string &filename) noexcept
     }
 }
 
+void Win32Renderer::setAPPIcon(int resIcon)
+{
+    HICON hIcon = (HICON)LoadImage(GetModuleHandle(NULL), MAKEINTRESOURCE(resIcon), IMAGE_ICON, 0, 0, LR_DEFAULTSIZE);
+    SendMessage(m_hwnd, WM_SETICON, ICON_SMALL, (LPARAM)hIcon);
+    SendMessage(m_hwnd, WM_SETICON, ICON_BIG, (LPARAM)hIcon);
+}
+
 void Win32Renderer::Resize(void *param)
 {
     if (m_pRenderer)

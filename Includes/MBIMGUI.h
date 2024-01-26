@@ -187,6 +187,14 @@ namespace MBIMGUI
         void EnableOpenMenu(const std::vector<std::string> &filters, MBIOpenFileHandler openFileHandler, bool enableDragAndDrop = false);
 
         /**
+         * @brief Set the small (title bar) and large (task bar) icon for the app.
+         * The resourceIconId shall be defined in RC file (Windows Only).
+         *
+         * @param resourceIconId Icon ID in application resource file
+         */
+        void SetAppIcon(int resourceIconId);
+
+        /**
          * @brief Show the application. This will displayed all the windows added by MBIMGUI::AddWindow function
          *
          * @warning This function will block until the application is closed by the user !
@@ -295,7 +303,7 @@ namespace ImGui
      * @brief Double circular spinner (two circles)
      *
      * From ImSpinner by Dalerank
-     * 
+     *
      * @param label Widget label
      * @param color Widget color
      */

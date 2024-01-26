@@ -49,9 +49,11 @@ public:
     void EnableDragAndDrop();
     void DisableDragAndDrop();
 
-    void setDragAndDropFileName(const std::string &filename) noexcept; 
+    void setDragAndDropFileName(const std::string &filename) noexcept;
     bool isFileDropped() const noexcept;
     void getDragAndDropFileName(std::string &filename) noexcept;
+
+    void setAPPIcon(int resIcon);
 
     /**
      * @brief Internal handler to manage windows events

@@ -72,9 +72,9 @@ namespace MBIMGUI
                 if (ImGui::BeginTable("##logTable", 3, flags))
                 {
                     /* Submit columns name */
-                    ImGui::TableSetupColumn( ICON_FA_BUG " Level");
-                    ImGui::TableSetupColumn( ICON_FA_BOOK_OPEN " Message", ImGuiTableColumnFlags_WidthStretch);
-                    ImGui::TableSetupColumn( ICON_FA_CALENDAR " Date");
+                    ImGui::TableSetupColumn(ICON_FA_BUG " Level");
+                    ImGui::TableSetupColumn(ICON_FA_BOOK_OPEN " Message", ImGuiTableColumnFlags_WidthStretch);
+                    ImGui::TableSetupColumn(ICON_FA_CALENDAR " Date");
                     ImGui::TableHeadersRow();
                     for (const auto log : m_logger.m_logs)
                     {

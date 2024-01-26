@@ -30,9 +30,9 @@ namespace MBIMGUI
 
             szLine.reserve(128);
 
-            if(std::filesystem::exists(g_optionFile) == false)
+            if (std::filesystem::exists(g_optionFile) == false)
             {
-                 std::filesystem::create_directories(std::filesystem::path(g_optionFile).parent_path());
+                std::filesystem::create_directories(std::filesystem::path(g_optionFile).parent_path());
             }
 
             ifile.open(g_optionFile, std::ifstream::in);
@@ -69,7 +69,7 @@ namespace MBIMGUI
         g_optionMap[key.data()] = val;
     }
 
-    const std::string &MBIOPTMGR::ReadOption(std::string_view key) 
+    const std::string &MBIOPTMGR::ReadOption(std::string_view key)
     {
         return g_optionMap.at(key.data());
     }
@@ -402,6 +402,12 @@ void MBIMGUI::MBIMNG::EnableOpenMenu(const std::vector<std::string> &filters,
         // Specific for now
         ((Win32Renderer *)m_pRenderer)->EnableDragAndDrop();
     }
+}
+
+void MBIMGUI::MBIMNG::SetAppIcon(int iconId)
+{
+    // Specific for now
+    ((Win32Renderer *)m_pRenderer)->setAPPIcon(iconId);
 }
 
 void MBIMGUI::MBIMNG::Show()
