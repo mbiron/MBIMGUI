@@ -101,6 +101,7 @@ void MBIMGUI::MBILogger::Configure(bool popupOnError, std::string_view logfile)
         }
         else
         {
+            std::filesystem::create_directories(std::filesystem::path(logfile).parent_path());
             mode |= std::fstream::app;
         }
         m_filestream.open(logfile, mode);

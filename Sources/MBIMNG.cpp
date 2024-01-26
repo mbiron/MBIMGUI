@@ -30,6 +30,11 @@ namespace MBIMGUI
 
             szLine.reserve(128);
 
+            if(std::filesystem::exists(g_optionFile) == false)
+            {
+                 std::filesystem::create_directories(std::filesystem::path(g_optionFile).parent_path());
+            }
+
             ifile.open(g_optionFile, std::ifstream::in);
             while (std::getline(ifile, szLine))
             {
