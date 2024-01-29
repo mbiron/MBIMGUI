@@ -528,16 +528,23 @@ public:
     }
 
     /**
-     * @brief Reterive a const iterator in circular mode on the oldest object in the buffer.
-     * This iterator can be used to walkthrough the buffer without stopping, keeping read new data.
+     * @brief Reterive a const iterator in circular mode on the last object in the buffer.
+     * This iterator can then be used to walk through the buffer without stopping, keeping read new data.
      *
      * @warning When using circular mode, there is no end() to stop the operation. Be careful when using it in a loop condition.
      *
      * @return MBIConstCircularIterator
      */
-    virtual MBIConstCircularIterator cbegincirc() const
+    virtual MBIConstCircularIterator clastcirc() const
     {
-        return MBIConstCircularIterator(&(m_buff[m_begin]), *this, true);
+        if (empty())
+        {
+            return MBIConstCircularIterator(&(m_buff[m_begin]), *this, true);
+        }
+        else
+        {
+            return MBIConstCircularIterator(&(m_buff[m_end - 1]), *this, true);
+        }
     }
 
     /**
