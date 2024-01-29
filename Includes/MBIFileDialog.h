@@ -127,8 +127,8 @@ namespace MBIMGUI
 
         std::mutex m_mutex;           ///< Mutex for condition variable
         std::condition_variable m_cv; ///< Condition variable for thread sync
-        std::thread m_DialogThread; ///< Handle of the DialogThread
-        IFileDialog *m_pfd;         ///< File dialog object
+        std::thread m_DialogThread;   ///< Handle of the DialogThread
+        IFileDialog *m_pfd;           ///< File dialog object
 
         COMDLG_FILTERSPEC m_SaveTypes[NB_MAX_FILTERS]; ///< Filterspec object for dialog filters
     };

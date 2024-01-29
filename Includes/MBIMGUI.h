@@ -300,7 +300,7 @@ namespace ImGui
     void DoubleCircularSpinner(const char *label, const ImColor &color1 = 0xffffffff, const ImColor &color2 = 0xff0000ff);
 
     /**
-     * @brief Double circular spinner (two circles)
+     * @brief  Heart beat spinner
      *
      * From ImSpinner by Dalerank
      *

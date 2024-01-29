@@ -283,12 +283,12 @@ public:
         void SetLabel(const char *szLabel)
         {
             if (szLabel)
-                strncpy_s(m_label, szLabel, MARKER_LABEL_SIZE);
+                strncpy_s(m_label, szLabel, MARKER_LABEL_SIZE-1);
         }
 
         void SetLabel(std::string_view szLabel)
         {
-            strncpy_s(m_label, szLabel.data(), MARKER_LABEL_SIZE);
+            strncpy_s(m_label, szLabel.data(), MARKER_LABEL_SIZE-1);
         }
 
         /**
